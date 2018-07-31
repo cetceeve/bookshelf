@@ -11,6 +11,7 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
     private int i = 22;
+    private String test = "hallo";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
