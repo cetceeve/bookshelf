@@ -8,6 +8,9 @@ public class Book {
     private String isbn;
     // cover, genre, ...
 
+    public Book() {
+    }
+
     public Book(String authorLastName, String authorSurName, String title, String isbn){
         this.authorLastName = authorLastName;
         this.authorSurName = authorSurName;
@@ -15,10 +18,11 @@ public class Book {
         this.isbn = isbn;
     }
 
-    // minimal input: title
+    /* minimal input: title
     public Book(String title){
         this("", "", title, "");
     }
+    */
 
     public void setAuthorLastName(String authorLastName) {
         this.authorLastName = authorLastName;

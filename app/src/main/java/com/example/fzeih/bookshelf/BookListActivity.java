@@ -2,7 +2,6 @@ package com.example.fzeih.bookshelf;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -15,6 +14,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +24,7 @@ public class BookListActivity extends AppCompatActivity {
     private BookAdapter mBookAdapter;
 
     private ChildEventListener mChildEventListener;
+    private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooklistDatabaseReference;
 
     @Override
@@ -38,20 +39,18 @@ public class BookListActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent addBookIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                addBookIntent.putExtra("booklist_database_reference", (Parcelable) mBooklistDatabaseReference);
                 startActivity(addBookIntent);
             }
         });
+
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child("sample_booklist");
 
         // Hook Bookadapter
         List<Book> books = new ArrayList<>();
         mBooklistView = findViewById(R.id.listview_booklist);
         mBookAdapter = new BookAdapter(this, R.layout.item_book, books);
         mBooklistView.setAdapter(mBookAdapter);
-
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        mBooklistDatabaseReference = (DatabaseReference) bundle.get("booklist_database_reference");
 
         attachDatabaseReadListener();
     }
@@ -85,7 +84,7 @@ public class BookListActivity extends AppCompatActivity {
 
                 }
             };
-
+        mBooklistDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
