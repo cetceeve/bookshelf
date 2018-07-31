@@ -1,5 +1,6 @@
 package com.example.fzeih.bookshelf;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -24,8 +25,12 @@ public class AddBookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
 
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        final String listname = extras.getString("listname");
+
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child("sample_booklist");
+        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child(listname);
 
         create = (Button) findViewById(R.id.button_create_bookitem);
         title = (EditText) findViewById(R.id.editText_title);

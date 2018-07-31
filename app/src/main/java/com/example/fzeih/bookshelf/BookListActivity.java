@@ -34,17 +34,22 @@ public class BookListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        final String listname = extras.getString("listname");
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent addBookIntent = new Intent(BookListActivity.this, AddBookActivity.class);
+                addBookIntent.putExtra("listname", listname);
                 startActivity(addBookIntent);
             }
         });
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child("sample_booklist");
+        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child(listname);
 
         // Hook Bookadapter
         List<Book> books = new ArrayList<>();

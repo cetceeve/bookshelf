@@ -3,6 +3,8 @@ package com.example.fzeih.bookshelf;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -17,6 +19,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -25,9 +30,9 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooklistsDatabaseReference;
+    private ChildEventListener mChildEventListener;
 
-    ArrayList<String> listnames = new ArrayList<>();
-    private ArrayAdapter<String> arrayAdapter;
+    private ArrayAdapter<String> listAdapter;
 
     private String inputListname = "";
 
@@ -41,57 +46,72 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mBooklistsDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
 
-        // TODO - Strings aus DB in Arraylist
-        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listnames);
-        ListView listListView = (ListView) findViewById(R.id.listview_listlist);
-        listListView.setAdapter(arrayAdapter);
+        attachDatabaseReadListener();
 
+        final ArrayList<String> listnames = new ArrayList<>();
+        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listnames);
+        ListView listListView = (ListView) findViewById(R.id.listview_listlist);
+        listListView.setAdapter(listAdapter);
+
+        final EditText editTextListname = (EditText) findViewById(R.id.input_listname);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                builder.setMessage("Enter new listname");
-                final EditText input = new EditText(getApplicationContext());
-                builder.setView(input);
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        inputListname = input.getText().toString();
-                    }
-                });
-
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-                // evlt. geht auch einfach builder.show()
-
-                listnames.add(inputListname);
-                arrayAdapter.notifyDataSetChanged();
-                // TODO - neue Liste in Firebase
+                inputListname = editTextListname.getText().toString();
+                Intent intent = new Intent(MainActivity.this, BookListActivity.class);
+                intent.putExtra("listname", inputListname);
+                startActivity(intent);
 
                // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show(); - war vorgefertigt
             }
         });
 
-
         listListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(MainActivity.this, BookListActivity.class);
-                // TODO - extras: Name der geklickten Liste mitgeben, über Firebase oder view?
+                intent.putExtra("listname", listnames.get(position));
                 startActivity(intent);
             }
         });
 
+
+    }
+
+    private void attachDatabaseReadListener() {
+        if (mChildEventListener == null){
+            mChildEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    String listname = dataSnapshot.getKey();
+                    listAdapter.add(listname);
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            };
+            mBooklistsDatabaseReference.addChildEventListener(mChildEventListener);
+        }
     }
 
     @Override
