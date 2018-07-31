@@ -24,6 +24,7 @@ public class AddBookActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         Bundle extras = i.getExtras();
+        mBookListDatabaseReferece = (DatabaseReference) extras.get("booklist_database_reference");
 
         create = (Button) findViewById(R.id.button_create_bookitem);
         title = (EditText) findViewById(R.id.editText_title);
@@ -40,7 +41,7 @@ public class AddBookActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Book bookItem = new Book(lastNameText,surNameText,titleText,isbnText);
-                //uploade in DB
+                mBookListDatabaseReferece.push().setValue(bookItem);
                 finish();
             }
         });

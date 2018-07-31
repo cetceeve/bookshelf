@@ -37,7 +37,7 @@ public class BookListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent addBookIntent = new Intent(this, //TODO: add target class);
+                Intent addBookIntent = new Intent(BookListActivity.this, AddBookActivity.class);
                 addBookIntent.putExtra("booklist_database_reference", (Parcelable) mBooklistDatabaseReference);
                 startActivity(addBookIntent);
             }
