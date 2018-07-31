@@ -32,4 +32,3 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:16.0.1'
 }
 apply plugin: 'com.android.application'
-
