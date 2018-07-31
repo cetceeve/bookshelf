@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddBookActivity"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/textView_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_title"/>
+
+    <EditText
+        android:id="@+id/editText_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textView_authorLastName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_author_last_name"/>
+
+    <EditText
+        android:id="@+id/editText_authorLastName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textView_authorSurName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_author_surname"/>
+
+    <EditText
+        android:id="@+id/editText_authorSurName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textView_isbn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_isbn"/>
+
+    <EditText
+        android:id="@+id/editText_isbn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/button_create_bookitem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_create_bookitem"/>
+</LinearLayout>

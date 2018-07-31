@@ -22,7 +22,8 @@
         <activity
             android:name=".BookListActivity"
             android:label="@string/title_activity_book_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".AddBookActivity"></activity>
     </application>
 
 </manifest>
