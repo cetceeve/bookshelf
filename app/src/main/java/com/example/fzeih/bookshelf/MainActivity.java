@@ -10,9 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
-    private int i = 22;
-    private String test = "hallo";
-    private String testtest = "hier ist der workbranch";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
