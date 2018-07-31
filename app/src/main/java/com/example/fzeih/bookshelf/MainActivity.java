@@ -9,7 +9,12 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class MainActivity extends AppCompatActivity {
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mBooklistsDatabaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mBooklistsDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
