@@ -254,6 +254,8 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_settings:
+                return true;
+            case R.id.action_sign_out:
                 // sign out
                 AuthUI.getInstance().signOut(this);
                 return true;
