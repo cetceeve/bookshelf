@@ -27,6 +27,7 @@ public class AddBookActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         final String listname = extras.getString("listname");
+        getSupportActionBar().setTitle(listname);
 
         mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(listname);
 
