@@ -1,10 +1,12 @@
 package com.example.fzeih.bookshelf;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -68,9 +70,38 @@ public class BookListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent addBookIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                addBookIntent.putExtra("listname", mBooklistName);
-                startActivity(addBookIntent);
+                String[] optionsToAddBook = {"Add manually", "Search by ISBN", "Scan barcode"};
+
+                AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
+                addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case 0:
+                                Intent addBookIntent = new Intent(BookListActivity.this, AddBookActivity.class);
+                                addBookIntent.putExtra("listname", mBooklistName);
+                                startActivity(addBookIntent);
+                                break;
+                            case 1:
+                                // TODO - ISBN-search
+                                break;
+                            case 2:
+                                // TODO - barcodescanner
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+
+                addBookDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                addBookDialog.show();
             }
         });
     }
