@@ -28,6 +28,8 @@ public class BookListActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooklistDatabaseReference;
 
+    private String mBooklistName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,32 +37,44 @@ public class BookListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        readIntent();
+        initDatabase();
+        setBookAdapter();
+        onFABClicked();
+        onBooklistClicked();
+    }
+
+    private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        final String listname = extras.getString("listname");
+        mBooklistName = extras.getString("listname");
+    }
 
+    private void initDatabase() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child(mBooklistName);
+        attachDatabaseReadListener();
+    }
+
+    private void setBookAdapter() {
+        List<Book> books = new ArrayList<>();
+        mBooklistView = findViewById(R.id.listview_booklist);
+        mBookAdapter = new BookAdapter(this, R.layout.item_book, books);
+        mBooklistView.setAdapter(mBookAdapter);
+    }
+
+    private void onFABClicked() {
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent addBookIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                addBookIntent.putExtra("listname", listname);
+                addBookIntent.putExtra("listname", mBooklistName);
                 startActivity(addBookIntent);
             }
         });
-
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child(listname);
-
-        // Hook Bookadapter
-        List<Book> books = new ArrayList<>();
-        mBooklistView = findViewById(R.id.listview_booklist);
-        mBookAdapter = new BookAdapter(this, R.layout.item_book, books);
-        mBooklistView.setAdapter(mBookAdapter);
-
-        attachDatabaseReadListener();
-        onBooklistClicked();
     }
+
     private void onBooklistClicked() {
         mBooklistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
