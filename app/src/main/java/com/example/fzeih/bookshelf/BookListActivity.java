@@ -78,12 +78,13 @@ public class BookListActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             case 0:
-                                Intent addBookIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                                addBookIntent.putExtra("listname", mBooklistName);
-                                startActivity(addBookIntent);
+                                Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
+                                addManuallyIntent.putExtra("listname", mBooklistName);
+                                startActivity(addManuallyIntent);
                                 break;
                             case 1:
-                                // TODO - ISBN-search
+                                Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
+                                startActivity(addByIsbnIntent);
                                 break;
                             case 2:
                                 // TODO - barcodescanner
