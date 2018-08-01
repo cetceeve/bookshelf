@@ -12,7 +12,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class AddBookActivity extends AppCompatActivity {
 
-    private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooklistDatabaseReference;
 
     private Button createButton;
@@ -29,8 +28,7 @@ public class AddBookActivity extends AppCompatActivity {
         Bundle extras = intent.getExtras();
         final String listname = extras.getString("listname");
 
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child(listname);
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(listname);
 
         createButton = (Button) findViewById(R.id.button_create_bookitem);
         titleEditText = (EditText) findViewById(R.id.editText_title);

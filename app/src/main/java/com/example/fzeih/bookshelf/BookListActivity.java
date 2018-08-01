@@ -27,7 +27,6 @@ public class BookListActivity extends AppCompatActivity {
     private BookAdapter mBookAdapter;
 
     private ChildEventListener mChildEventListener;
-    private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooklistDatabaseReference;
     private List<Book> books;
     private String mBooklistName;
@@ -41,7 +40,7 @@ public class BookListActivity extends AppCompatActivity {
 
         readIntent();
         getSupportActionBar().setTitle(mBooklistName);
-        initDatabase();
+        initDatabaseReference();
         setBookAdapter();
         onFABClicked();
         onBookItemClicked();
@@ -53,9 +52,8 @@ public class BookListActivity extends AppCompatActivity {
         mBooklistName = extras.getString("listname");
     }
 
-    private void initDatabase() {
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child(mBooklistName);
+    private void initDatabaseReference() {
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName);
         attachDatabaseReadListener();
     }
 
