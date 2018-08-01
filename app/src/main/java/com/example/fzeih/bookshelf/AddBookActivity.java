@@ -15,11 +15,11 @@ public class AddBookActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooklistDatabaseReference;
 
-    private Button create;
-    private EditText title;
-    private EditText authorSurName;
-    private EditText authorLastName;
-    private EditText isbn;
+    private Button createButton;
+    private EditText titleEditText;
+    private EditText authorNameEditText;
+    private EditText isbnEditText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,21 +32,19 @@ public class AddBookActivity extends AppCompatActivity {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mBooklistDatabaseReference = mFirebaseDatabase.getReference().child("booklists").child(listname);
 
-        create = (Button) findViewById(R.id.button_create_bookitem);
-        title = (EditText) findViewById(R.id.editText_title);
-        authorSurName = (EditText) findViewById(R.id.editText_authorSurName);
-        authorLastName = (EditText) findViewById(R.id.editText_authorLastName);
-        isbn = (EditText) findViewById(R.id.editText_isbn);
+        createButton = (Button) findViewById(R.id.button_create_bookitem);
+        titleEditText = (EditText) findViewById(R.id.editText_title);
+        authorNameEditText = (EditText) findViewById(R.id.editText_authorName);
+        isbnEditText = (EditText) findViewById(R.id.editText_isbn);
 
-        create.setOnClickListener(new View.OnClickListener() {
+        createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String lastNameText = authorLastName.getText().toString();
-                String surNameText = authorSurName.getText().toString();
-                String titleText = title.getText().toString();
-                String isbnText = isbn.getText().toString();
+                String nameText = authorNameEditText.getText().toString();
+                String titleText = titleEditText.getText().toString();
+                String isbnText = isbnEditText.getText().toString();
 
-                Book bookItem = new Book(lastNameText,surNameText,titleText,isbnText);
+                Book bookItem = new Book(nameText,titleText,isbnText);
                 mBooklistDatabaseReference.push().setValue(bookItem);
                 finish();
             }

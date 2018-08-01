@@ -2,8 +2,7 @@ package com.example.fzeih.bookshelf;
 
 public class Book {
 
-    private String authorLastName;
-    private String authorSurName;
+    private String authorName;
     private String title;
     private String isbn;
     // cover, genre, ...
@@ -11,25 +10,15 @@ public class Book {
     public Book() {
     }
 
-    public Book(String authorLastName, String authorSurName, String title, String isbn){
-        this.authorLastName = authorLastName;
-        this.authorSurName = authorSurName;
+    public Book(String authorName, String title, String isbn){
+        this.authorName = authorName;
         this.title = title;
         this.isbn = isbn;
     }
 
-    /* minimal input: title
-    public Book(String title){
-        this("", "", title, "");
-    }
-    */
 
-    public void setAuthorLastName(String authorLastName) {
-        this.authorLastName = authorLastName;
-    }
-
-    public void setAuthorSurName(String authorSurName) {
-        this.authorSurName = authorSurName;
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 
     public void setTitle(String title) {
@@ -40,12 +29,9 @@ public class Book {
         this.isbn = isbn;
     }
 
-    public String getAuthorLastName() {
-        return authorLastName;
-    }
 
-    public String getAuthorSurName() {
-        return authorSurName;
+    public String getAuthorName() {
+        return authorName;
     }
 
     public String getTitle() {

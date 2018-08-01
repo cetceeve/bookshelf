@@ -21,24 +21,13 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/textView_authorLastName"
+        android:id="@+id/textView_authorName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/text_author_last_name"/>
+        android:text="@string/text_author_name"/>
 
     <EditText
-        android:id="@+id/editText_authorLastName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/textView_authorSurName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/text_author_surname"/>
-
-    <EditText
-        android:id="@+id/editText_authorSurName"
+        android:id="@+id/editText_authorName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -52,6 +41,7 @@
         android:id="@+id/editText_isbn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/button_create_bookitem"
         android:layout_width="wrap_content"
