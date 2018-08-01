@@ -13,6 +13,7 @@ public class DisplayBookActivity extends AppCompatActivity {
     private TextView authorNameTextView;
     private TextView isbnTextView;
     private Button editButton;
+    private Book mCurrentBook;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +22,7 @@ public class DisplayBookActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         Bundle extra = i.getExtras();
-        Book currentBook = (Book)extra.get("book");
+        mCurrentBook = (Book)extra.get("book");
         String booklistname = (String)extra.get("listname");
 
         getSupportActionBar().setTitle(booklistname);
@@ -31,14 +32,15 @@ public class DisplayBookActivity extends AppCompatActivity {
         isbnTextView = (TextView)findViewById(R.id.textView_isbn_book);
         editButton = (Button)findViewById(R.id.button_edit);
 
-        titleTextView.setText(currentBook.getTitle());
-        authorNameTextView.setText(currentBook.getAuthorName());
-        isbnTextView.setText(currentBook.getIsbn());
+        titleTextView.setText(mCurrentBook.getTitle());
+        authorNameTextView.setText(mCurrentBook.getAuthorName());
+        isbnTextView.setText(mCurrentBook.getIsbn());
 
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(DisplayBookActivity.this,AddBookActivity.class);//vorerst
+                Intent intent = new Intent(DisplayBookActivity.this,editBookActivity.class);
+                intent.putExtra("book",mCurrentBook);
                 startActivity(intent);
             }
         });
