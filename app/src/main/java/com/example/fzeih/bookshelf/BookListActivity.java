@@ -40,6 +40,7 @@ public class BookListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         readIntent();
+        getSupportActionBar().setTitle(mBooklistName);
         initDatabase();
         setBookAdapter();
         onFABClicked();
@@ -113,6 +114,7 @@ public class BookListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
                 displayBookIntent.putExtra("book", books.get(position));
+                displayBookIntent.putExtra("listname", mBooklistName);
                 startActivity(displayBookIntent);
             }
         });

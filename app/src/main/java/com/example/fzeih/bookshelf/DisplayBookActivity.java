@@ -22,6 +22,9 @@ public class DisplayBookActivity extends AppCompatActivity {
         Intent i = getIntent();
         Bundle extra = i.getExtras();
         Book currentBook = (Book)extra.get("book");
+        String booklistname = (String)extra.get("listname");
+
+        getSupportActionBar().setTitle(booklistname);
 
         titleTextView = (TextView)findViewById(R.id.textView_title_book);
         authorNameTextView = (TextView)findViewById(R.id.textView_authorName_book);
