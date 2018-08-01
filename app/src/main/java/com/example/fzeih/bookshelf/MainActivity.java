@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mBooklistsDatabaseReference;
+    private DatabaseReference mListlistDatabaseReference;
     private ChildEventListener mChildEventListener;
 
     private ArrayAdapter<String> listAdapter;
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initDatabase() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mBooklistsDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
+        mListlistDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
     }
 
     private void attachDatabaseReadListener() {
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             };
-            mBooklistsDatabaseReference.addChildEventListener(mChildEventListener);
+            mListlistDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
