@@ -21,7 +21,7 @@ public class DisplayBookActivity extends AppCompatActivity {
 
         Intent i = getIntent();
         Bundle extra = i.getExtras();
-        Book currentBook = (Book)extra.get("book");
+        final Book currentBook = (Book)extra.get("book");
 
         titleTextView = (TextView)findViewById(R.id.textView_title_book);
         authorNameTextView = (TextView)findViewById(R.id.textView_authorName_book);
@@ -35,7 +35,8 @@ public class DisplayBookActivity extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(DisplayBookActivity.this,AddBookActivity.class);//vorerst
+                Intent intent = new Intent(DisplayBookActivity.this,editBookActivity.class);
+                intent.putExtra("book",currentBook);
                 startActivity(intent);
             }
         });
