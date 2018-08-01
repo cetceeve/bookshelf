@@ -2,11 +2,10 @@ package com.example.fzeih.bookshelf;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.widget.CheckBox;
-import android.widget.Switch;
 
 public class Book implements Parcelable{
 
+    private String key;
     private String authorName;
     private String title;
     private String isbn;
@@ -16,12 +15,16 @@ public class Book implements Parcelable{
     public Book() {
     }
 
-    public Book(String authorName, String title, String isbn){
+    public Book(String key, String authorName, String title, String isbn){
+        this.key = key;
         this.authorName = authorName;
         this.title = title;
         this.isbn = isbn;
     }
 
+    public void setKey(String key) {
+        this.key = key;
+    }
 
     public void setAuthorName(String authorName) {
         this.authorName = authorName;
@@ -33,6 +36,10 @@ public class Book implements Parcelable{
 
     public void setIsbn(String isbn) {
         this.isbn = isbn;
+    }
+
+    public String getKey() {
+        return key;
     }
 
 
@@ -49,6 +56,7 @@ public class Book implements Parcelable{
     }
 
     protected Book(Parcel in) {
+        key = in.readString();
         authorName = in.readString();
         title = in.readString();
         isbn = in.readString();
@@ -61,6 +69,7 @@ public class Book implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(key);
         dest.writeString(authorName);
         dest.writeString(title);
         dest.writeString(isbn);

@@ -44,8 +44,9 @@ public class AddBookActivity extends AppCompatActivity {
                 String titleText = titleEditText.getText().toString();
                 String isbnText = isbnEditText.getText().toString();
 
-                Book bookItem = new Book(nameText,titleText,isbnText);
-                mBooklistDatabaseReference.push().setValue(bookItem);
+                DatabaseReference nextBookDatabaseReference = mBooklistDatabaseReference.push();
+                Book bookItem = new Book(nextBookDatabaseReference.getKey(), nameText,titleText,isbnText);
+                nextBookDatabaseReference.setValue(bookItem);
                 finish();
             }
         });
