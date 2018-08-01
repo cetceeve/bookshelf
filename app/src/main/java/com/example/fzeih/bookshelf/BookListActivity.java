@@ -131,7 +131,13 @@ public class BookListActivity extends AppCompatActivity {
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     Book changedBook = dataSnapshot.getValue(Book.class);
-                    mBookAdapter.remove(changedBook);
+                    for (int index = 0; index < books.size(); index++) {
+                        if (books.get(index).getKey().equals(dataSnapshot.getKey())) {
+                            books.remove(index);
+                            books.add(index, changedBook);
+                            mBookAdapter.notifyDataSetChanged();
+                        }
+                    }
                 }
 
                 @Override
