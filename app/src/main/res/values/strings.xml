@@ -11,4 +11,5 @@
     <string name="scan_barcode_button">Scan barcode</string>
     <string name="textview_isbn">Search for ISBN</string>
     <string name="edittext_hint_isbn">Enter ISBN</string>
+    <string name="text_editButton">Edit</string>
 </resources>
