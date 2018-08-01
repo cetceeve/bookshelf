@@ -2,12 +2,15 @@ package com.example.fzeih.bookshelf;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.widget.CheckBox;
+import android.widget.Switch;
 
 public class Book implements Parcelable{
 
     private String authorName;
     private String title;
     private String isbn;
+    //private Switch  gelesenSwitch;
     // cover, genre, ...
 
     public Book() {
