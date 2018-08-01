@@ -27,7 +27,7 @@ public class BookListActivity extends AppCompatActivity {
     private ChildEventListener mChildEventListener;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mBooklistDatabaseReference;
-
+    private List<Book> books;
     private String mBooklistName;
 
     @Override
@@ -41,7 +41,7 @@ public class BookListActivity extends AppCompatActivity {
         initDatabase();
         setBookAdapter();
         onFABClicked();
-        onBooklistClicked();
+        onBookItemClicked();
     }
 
     private void readIntent() {
@@ -57,7 +57,7 @@ public class BookListActivity extends AppCompatActivity {
     }
 
     private void setBookAdapter() {
-        List<Book> books = new ArrayList<>();
+        books = new ArrayList<>();
         mBooklistView = findViewById(R.id.listview_booklist);
         mBookAdapter = new BookAdapter(this, R.layout.item_book, books);
         mBooklistView.setAdapter(mBookAdapter);
@@ -75,12 +75,12 @@ public class BookListActivity extends AppCompatActivity {
         });
     }
 
-    private void onBooklistClicked() {
+    private void onBookItemClicked() {
         mBooklistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
-               // displayBookIntent.putExtra("listname", listnames.get(position));
+                displayBookIntent.putExtra("book", books.get(position));
                 startActivity(displayBookIntent);
             }
         });
