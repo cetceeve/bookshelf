@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -58,6 +59,18 @@ public class BookListActivity extends AppCompatActivity {
         mBooklistView.setAdapter(mBookAdapter);
 
         attachDatabaseReadListener();
+        onBooklistClicked();
+    }
+    private void onBooklistClicked() {
+        mBooklistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
+               // displayBookIntent.putExtra("listname", listnames.get(position));
+                startActivity(displayBookIntent);
+            }
+        });
+
     }
 
     private void attachDatabaseReadListener() {
