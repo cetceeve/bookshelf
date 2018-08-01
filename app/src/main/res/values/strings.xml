@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">bookshelf</string>
     <string name="action_settings">Settings</string>
+    <string name="action_sign_out">Sign out</string>
     <string name="title_activity_book_list">BookListActivity</string>
     <string name="text_author_name">Author name:</string>
     <string name="text_isbn">ISBN:</string>
@@ -10,5 +11,6 @@
     <string name="scan_barcode_button">Scan barcode</string>
     <string name="textview_isbn">Search for ISBN</string>
     <string name="edittext_hint_isbn">Enter ISBN</string>
+    <string name="button_isbn_search">Search</string>
     <string name="text_editButton">Edit</string>
 </resources>
