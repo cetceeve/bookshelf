@@ -33,8 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private ChildEventListener mChildEventListener;
 
     private ArrayAdapter<String> listAdapter;
+    private ArrayList<String> listnames = new ArrayList<>();
+    private ListView listListView;
 
-    private String inputListname = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,46 +44,21 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mBooklistsDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
-
+        initDatabase();
         attachDatabaseReadListener();
-
-        final ArrayList<String> listnames = new ArrayList<>();
-        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listnames);
-        ListView listListView = (ListView) findViewById(R.id.listview_listlist);
-        listListView.setAdapter(listAdapter);
-
-        final EditText editTextListname = (EditText) findViewById(R.id.input_listname);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                inputListname = editTextListname.getText().toString();
-                Intent intent = new Intent(MainActivity.this, BookListActivity.class);
-                intent.putExtra("listname", inputListname);
-                startActivity(intent);
-
-               // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show(); - war vorgefertigt
-            }
-        });
-
-        listListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(MainActivity.this, BookListActivity.class);
-                intent.putExtra("listname", listnames.get(position));
-                startActivity(intent);
-            }
-        });
-
+        setAdapter();
+        createNewBooklist();
+        onBooklistClicked();
 
     }
 
+    private void initDatabase() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mBooklistsDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
+    }
+
     private void attachDatabaseReadListener() {
-        if (mChildEventListener == null){
+        if (mChildEventListener == null) {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -113,6 +89,42 @@ public class MainActivity extends AppCompatActivity {
             mBooklistsDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
+
+    private void setAdapter() {
+        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listnames);
+        listListView = (ListView) findViewById(R.id.listview_listlist);
+        listListView.setAdapter(listAdapter);
+
+    }
+
+    private void createNewBooklist() {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                String inputListname = ((EditText) findViewById(R.id.input_listname)).getText().toString();
+                Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
+                newListIntent.putExtra("listname", inputListname);
+                startActivity(newListIntent);
+
+                // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show(); - war vorgefertigt
+            }
+        });
+    }
+
+    private void onBooklistClicked() {
+        listListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent booklistIntent = new Intent(MainActivity.this, BookListActivity.class);
+                booklistIntent.putExtra("listname", listnames.get(position));
+                startActivity(booklistIntent);
+            }
+        });
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
