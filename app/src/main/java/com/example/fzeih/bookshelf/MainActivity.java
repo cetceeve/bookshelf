@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.google.firebase.database.ChildEventListener;
@@ -103,10 +104,30 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String inputListname = ((EditText) findViewById(R.id.input_listname)).getText().toString();
-                Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
-                newListIntent.putExtra("listname", inputListname);
-                startActivity(newListIntent);
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                alertDialog.setMessage("Enter new listname");
+                final EditText input = new EditText(MainActivity.this);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                input.setLayoutParams(params);
+                alertDialog.setView(input);
+
+                alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String inputListname = input.getText().toString();
+                        Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
+                        newListIntent.putExtra("listname", inputListname);
+                        startActivity(newListIntent);
+                    }
+                });
+                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                alertDialog.show();
 
                 // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show(); - war vorgefertigt
             }

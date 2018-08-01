@@ -9,12 +9,6 @@
     tools:showIn="@layout/activity_main"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/input_listname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="text"/>
-
     <ListView
         android:id="@+id/listview_listlist"
         android:layout_width="match_parent"
