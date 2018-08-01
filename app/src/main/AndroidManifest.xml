@@ -25,6 +25,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".AddBookActivity" />
         <activity android:name=".DisplayBookActivity"></activity>
+        <activity android:name=".editBookActivity"></activity>
+        <activity android:name=".IsbnSearchActivity"></activity>
     </application>
 
 </manifest>
