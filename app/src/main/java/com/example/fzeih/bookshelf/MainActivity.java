@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initDatabase() {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseDatabase.setPersistenceEnabled(true);
         mFirebaseAuth = FirebaseAuth.getInstance();
 
         mListlistDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
