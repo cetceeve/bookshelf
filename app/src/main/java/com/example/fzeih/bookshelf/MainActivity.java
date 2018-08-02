@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-
+        //getSupportActionBar().setIcon(R.drawable.ic_camera_enhance_black_24dp); setzt ganz links das Icon
         initDatabase();
         setAdapter();
         createNewBooklist();
@@ -258,6 +258,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_sign_out:
                 // sign out
                 AuthUI.getInstance().signOut(this);
+                return true;
+            case R.id.action_wish_list: // intent umbennen und verschieben ?
+                Intent intent = new Intent(this,WishGalleryActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
