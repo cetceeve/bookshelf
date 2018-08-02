@@ -1,9 +1,12 @@
 package com.example.fzeih.bookshelf;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -49,10 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
 
-    //private static final int PERMISSION_REQUEST_INTERNET = 0;
     private static final int PERMISSION_REQUEST_CAMERA = 1;
-
-    private boolean firstUse = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,20 +61,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        checkForCameraPermission(); // für die Bücherwunschliste-Gallerie -> vllt woanders besser
 
-        // TODO - is shown after login, shuold be before
-        if (firstUse){
-            showInternetInformationDialog();
-            firstUse = false;
-        }
-
-        // TODO - check for internet connection!
-
-        //checkForInternetPermission(); -> unnötig, weil firebase sich die permission automatisch holt
-        checkForCameraPermission(); // für die Bücherwunschliste-Gallerie
-
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseAuth = FirebaseAuth.getInstance();
+        initDatabase();
 
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -91,67 +80,33 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        initDatabase();
         setAdapter();
         createNewBooklist();
         onBooklistClicked();
 
     }
 
-    private void showInternetInformationDialog(){
-        AlertDialog.Builder internetInformationDialog = new AlertDialog.Builder(MainActivity.this);
-        internetInformationDialog.setTitle("Information").setMessage("To use this App you need connection to the internet. Otherwise you can not use the database")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        internetInformationDialog.show();
-    }
 
-    /*
-    private void checkForInternetPermission() {
-
-        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED){
-            // permission is not granted
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.INTERNET}, PERMISSION_REQUEST_INTERNET);
-
-        } else {
-            // permission has already been granted
-        }
-    }
-    */
-
-    private void checkForCameraPermission(){
-        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+    private void checkForCameraPermission() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // permission is not granted
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
 
-        } else {
-            // permission has already been granted
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode){
-            /*
-            case PERMISSION_REQUEST_INTERNET:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    // permission was granted
-                } else {
-                    // permission denied
-                    Toast.makeText(MainActivity.this, "Without connection to the internet you can not use this app", Toast.LENGTH_SHORT).show();
-                }
-                break;
-                */
+        switch (requestCode) {
+
             case PERMISSION_REQUEST_CAMERA:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
                 } else {
                     // permission denied
-                    Toast.makeText(MainActivity.this, "Schade Schokolade", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+
+                    // Wunschliste dann nicht anbieten?
                 }
                 break;
 
@@ -199,7 +154,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initDatabase() {
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+
         mListlistDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
+
+
     }
 
     private void onSignedInInitialize(String username) {
@@ -252,19 +212,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displaySignInUI() {
-        // TODO: internet connection abfragen und nutzer informieren
-        // Choose authentication providers
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build());
 
-        // Create and launch sign-in intent
-        startActivityForResult(
-                AuthUI.getInstance()
-                        .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
-                        .build(),
-                RC_SIGN_IN);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+        if (isConnected) {
+            // Choose authentication providers
+            List<AuthUI.IdpConfig> providers = Arrays.asList(
+                    new AuthUI.IdpConfig.EmailBuilder().build(),
+                    new AuthUI.IdpConfig.GoogleBuilder().build());
+
+            // Create and launch sign-in intent
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .setAvailableProviders(providers)
+                            .build(),
+                    RC_SIGN_IN);
+        } else {
+            showInternetInformationDialog();
+        }
+    }
+
+    private void showInternetInformationDialog() {
+        AlertDialog.Builder internetInformationDialog = new AlertDialog.Builder(MainActivity.this);
+        internetInformationDialog.setTitle("Information").setMessage("To use this App you need connection to the internet.")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                        finish();
+                    }
+                });
+        internetInformationDialog.show();
     }
 
     private void setAdapter() {
