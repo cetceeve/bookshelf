@@ -83,7 +83,7 @@ public class BookListActivity extends AppCompatActivity {
 
     private void showOptionsToAddBookDialog() {
         // Create Dialog
-        String[] optionsToAddBook = {"Add manually", "Search by ISBN", "Scan barcode"};
+        String[] optionsToAddBook = {getString(R.string.dialog_option_add_book_manually), getString(R.string.dialog_option_isbn_search), getString(R.string.dialog_option_barcode_scanner)};
         AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
         addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
             @Override
@@ -108,7 +108,7 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
 
-        addBookDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        addBookDialog.setNegativeButton(getString(R.string.dialog_close), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();

@@ -13,4 +13,9 @@
     <string name="edittext_hint_isbn">Enter ISBN</string>
     <string name="button_isbn_search">Search</string>
     <string name="text_editButton">Edit</string>
+    <!-- add options dialog in AddBookActivity -->
+    <string name="dialog_option_add_book_manually">Add manually</string>
+    <string name="dialog_option_isbn_search">Search by ISBN</string>
+    <string name="dialog_option_barcode_scanner">Scan barcode</string>
+    <string name="dialog_close">Cancel</string>
 </resources>
