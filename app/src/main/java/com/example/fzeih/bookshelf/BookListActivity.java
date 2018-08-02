@@ -47,6 +47,8 @@ public class BookListActivity extends AppCompatActivity {
         setBookAdapter();
 
         // Listeners
+        attachDatabaseReadListener();
+
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +72,6 @@ public class BookListActivity extends AppCompatActivity {
 
     private void getDatabaseReference() {
         mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName);
-        attachDatabaseReadListener();
     }
 
     private void setBookAdapter() {

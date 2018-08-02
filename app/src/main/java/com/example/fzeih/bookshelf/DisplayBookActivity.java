@@ -19,46 +19,72 @@ public class DisplayBookActivity extends AppCompatActivity {
     private String mBooklistName;
     private DatabaseReference mBookDatabaseReference;
 
-    private TextView titleTextView;
-    private TextView authorNameTextView;
-    private TextView isbnTextView;
+    private TextView mTitleTextView;
+    private TextView mAuthorNameTextView;
+    private TextView mIsbnTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_book);
 
-        Intent i = getIntent();
-        Bundle extra = i.getExtras();
-        mBook = (Book)extra.get("book");
-        mBooklistName = (String)extra.get("listname");
-
+        // Intent
+        readIntent();
         getSupportActionBar().setTitle(mBooklistName);
 
+        // Views
         initViews();
+
+        // Data
         setBookData();
-        mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName).child(mBook.getKey());
+        getDatabaseReference();
+
+        // Listeners
+        attachDatabaseReadListener();
 
         Button editButton = (Button)findViewById(R.id.button_edit);
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(DisplayBookActivity.this,editBookActivity.class);
-                intent.putExtra("book", mBook);
-                intent.putExtra("listname", mBooklistName);
-                startActivity(intent);
+                onEditButtonClicked();
             }
         });
+    }
 
+    private void readIntent() {
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        mBook = (Book) extras.get("book");
+        mBooklistName = extras.getString("listname");
+    }
+
+    private void getDatabaseReference() {
+        mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName).child(mBook.getKey());
+    }
+
+    private void initViews() {
+        mTitleTextView = (TextView)findViewById(R.id.textView_title_book);
+        mAuthorNameTextView = (TextView)findViewById(R.id.textView_authorName_book);
+        mIsbnTextView = (TextView)findViewById(R.id.textView_isbn_book);
+    }
+
+    private void setBookData() {
+        mTitleTextView.setText(mBook.getTitle());
+        mAuthorNameTextView.setText(mBook.getAuthorName());
+        mIsbnTextView.setText(mBook.getIsbn());
+    }
+
+    private void onEditButtonClicked() {
+        Intent intent = new Intent(DisplayBookActivity.this,editBookActivity.class);
+        intent.putExtra("book", mBook);
+        intent.putExtra("listname", mBooklistName);
+        startActivity(intent);
+    }
+
+    private void attachDatabaseReadListener() {
         ValueEventListener bookListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                /*
-                Book changedBook = dataSnapshot.getValue(Book.class);
-                if (changedBook != null) {
-                    setBookData();
-                }
-                */
                 mBook = dataSnapshot.getValue(Book.class);
                 setBookData();
             }
@@ -68,17 +94,5 @@ public class DisplayBookActivity extends AppCompatActivity {
             }
         };
         mBookDatabaseReference.addValueEventListener(bookListener);
-    }
-
-    private void initViews() {
-        titleTextView = (TextView)findViewById(R.id.textView_title_book);
-        authorNameTextView = (TextView)findViewById(R.id.textView_authorName_book);
-        isbnTextView = (TextView)findViewById(R.id.textView_isbn_book);
-    }
-
-    private void setBookData() {
-        titleTextView.setText(mBook.getTitle());
-        authorNameTextView.setText(mBook.getAuthorName());
-        isbnTextView.setText(mBook.getIsbn());
     }
 }
