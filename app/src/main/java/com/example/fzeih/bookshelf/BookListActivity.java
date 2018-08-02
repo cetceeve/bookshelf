@@ -41,6 +41,7 @@ public class BookListActivity extends AppCompatActivity {
         // Intent
         readIntent();
         getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Data
         getDatabaseReference();

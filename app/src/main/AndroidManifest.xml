@@ -25,7 +25,10 @@
         <activity
             android:name=".BookListActivity"
             android:label="@string/title_activity_book_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".MainActivity">
+
+        </activity>
         <activity android:name=".AddBookActivity" />
         <activity android:name=".DisplayBookActivity"></activity>
         <activity android:name=".editBookActivity"></activity>
