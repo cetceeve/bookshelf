@@ -4,7 +4,7 @@
     tools:context="com.example.fzeih.bookshelf.MainActivity">
     <item
         android:id="@+id/action_wish_list"
-        android:icon="@drawable/ic_camera_enhance_black_24dp"
+        android:icon="@drawable/ic_camera_enhance_white_24dp"
         android:title="wishList"
         app:showAsAction="ifRoom"/>
 
