@@ -9,7 +9,7 @@ public class Book implements Parcelable{
     private String authorName;
     private String title;
     private String isbn;
-    //private Switch  gelesenSwitch;
+    private boolean read = false;
     // cover, genre, ...
 
     public Book() {
