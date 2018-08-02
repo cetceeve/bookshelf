@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent booklistIntent = new Intent(MainActivity.this, BookListActivity.class);
-                booklistIntent.putExtra("listname", listnames.get(position));
+                booklistIntent.putExtra(Constants.key_intent_booklistname, listnames.get(position));
                 startActivity(booklistIntent);
             }
         });

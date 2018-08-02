@@ -67,11 +67,11 @@ public class BookListActivity extends AppCompatActivity {
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBooklistName = extras.getString("listname");
+        mBooklistName = extras.getString(Constants.key_intent_booklistname);
     }
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName);
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklists).child(mBooklistName);
     }
 
     private void setBookAdapter() {
@@ -83,7 +83,7 @@ public class BookListActivity extends AppCompatActivity {
 
     private void showOptionsToAddBookDialog() {
         // Create Dialog
-        String[] optionsToAddBook = {"Add manually", "Search by ISBN", "Scan barcode"};
+        String[] optionsToAddBook = {getString(R.string.dialog_option_add_book_manually), getString(R.string.dialog_option_isbn_search), getString(R.string.dialog_option_barcode_scanner)};
         AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
         addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
             @Override
@@ -91,7 +91,7 @@ public class BookListActivity extends AppCompatActivity {
                 switch (which){
                     case 0:
                         Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                        addManuallyIntent.putExtra("listname", mBooklistName);
+                        addManuallyIntent.putExtra(Constants.key_intent_booklistname, mBooklistName);
                         startActivity(addManuallyIntent);
                         break;
                     case 1:
@@ -108,7 +108,7 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
 
-        addBookDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        addBookDialog.setNegativeButton(getString(R.string.dialog_close), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -120,8 +120,8 @@ public class BookListActivity extends AppCompatActivity {
 
     private void startDisplayBookActivity(int position) {
         Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
-        displayBookIntent.putExtra("book", mBooks.get(position));
-        displayBookIntent.putExtra("listname", mBooklistName);
+        displayBookIntent.putExtra(Constants.key_intent_book, mBooks.get(position));
+        displayBookIntent.putExtra(Constants.key_intent_booklistname, mBooklistName);
         startActivity(displayBookIntent);
     }
 
