@@ -1,11 +1,15 @@
 package com.example.fzeih.bookshelf;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -45,12 +49,29 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
 
+    //private static final int PERMISSION_REQUEST_INTERNET = 0;
+    private static final int PERMISSION_REQUEST_CAMERA = 1;
+
+    private boolean firstUse = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+        // TODO - is shown after login, shuold be before
+        if (firstUse){
+            showInternetInformationDialog();
+            firstUse = false;
+        }
+
+        // TODO - check for internet connection!
+
+        //checkForInternetPermission(); -> unnötig, weil firebase sich die permission automatisch holt
+        checkForCameraPermission(); // für die Bücherwunschliste-Gallerie
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -75,6 +96,66 @@ public class MainActivity extends AppCompatActivity {
         createNewBooklist();
         onBooklistClicked();
 
+    }
+
+    private void showInternetInformationDialog(){
+        AlertDialog.Builder internetInformationDialog = new AlertDialog.Builder(MainActivity.this);
+        internetInformationDialog.setTitle("Information").setMessage("To use this App you need connection to the internet. Otherwise you can not use the database")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        internetInformationDialog.show();
+    }
+
+    /*
+    private void checkForInternetPermission() {
+
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED){
+            // permission is not granted
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.INTERNET}, PERMISSION_REQUEST_INTERNET);
+
+        } else {
+            // permission has already been granted
+        }
+    }
+    */
+
+    private void checkForCameraPermission(){
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            // permission is not granted
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
+
+        } else {
+            // permission has already been granted
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode){
+            /*
+            case PERMISSION_REQUEST_INTERNET:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    // permission was granted
+                } else {
+                    // permission denied
+                    Toast.makeText(MainActivity.this, "Without connection to the internet you can not use this app", Toast.LENGTH_SHORT).show();
+                }
+                break;
+                */
+            case PERMISSION_REQUEST_CAMERA:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    // permission was granted
+                } else {
+                    // permission denied
+                    Toast.makeText(MainActivity.this, "Schade Schokolade", Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+        }
     }
 
     @Override
@@ -197,14 +278,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                alertDialog.setMessage("Enter new listname");
+                AlertDialog.Builder newBooklistDialog = new AlertDialog.Builder(MainActivity.this);
+                newBooklistDialog.setMessage("Enter new listname");
                 final EditText input = new EditText(MainActivity.this);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
                 input.setLayoutParams(params);
-                alertDialog.setView(input);
+                newBooklistDialog.setView(input);
 
-                alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                newBooklistDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String inputListname = input.getText().toString();
@@ -213,14 +294,14 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(newListIntent);
                     }
                 });
-                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                newBooklistDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
                     }
                 });
 
-                alertDialog.show();
+                newBooklistDialog.show();
 
                 // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show(); - war vorgefertigt
             }
