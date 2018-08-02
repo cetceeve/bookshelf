@@ -39,7 +39,7 @@ public class AddBookActivity extends AppCompatActivity {
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onCreateButtonClicked();
+                uploadUserInput();
                 finish();
             }
         });
@@ -61,7 +61,7 @@ public class AddBookActivity extends AppCompatActivity {
         mIsbnEditText = (EditText) findViewById(R.id.editText_isbn);
     }
 
-    private void onCreateButtonClicked() {
+    private void uploadUserInput() {
         String nameText = mAuthorNameEditText.getText().toString();
         String titleText = mTitleEditText.getText().toString();
         String isbnText = mIsbnEditText.getText().toString();

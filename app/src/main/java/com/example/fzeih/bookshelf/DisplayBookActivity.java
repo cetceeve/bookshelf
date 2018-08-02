@@ -46,7 +46,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onEditButtonClicked();
+                startEditBookAcitivity();
             }
         });
     }
@@ -74,7 +74,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         mIsbnTextView.setText(mBook.getIsbn());
     }
 
-    private void onEditButtonClicked() {
+    private void startEditBookAcitivity() {
         Intent intent = new Intent(DisplayBookActivity.this,editBookActivity.class);
         intent.putExtra("book", mBook);
         intent.putExtra("listname", mBooklistName);

@@ -53,13 +53,13 @@ public class BookListActivity extends AppCompatActivity {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onFloatingActionButtonClicked();
+                showOptionsToAddBookDialog();
             }
         });
         mBooklistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                onBookItemClicked(position);
+                startDisplayBookActivity(position);
             }
         });
     }
@@ -81,7 +81,7 @@ public class BookListActivity extends AppCompatActivity {
         mBooklistView.setAdapter(mBookAdapter);
     }
 
-    private void onFloatingActionButtonClicked() {
+    private void showOptionsToAddBookDialog() {
         // Create Dialog
         String[] optionsToAddBook = {"Add manually", "Search by ISBN", "Scan barcode"};
         AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
@@ -118,8 +118,7 @@ public class BookListActivity extends AppCompatActivity {
         addBookDialog.show();
     }
 
-    private void onBookItemClicked(int position) {
-        // Show DisplayBookActivity
+    private void startDisplayBookActivity(int position) {
         Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
         displayBookIntent.putExtra("book", mBooks.get(position));
         displayBookIntent.putExtra("listname", mBooklistName);
