@@ -18,4 +18,5 @@
     <string name="dialog_option_isbn_search">Search by ISBN</string>
     <string name="dialog_option_barcode_scanner">Scan barcode</string>
     <string name="dialog_close">Cancel</string>
+    <string name="title_activity_wish_gallery">WishGalleryActivity</string>
 </resources>
