@@ -67,11 +67,11 @@ public class BookListActivity extends AppCompatActivity {
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBooklistName = extras.getString("listname");
+        mBooklistName = extras.getString(Constants.key_intent_booklistname);
     }
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName);
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklists).child(mBooklistName);
     }
 
     private void setBookAdapter() {
@@ -91,7 +91,7 @@ public class BookListActivity extends AppCompatActivity {
                 switch (which){
                     case 0:
                         Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                        addManuallyIntent.putExtra("listname", mBooklistName);
+                        addManuallyIntent.putExtra(Constants.key_intent_booklistname, mBooklistName);
                         startActivity(addManuallyIntent);
                         break;
                     case 1:
@@ -120,8 +120,8 @@ public class BookListActivity extends AppCompatActivity {
 
     private void startDisplayBookActivity(int position) {
         Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
-        displayBookIntent.putExtra("book", mBooks.get(position));
-        displayBookIntent.putExtra("listname", mBooklistName);
+        displayBookIntent.putExtra(Constants.key_intent_book, mBooks.get(position));
+        displayBookIntent.putExtra(Constants.key_intent_booklistname, mBooklistName);
         startActivity(displayBookIntent);
     }
 

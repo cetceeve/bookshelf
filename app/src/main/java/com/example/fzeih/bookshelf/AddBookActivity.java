@@ -48,11 +48,11 @@ public class AddBookActivity extends AppCompatActivity {
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBooklistName = extras.getString("listname");
+        mBooklistName = extras.getString(Constants.key_db_reference_booklists);
     }
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName);
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklists).child(mBooklistName);
     }
 
     private void initViews() {
