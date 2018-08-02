@@ -13,41 +13,62 @@ import com.google.firebase.database.FirebaseDatabase;
 public class AddBookActivity extends AppCompatActivity {
 
     private DatabaseReference mBooklistDatabaseReference;
+    private String mBooklistName;
 
-    private Button createButton;
-    private EditText titleEditText;
-    private EditText authorNameEditText;
-    private EditText isbnEditText;
+    private EditText mTitleEditText;
+    private EditText mAuthorNameEditText;
+    private EditText mIsbnEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_book);
 
-        Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-        final String listname = extras.getString("listname");
-        getSupportActionBar().setTitle(listname);
+        // Intent
+        readIntent();
+        getSupportActionBar().setTitle(mBooklistName);
 
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(listname);
+        // Data
+        getDatabaseReference();
 
-        createButton = (Button) findViewById(R.id.button_create_bookitem);
-        titleEditText = (EditText) findViewById(R.id.editText_title);
-        authorNameEditText = (EditText) findViewById(R.id.editText_authorName);
-        isbnEditText = (EditText) findViewById(R.id.editText_isbn);
+        // Views
+        initViews();
 
+        // Listeners
+        Button createButton = (Button) findViewById(R.id.button_create_bookitem);
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String nameText = authorNameEditText.getText().toString();
-                String titleText = titleEditText.getText().toString();
-                String isbnText = isbnEditText.getText().toString();
-
-                DatabaseReference nextBookDatabaseReference = mBooklistDatabaseReference.push();
-                Book bookItem = new Book(nextBookDatabaseReference.getKey(), nameText,titleText,isbnText);
-                nextBookDatabaseReference.setValue(bookItem);
+                onCreateButtonClicked();
                 finish();
             }
         });
+    }
+
+    private void readIntent() {
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        mBooklistName = extras.getString("listname");
+    }
+
+    private void getDatabaseReference() {
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName);
+    }
+
+    private void initViews() {
+        mTitleEditText = (EditText) findViewById(R.id.editText_title);
+        mAuthorNameEditText = (EditText) findViewById(R.id.editText_authorName);
+        mIsbnEditText = (EditText) findViewById(R.id.editText_isbn);
+    }
+
+    private void onCreateButtonClicked() {
+        String nameText = mAuthorNameEditText.getText().toString();
+        String titleText = mTitleEditText.getText().toString();
+        String isbnText = mIsbnEditText.getText().toString();
+
+        // upload data
+        DatabaseReference nextBookDatabaseReference = mBooklistDatabaseReference.push();
+        Book bookItem = new Book(nextBookDatabaseReference.getKey(), nameText,titleText,isbnText);
+        nextBookDatabaseReference.setValue(bookItem);
     }
 }

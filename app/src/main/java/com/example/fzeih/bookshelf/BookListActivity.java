@@ -28,7 +28,7 @@ public class BookListActivity extends AppCompatActivity {
 
     private ChildEventListener mChildEventListener;
     private DatabaseReference mBooklistDatabaseReference;
-    private List<Book> books;
+    private List<Book> mBooks;
     private String mBooklistName;
 
     @Override
@@ -38,12 +38,28 @@ public class BookListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Intent
         readIntent();
         getSupportActionBar().setTitle(mBooklistName);
-        initDatabaseReference();
+
+        // Data
+        getDatabaseReference();
         setBookAdapter();
-        onFABClicked();
-        onBookItemClicked();
+
+        // Listeners
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onFloatingActionButtonClicked();
+            }
+        });
+        mBooklistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                onBookItemClicked(position);
+            }
+        });
     }
 
     private void readIntent() {
@@ -52,71 +68,61 @@ public class BookListActivity extends AppCompatActivity {
         mBooklistName = extras.getString("listname");
     }
 
-    private void initDatabaseReference() {
+    private void getDatabaseReference() {
         mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child("booklists").child(mBooklistName);
         attachDatabaseReadListener();
     }
 
     private void setBookAdapter() {
-        books = new ArrayList<>();
+        mBooks = new ArrayList<>();
         mBooklistView = findViewById(R.id.listview_booklist);
-        mBookAdapter = new BookAdapter(this, R.layout.item_book, books);
+        mBookAdapter = new BookAdapter(this, R.layout.item_book, mBooks);
         mBooklistView.setAdapter(mBookAdapter);
     }
 
-    private void onFABClicked() {
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+    private void onFloatingActionButtonClicked() {
+        // Create Dialog
+        String[] optionsToAddBook = {"Add manually", "Search by ISBN", "Scan barcode"};
+        AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
+        addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                String[] optionsToAddBook = {"Add manually", "Search by ISBN", "Scan barcode"};
-
-                AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
-                addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case 0:
-                                Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                                addManuallyIntent.putExtra("listname", mBooklistName);
-                                startActivity(addManuallyIntent);
-                                break;
-                            case 1:
-                                Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
-                                startActivity(addByIsbnIntent);
-                                break;
-                            case 2:
-                                // TODO - barcodescanner
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                });
-
-                addBookDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                addBookDialog.show();
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case 0:
+                        Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
+                        addManuallyIntent.putExtra("listname", mBooklistName);
+                        startActivity(addManuallyIntent);
+                        break;
+                    case 1:
+                        // TODO: isbn search
+                        Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
+                        startActivity(addByIsbnIntent);
+                        break;
+                    case 2:
+                        // TODO: barcodescanner
+                        break;
+                    default:
+                        break;
+                }
             }
         });
+
+        addBookDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        addBookDialog.show();
     }
 
-    private void onBookItemClicked() {
-        mBooklistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
-                displayBookIntent.putExtra("book", books.get(position));
-                displayBookIntent.putExtra("listname", mBooklistName);
-                startActivity(displayBookIntent);
-            }
-        });
-
+    private void onBookItemClicked(int position) {
+        // Show DisplayBookActivity
+        Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
+        displayBookIntent.putExtra("book", mBooks.get(position));
+        displayBookIntent.putExtra("listname", mBooklistName);
+        startActivity(displayBookIntent);
     }
 
     private void attachDatabaseReadListener() {
@@ -130,11 +136,12 @@ public class BookListActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    // replace updated book at correct position
                     Book changedBook = dataSnapshot.getValue(Book.class);
-                    for (int index = 0; index < books.size(); index++) {
-                        if (books.get(index).getKey().equals(dataSnapshot.getKey())) {
-                            books.remove(index);
-                            books.add(index, changedBook);
+                    for (int index = 0; index < mBooks.size(); index++) {
+                        if (mBooks.get(index).getKey().equals(dataSnapshot.getKey())) {
+                            mBooks.remove(index);
+                            mBooks.add(index, changedBook);
                             mBookAdapter.notifyDataSetChanged();
                         }
                     }
