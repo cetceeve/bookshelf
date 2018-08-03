@@ -78,7 +78,7 @@ public class DisplayBookActivity extends AppCompatActivity {
     }
 
     private void startEditBookAcitivity() {
-        Intent intent = new Intent(DisplayBookActivity.this,editBookActivity.class);
+        Intent intent = new Intent(DisplayBookActivity.this,EditBookActivity.class);
         intent.putExtra(Constants.key_intent_book, mBook);
         intent.putExtra(Constants.key_intent_booklistname, mBooklistName);
         startActivity(intent);
