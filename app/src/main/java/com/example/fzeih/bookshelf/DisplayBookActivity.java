@@ -1,7 +1,9 @@
 package com.example.fzeih.bookshelf;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -121,10 +123,7 @@ public class DisplayBookActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                detachReadDatabaseListener();
-                mBookDatabaseReference.removeValue();
-                Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
-                finish();
+                showDeleteConfirmationDialog();
                 return true;
             case R.id.action_edit:
                 startEditBookAcitivity();
@@ -136,5 +135,25 @@ public class DisplayBookActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(DisplayBookActivity.this);
+        deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
+                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        detachReadDatabaseListener();
+                        mBookDatabaseReference.removeValue();
+                        Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        deleteConfirmationDialog.show();
     }
 }
