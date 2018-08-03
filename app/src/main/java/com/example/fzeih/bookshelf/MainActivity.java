@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         checkForCameraPermission(); // TODO: move to Bücherwunschliste-Gallerie
 
         // Data
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(false);
         initAuthentication();
         setAdapter();
 

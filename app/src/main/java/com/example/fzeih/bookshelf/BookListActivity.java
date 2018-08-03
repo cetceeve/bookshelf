@@ -80,6 +80,19 @@ public class BookListActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detachReadDatabaseListener();
+        mBookAdapter.clear();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        attachDatabaseReadListener();
+    }
+
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -168,7 +181,8 @@ public class BookListActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                    Book book = dataSnapshot.getValue(Book.class);
+                    mBookAdapter.remove(book);
                 }
 
                 @Override
