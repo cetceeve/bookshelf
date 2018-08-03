@@ -20,6 +20,8 @@ public class WishGalleryActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setTitle("Wish Gallery");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         gridviewPhotos = (GridView) findViewById(R.id.gridview_wishgallery);
 
@@ -31,6 +33,12 @@ public class WishGalleryActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
 }

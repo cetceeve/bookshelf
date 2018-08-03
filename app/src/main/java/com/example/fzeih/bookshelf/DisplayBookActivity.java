@@ -31,6 +31,8 @@ public class DisplayBookActivity extends AppCompatActivity {
         // Intent
         readIntent();
         getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // Views
         initViews();
@@ -49,6 +51,12 @@ public class DisplayBookActivity extends AppCompatActivity {
                 startEditBookAcitivity();
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void readIntent() {

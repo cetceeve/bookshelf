@@ -17,8 +17,18 @@ public class IsbnSearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_isbn_search);
 
+        getSupportActionBar().setTitle("ISBN Search");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         isbnEditText = (EditText) findViewById(R.id.edittext_isbn);
         searchButton = (Button) findViewById(R.id.button_searchByIsbn);
         resultListView = (ListView) findViewById(R.id.listview_isbnResultList);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }

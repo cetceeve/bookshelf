@@ -38,6 +38,7 @@ public class BookListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         // Intent
         readIntent();
         getSupportActionBar().setTitle(mBooklistName);
@@ -63,6 +64,12 @@ public class BookListActivity extends AppCompatActivity {
                 startDisplayBookActivity(position);
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void readIntent() {

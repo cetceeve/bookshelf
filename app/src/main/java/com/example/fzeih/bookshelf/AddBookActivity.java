@@ -27,6 +27,8 @@ public class AddBookActivity extends AppCompatActivity {
         // Intent
         readIntent();
         getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // Data
         getDatabaseReference();
@@ -43,6 +45,11 @@ public class AddBookActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
     private void readIntent() {
