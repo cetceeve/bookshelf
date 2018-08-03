@@ -206,14 +206,18 @@ public class BookListActivity extends AppCompatActivity {
                 showRenameBooklistDialog();
                 return true;
             case R.id.action_delete:
-                detachReadDatabaseListener();
-                mListnamesDatabaseReference.child(mBooklistName).removeValue();
-                mBooklistDatabaseReference.removeValue();
+                deleteBooklist();
                 finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void deleteBooklist() {
+        detachReadDatabaseListener();
+        mListnamesDatabaseReference.child(mBooklistName).removeValue();
+        mBooklistDatabaseReference.removeValue();
     }
 
     private void showRenameBooklistDialog() {
@@ -227,6 +231,7 @@ public class BookListActivity extends AppCompatActivity {
         renameBooklistDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                String updatedListName = input.getText().toString();
                 // do stuff
             }
         });
