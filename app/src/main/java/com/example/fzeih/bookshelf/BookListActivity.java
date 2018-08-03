@@ -91,6 +91,7 @@ public class BookListActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which){
                     case 0:
+                        // start AddBookActivity
                         Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
                         addManuallyIntent.putExtra(Constants.key_intent_booklistname, mBooklistName);
                         startActivity(addManuallyIntent);
@@ -109,7 +110,7 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
 
-        addBookDialog.setNegativeButton(getString(R.string.dialog_close), new DialogInterface.OnClickListener() {
+        addBookDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
