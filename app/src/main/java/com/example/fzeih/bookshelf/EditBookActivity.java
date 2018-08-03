@@ -19,7 +19,7 @@ public class EditBookActivity extends AppCompatActivity {
     private EditText mAuthorNameEditText;
     private EditText mIsbnEditText;
     private Book mBook;
-    private String mBooklistName;
+    private String mBooklistKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public class EditBookActivity extends AppCompatActivity {
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setTitle(mBooklistKey);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Views
@@ -58,11 +58,11 @@ public class EditBookActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         mBook = (Book) extras.get(Constants.key_intent_book);
-        mBooklistName = extras.getString(Constants.key_intent_booklistname);
+        mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
     }
 
     private void getDatabaseReference() {
-        mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistName).child(mBook.getKey());
+        mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey).child(mBook.getKey());
     }
 
     private void initViews() {

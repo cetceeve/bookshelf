@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter<String> mListAdapter;
     private ArrayList<String> mListNames;
+    private ArrayList<String> mFirebaseKeys;
 
     private ListView mListListView;
 
@@ -133,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
         }
         detachReadDatabaseListener();
         mListAdapter.clear();
+        mFirebaseKeys.clear();
     }
 
     @Override
@@ -181,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onSignedOutCleanup() {
         mListAdapter.clear();
+        mFirebaseKeys.clear();
         detachReadDatabaseListener();
     }
 
@@ -216,6 +219,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     String listname = (String) dataSnapshot.getValue();
                     mListAdapter.add(listname);
+                    mFirebaseKeys.add(dataSnapshot.getKey());
                 }
 
                 @Override
@@ -225,7 +229,9 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                    String listname = (String) dataSnapshot.getValue();
+                    mListAdapter.remove(listname);
+                    mFirebaseKeys.remove(dataSnapshot.getKey());
                 }
 
                 @Override
@@ -264,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setAdapter() {
         mListNames = new ArrayList<>();
+        mFirebaseKeys = new ArrayList<>();
         mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mListNames);
         mListListView = (ListView) findViewById(R.id.listview_listlist);
         mListListView.setAdapter(mListAdapter);
@@ -281,9 +288,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // start BookListActivity with user input
+                String newListName = input.getText().toString();
+                DatabaseReference tempDbRef = mListnamesDatabaseReference.push();
+                tempDbRef.setValue(newListName);
+
                 Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
-                mListnamesDatabaseReference.push().setValue(input.getText().toString());
-                newListIntent.putExtra(Constants.key_intent_booklistname, input.getText().toString());
+                newListIntent.putExtra(Constants.key_intent_booklistname, newListName);
+                newListIntent.putExtra(Constants.key_intent_booklistkey, tempDbRef.getKey());
                 startActivity(newListIntent);
             }
         });
@@ -299,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
     private void startBookListActivity(int position) {
         Intent booklistIntent = new Intent(MainActivity.this, BookListActivity.class);
         booklistIntent.putExtra(Constants.key_intent_booklistname, mListNames.get(position));
+        booklistIntent.putExtra(Constants.key_intent_booklistkey, mFirebaseKeys.get(position));
         startActivity(booklistIntent);
     }
 
