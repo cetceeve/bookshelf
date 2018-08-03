@@ -43,6 +43,8 @@ public class WishGalleryActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setTitle("Wish Gallery");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         //Adapter
         setImageAdapter();
@@ -137,6 +139,12 @@ public class WishGalleryActivity extends AppCompatActivity {
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 
 }

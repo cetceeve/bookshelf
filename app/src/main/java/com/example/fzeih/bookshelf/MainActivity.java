@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private static final int PERMISSION_REQUEST_CAMERA = 1;
 
-    private DatabaseReference mListlistDatabaseReference;
+    private DatabaseReference mListnamesDatabaseReference;
     private ChildEventListener mChildEventListener;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         checkForCameraPermission(); // TODO: move to Bücherwunschliste-Gallerie
 
         // Data
-        initDatabase();
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         initAuthentication();
         setAdapter();
 
@@ -149,11 +149,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initDatabase() {
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        mListlistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklists);
-    }
-
     private void initAuthentication() {
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
@@ -165,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    onSignedInInitialize(user.getDisplayName());
+                    onSignedInInitialize(user);
                 } else {
                     // No user is signed in
                     onSignedOutCleanup();
@@ -175,8 +170,13 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void onSignedInInitialize(String username) {
+    private void onSignedInInitialize(FirebaseUser user) {
+        getDatabaseReference(user);
         attachDatabaseReadListener();
+    }
+
+    private void getDatabaseReference(@NonNull FirebaseUser user) {
+        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
     }
 
     private void onSignedOutCleanup() {
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String listname = dataSnapshot.getKey();
+                    String listname = (String) dataSnapshot.getValue();
                     mListAdapter.add(listname);
                 }
 
@@ -238,13 +238,13 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             };
-            mListlistDatabaseReference.addChildEventListener(mChildEventListener);
+            mListnamesDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
     private void detachReadDatabaseListener() {
         if (mChildEventListener != null) {
-            mListlistDatabaseReference.removeEventListener(mChildEventListener);
+            mListnamesDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
     }
@@ -282,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 // start BookListActivity with user input
                 Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
+                mListnamesDatabaseReference.push().setValue(input.getText().toString());
                 newListIntent.putExtra(Constants.key_intent_booklistname, input.getText().toString());
                 startActivity(newListIntent);
             }

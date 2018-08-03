@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,9 +39,11 @@ public class BookListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         // Intent
         readIntent();
         getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Data
         getDatabaseReference();
@@ -64,6 +67,12 @@ public class BookListActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -71,7 +80,7 @@ public class BookListActivity extends AppCompatActivity {
     }
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklists).child(mBooklistName);
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistName);
     }
 
     private void setBookAdapter() {

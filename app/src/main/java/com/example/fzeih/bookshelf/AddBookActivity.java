@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -27,6 +28,8 @@ public class AddBookActivity extends AppCompatActivity {
         // Intent
         readIntent();
         getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // Data
         getDatabaseReference();
@@ -44,6 +47,11 @@ public class AddBookActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 
     private void readIntent() {
         Intent intent = getIntent();
@@ -52,7 +60,7 @@ public class AddBookActivity extends AppCompatActivity {
     }
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklists).child(mBooklistName);
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistName);
     }
 
     private void initViews() {
