@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         checkForCameraPermission(); // TODO: move to Bücherwunschliste-Gallerie
 
         // Data
-        initDatabase();
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         initAuthentication();
         setAdapter();
 
@@ -149,11 +149,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initDatabase() {
-        FirebaseDatabase.getInstance();
-        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklistnames);
-    }
-
     private void initAuthentication() {
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
@@ -165,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    onSignedInInitialize(user.getDisplayName());
+                    onSignedInInitialize(user);
                 } else {
                     // No user is signed in
                     onSignedOutCleanup();
@@ -175,8 +170,13 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void onSignedInInitialize(String username) {
+    private void onSignedInInitialize(FirebaseUser user) {
+        getDatabaseReference(user);
         attachDatabaseReadListener();
+    }
+
+    private void getDatabaseReference(@NonNull FirebaseUser user) {
+        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
     }
 
     private void onSignedOutCleanup() {
