@@ -3,9 +3,10 @@ package com.example.fzeih.bookshelf;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -23,6 +24,7 @@ public class DisplayBookActivity extends AppCompatActivity {
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
+    private ValueEventListener mValueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +46,6 @@ public class DisplayBookActivity extends AppCompatActivity {
 
         // Listeners
         attachDatabaseReadListener();
-
-        Button editButton = (Button)findViewById(R.id.button_edit);
-        editButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startEditBookAcitivity();
-            }
-        });
     }
 
     @Override
@@ -90,8 +84,9 @@ public class DisplayBookActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
     private void attachDatabaseReadListener() {
-        ValueEventListener bookListener = new ValueEventListener() {
+        mValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mBook = dataSnapshot.getValue(Book.class);
@@ -102,6 +97,42 @@ public class DisplayBookActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         };
-        mBookDatabaseReference.addValueEventListener(bookListener);
+        mBookDatabaseReference.addValueEventListener(mValueEventListener);
+    }
+
+    private void detachReadDatabaseListener() {
+        if (mValueEventListener != null) {
+            mBookDatabaseReference.removeEventListener(mValueEventListener);
+            mValueEventListener = null;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_display_book, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                detachReadDatabaseListener();
+                mBookDatabaseReference.removeValue();
+                Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
+                finish();
+                return true;
+            case R.id.action_edit:
+                startEditBookAcitivity();
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 }
