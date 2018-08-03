@@ -11,6 +11,7 @@
     <!-- generic dialog options -->
     <string name="dialog_negative">Cancel</string>
     <string name="dialog_positive">OK</string>
+    <string name="dialog_message_delete_confirmation">Do you really want to delete?</string>
     <!-- add options dialog in AddBookActivity -->
     <string name="dialog_option_add_book_manually">Add manually</string>
     <string name="dialog_option_isbn_search">Search by ISBN</string>

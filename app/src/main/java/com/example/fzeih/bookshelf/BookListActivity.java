@@ -119,7 +119,7 @@ public class BookListActivity extends AppCompatActivity {
         addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                switch (which){
+                switch (which) {
                     case 0:
                         // start AddBookActivity
                         Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
@@ -195,7 +195,7 @@ public class BookListActivity extends AppCompatActivity {
 
                 }
             };
-        mBooklistDatabaseReference.addChildEventListener(mChildEventListener);
+            mBooklistDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
@@ -223,8 +223,7 @@ public class BookListActivity extends AppCompatActivity {
                 showRenameBooklistDialog();
                 return true;
             case R.id.action_delete:
-                deleteBooklist();
-                finish();
+                showDeleteConfirmationDialog();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -261,5 +260,23 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
         renameBooklistDialog.show();
+    }
+
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(BookListActivity.this);
+        deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
+                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteBooklist();
+                        finish();
+                    }
+                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        deleteConfirmationDialog.show();
     }
 }
