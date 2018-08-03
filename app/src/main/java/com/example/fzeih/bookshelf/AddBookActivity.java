@@ -14,7 +14,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class AddBookActivity extends AppCompatActivity {
 
     private DatabaseReference mBooklistDatabaseReference;
-    private String mBooklistName;
+    private String mBooklistKey;
 
     private EditText mTitleEditText;
     private EditText mAuthorNameEditText;
@@ -27,7 +27,7 @@ public class AddBookActivity extends AppCompatActivity {
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setTitle(mBooklistKey);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -56,11 +56,11 @@ public class AddBookActivity extends AppCompatActivity {
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBooklistName = extras.getString(Constants.key_intent_booklistname);
+        mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
     }
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistName);
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey);
     }
 
     private void initViews() {

@@ -34,8 +34,10 @@ public class BookListActivity extends AppCompatActivity {
     private ChildEventListener mChildEventListener;
     private DatabaseReference mBooklistDatabaseReference;
     private DatabaseReference mListnamesDatabaseReference;
-    private List<Book> mBooks;
+    private String mBooklistKey;
+
     private String mBooklistName;
+    private List<Book> mBooks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,10 +84,11 @@ public class BookListActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         mBooklistName = extras.getString(Constants.key_intent_booklistname);
+        mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
     }
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistName);
+        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey);
         mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklistnames);
     }
 
@@ -107,7 +110,7 @@ public class BookListActivity extends AppCompatActivity {
                     case 0:
                         // start AddBookActivity
                         Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                        addManuallyIntent.putExtra(Constants.key_intent_booklistname, mBooklistName);
+                        addManuallyIntent.putExtra(Constants.key_intent_booklistkey, mBooklistKey);
                         startActivity(addManuallyIntent);
                         break;
                     case 1:
@@ -137,7 +140,7 @@ public class BookListActivity extends AppCompatActivity {
     private void startDisplayBookActivity(int position) {
         Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
         displayBookIntent.putExtra(Constants.key_intent_book, mBooks.get(position));
-        displayBookIntent.putExtra(Constants.key_intent_booklistname, mBooklistName);
+        displayBookIntent.putExtra(Constants.key_intent_booklistkey, mBooklistKey);
         startActivity(displayBookIntent);
     }
 
@@ -216,7 +219,7 @@ public class BookListActivity extends AppCompatActivity {
 
     private void deleteBooklist() {
         detachReadDatabaseListener();
-        mListnamesDatabaseReference.child(mBooklistName).removeValue();
+        mListnamesDatabaseReference.child(mBooklistKey).removeValue();
         mBooklistDatabaseReference.removeValue();
     }
 
@@ -232,7 +235,9 @@ public class BookListActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String updatedListName = input.getText().toString();
-                // do stuff
+                mListnamesDatabaseReference.child(mBooklistKey).setValue(updatedListName);
+                mBooklistName = updatedListName;
+                getSupportActionBar().setTitle(mBooklistName);
             }
         });
         renameBooklistDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
