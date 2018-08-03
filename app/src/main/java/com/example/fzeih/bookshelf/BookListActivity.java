@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -192,7 +194,7 @@ public class BookListActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_rename:
-                // rename
+                showRenameBooklistDialog();
                 return true;
             case R.id.action_delete:
                 // delete
@@ -202,4 +204,26 @@ public class BookListActivity extends AppCompatActivity {
         }
     }
 
+    private void showRenameBooklistDialog() {
+        AlertDialog.Builder renameBooklistDialog = new AlertDialog.Builder(BookListActivity.this);
+        renameBooklistDialog.setMessage(R.string.dialog_message_rename_booklist);
+        final EditText input = new EditText(BookListActivity.this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(params);
+        renameBooklistDialog.setView(input);
+
+        renameBooklistDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // do stuff
+            }
+        });
+        renameBooklistDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        renameBooklistDialog.show();
+    }
 }
