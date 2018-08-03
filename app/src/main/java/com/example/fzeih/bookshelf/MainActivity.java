@@ -40,19 +40,18 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseDatabase mFirebaseDatabase;
+    private static final int RC_SIGN_IN = 123;
+    private static final int PERMISSION_REQUEST_CAMERA = 1;
+
     private DatabaseReference mListlistDatabaseReference;
     private ChildEventListener mChildEventListener;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
-    private ArrayAdapter<String> listAdapter;
-    private ArrayList<String> listnames = new ArrayList<>();
-    private ListView listListView;
+    private ArrayAdapter<String> mListAdapter;
+    private ArrayList<String> mListNames;
 
-    private static final int RC_SIGN_IN = 123;
-
-    private static final int PERMISSION_REQUEST_CAMERA = 1;
+    private ListView mListListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,56 +59,47 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        checkForCameraPermission(); // für die Bücherwunschliste-Gallerie -> vllt woanders besser
-
-        initDatabase();
-
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    onSignedInInitialize(user.getDisplayName());
-                } else {
-                    // No user is signed in
-                    onSignedOutCleanup();
-                    displaySignInUI();
-                }
-            }
-        };
         //getSupportActionBar().setIcon(R.drawable.ic_camera_enhance_black_24dp); setzt ganz links das Icon
+
+        // Permissions
+        checkForCameraPermission(); // TODO: move to Bücherwunschliste-Gallerie
+
+        // Data
+        initDatabase();
+        initAuthentication();
         setAdapter();
-        createNewBooklist();
-        onBooklistClicked();
 
-    }
+        // Listeners
+        attachAuthStateChangedListener();
 
-
-    private void checkForCameraPermission() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // permission is not granted
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
-
-        }
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNewBooklistDialog();
+            }
+        });
+        mListListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startBookListActivity(position);
+            }
+        });
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
-
             case PERMISSION_REQUEST_CAMERA:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
                 } else {
                     // permission denied
-                    Toast.makeText(MainActivity.this, "Camera permission denied", Toast.LENGTH_SHORT).show();
-
+                    // TODO: handle permission denied
                     // Wunschliste dann nicht anbieten?
+                    Toast.makeText(MainActivity.this, "Camera permission denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
-
         }
     }
 
@@ -124,14 +114,12 @@ public class MainActivity extends AppCompatActivity {
                 // Successfully signed in
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 Toast.makeText(this, "Hello " + user.getDisplayName() + "! You are successfully signed in!", Toast.LENGTH_LONG).show();
-                // ...
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
                 // response.getError().getErrorCode() and handle the error.
                 // ...
-
-                Toast.makeText(this, "Sign in canceled", Toast.LENGTH_SHORT).show();
+                // TODO: handle error
                 finish();
             }
         }
@@ -144,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
         detachReadDatabaseListener();
-        listAdapter.clear();
+        mListAdapter.clear();
     }
 
     @Override
@@ -153,14 +141,38 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
+    private void checkForCameraPermission() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // permission is not granted
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
+
+        }
+    }
+
     private void initDatabase() {
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseDatabase.setPersistenceEnabled(true);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        mListlistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklists);
+    }
+
+    private void initAuthentication() {
         mFirebaseAuth = FirebaseAuth.getInstance();
+    }
 
-        mListlistDatabaseReference = mFirebaseDatabase.getReference().child("booklists");
-
-
+    private void attachAuthStateChangedListener() {
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    onSignedInInitialize(user.getDisplayName());
+                } else {
+                    // No user is signed in
+                    onSignedOutCleanup();
+                    displaySignInUI();
+                }
+            }
+        };
     }
 
     private void onSignedInInitialize(String username) {
@@ -168,8 +180,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onSignedOutCleanup() {
-        listAdapter.clear();
+        mListAdapter.clear();
         detachReadDatabaseListener();
+    }
+
+    private void displaySignInUI() {
+        // check for network connection
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+        // start authUI only if user is connected
+        if (isConnected) {
+            // Choose authentication providers
+            List<AuthUI.IdpConfig> providers = Arrays.asList(
+                    new AuthUI.IdpConfig.EmailBuilder().build(),
+                    new AuthUI.IdpConfig.GoogleBuilder().build());
+
+            // Create and launch sign-in intent
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .setAvailableProviders(providers)
+                            .build(),
+                    RC_SIGN_IN);
+        } else {
+            showInternetInformationDialog();
+        }
     }
 
     private void attachDatabaseReadListener() {
@@ -178,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     String listname = dataSnapshot.getKey();
-                    listAdapter.add(listname);
+                    mListAdapter.add(listname);
                 }
 
                 @Override
@@ -212,34 +249,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void displaySignInUI() {
-
-        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-
-        if (isConnected) {
-            // Choose authentication providers
-            List<AuthUI.IdpConfig> providers = Arrays.asList(
-                    new AuthUI.IdpConfig.EmailBuilder().build(),
-                    new AuthUI.IdpConfig.GoogleBuilder().build());
-
-            // Create and launch sign-in intent
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setAvailableProviders(providers)
-                            .build(),
-                    RC_SIGN_IN);
-        } else {
-            showInternetInformationDialog();
-        }
-    }
-
     private void showInternetInformationDialog() {
         AlertDialog.Builder internetInformationDialog = new AlertDialog.Builder(MainActivity.this);
-        internetInformationDialog.setTitle("Information").setMessage("To use this App you need connection to the internet.")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        internetInformationDialog.setTitle(R.string.dialog_title_internet_information).setMessage(R.string.dialog_message_internet_information)
+                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.cancel();
@@ -250,58 +263,42 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAdapter() {
-        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listnames);
-        listListView = (ListView) findViewById(R.id.listview_listlist);
-        listListView.setAdapter(listAdapter);
-
+        mListNames = new ArrayList<>();
+        mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mListNames);
+        mListListView = (ListView) findViewById(R.id.listview_listlist);
+        mListListView.setAdapter(mListAdapter);
     }
 
-    private void createNewBooklist() {
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+    private void showNewBooklistDialog() {
+        AlertDialog.Builder newBooklistDialog = new AlertDialog.Builder(MainActivity.this);
+        newBooklistDialog.setMessage(R.string.dialog_message_enter_listname);
+        final EditText input = new EditText(MainActivity.this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(params);
+        newBooklistDialog.setView(input);
+
+        newBooklistDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View view) {
-
-                AlertDialog.Builder newBooklistDialog = new AlertDialog.Builder(MainActivity.this);
-                newBooklistDialog.setMessage("Enter new listname");
-                final EditText input = new EditText(MainActivity.this);
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-                input.setLayoutParams(params);
-                newBooklistDialog.setView(input);
-
-                newBooklistDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String inputListname = input.getText().toString();
-                        Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
-                        newListIntent.putExtra("listname", inputListname);
-                        startActivity(newListIntent);
-                    }
-                });
-                newBooklistDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                newBooklistDialog.show();
-
-                // Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show(); - war vorgefertigt
+            public void onClick(DialogInterface dialog, int which) {
+                // start BookListActivity with user input
+                Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
+                newListIntent.putExtra(Constants.key_intent_booklistname, input.getText().toString());
+                startActivity(newListIntent);
             }
         });
+        newBooklistDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        newBooklistDialog.show();
     }
 
-    private void onBooklistClicked() {
-        listListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent booklistIntent = new Intent(MainActivity.this, BookListActivity.class);
-                booklistIntent.putExtra(Constants.key_intent_booklistname, listnames.get(position));
-                startActivity(booklistIntent);
-            }
-        });
-
+    private void startBookListActivity(int position) {
+        Intent booklistIntent = new Intent(MainActivity.this, BookListActivity.class);
+        booklistIntent.putExtra(Constants.key_intent_booklistname, mListNames.get(position));
+        startActivity(booklistIntent);
     }
 
 
@@ -324,8 +321,9 @@ public class MainActivity extends AppCompatActivity {
                 // sign out
                 AuthUI.getInstance().signOut(this);
                 return true;
-            case R.id.action_wish_list: // intent umbennen und verschieben ?
-                Intent intent = new Intent(this,WishGalleryActivity.class);
+            case R.id.action_wish_list:
+                // start WishListActivity
+                Intent intent = new Intent(this, WishGalleryActivity.class);
                 startActivity(intent);
                 return true;
             default:

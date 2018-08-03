@@ -48,7 +48,7 @@ public class AddBookActivity extends AppCompatActivity {
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBooklistName = extras.getString(Constants.key_db_reference_booklists);
+        mBooklistName = extras.getString(Constants.key_intent_booklistname);
     }
 
     private void getDatabaseReference() {
