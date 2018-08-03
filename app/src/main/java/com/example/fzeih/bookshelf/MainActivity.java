@@ -225,7 +225,8 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                    String listname = (String) dataSnapshot.getValue();
+                    mListAdapter.remove(listname);
                 }
 
                 @Override
@@ -281,9 +282,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // start BookListActivity with user input
+                String newListName = input.getText().toString();
+                mListnamesDatabaseReference.child(newListName).setValue(newListName);
                 Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
-                mListnamesDatabaseReference.push().setValue(input.getText().toString());
-                newListIntent.putExtra(Constants.key_intent_booklistname, input.getText().toString());
+                newListIntent.putExtra(Constants.key_intent_booklistname, newListName);
                 startActivity(newListIntent);
             }
         });

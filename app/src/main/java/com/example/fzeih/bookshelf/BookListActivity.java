@@ -33,6 +33,7 @@ public class BookListActivity extends AppCompatActivity {
 
     private ChildEventListener mChildEventListener;
     private DatabaseReference mBooklistDatabaseReference;
+    private DatabaseReference mListnamesDatabaseReference;
     private List<Book> mBooks;
     private String mBooklistName;
 
@@ -85,6 +86,7 @@ public class BookListActivity extends AppCompatActivity {
 
     private void getDatabaseReference() {
         mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistName);
+        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklistnames);
     }
 
     private void setBookAdapter() {
@@ -205,6 +207,7 @@ public class BookListActivity extends AppCompatActivity {
                 return true;
             case R.id.action_delete:
                 detachReadDatabaseListener();
+                mListnamesDatabaseReference.child(mBooklistName).removeValue();
                 mBooklistDatabaseReference.removeValue();
                 finish();
                 return true;
