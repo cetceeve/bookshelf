@@ -25,4 +25,5 @@
     <string name="text_create_bookitem">create bookitem</string>
     <string name="edittext_hint_isbn">Enter ISBN</string>
     <string name="text_editButton">Edit</string>
+    <string name="button_isbn_search">Search</string>
 </resources>

@@ -150,9 +150,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initDatabase() {
-        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
-        mFirebaseDatabase.setPersistenceEnabled(true);
-        mListlistDatabaseReference = mFirebaseDatabase.getReference().child(Constants.key_db_reference_booklists);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        mListlistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(Constants.key_db_reference_booklists);
     }
 
     private void initAuthentication() {
