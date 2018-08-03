@@ -180,6 +180,13 @@ public class BookListActivity extends AppCompatActivity {
         }
     }
 
+    private void detachReadDatabaseListener() {
+        if (mChildEventListener != null) {
+            mBooklistDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -197,7 +204,9 @@ public class BookListActivity extends AppCompatActivity {
                 showRenameBooklistDialog();
                 return true;
             case R.id.action_delete:
-                // delete
+                detachReadDatabaseListener();
+                mBooklistDatabaseReference.removeValue();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
