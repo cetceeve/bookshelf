@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showNewBooklistDialog();
+                showNewBookListDialog();
             }
         });
         mListListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -143,6 +143,35 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_sign_out:
+                // sign out
+                AuthUI.getInstance().signOut(this);
+                return true;
+            case R.id.action_wish_list:
+                // start WishListActivity
+                Intent intent = new Intent(this, WishGalleryActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void checkForCameraPermission() {
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // permission is not granted
@@ -153,6 +182,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void initAuthentication() {
         mFirebaseAuth = FirebaseAuth.getInstance();
+    }
+
+    private void setAdapter() {
+        mListNames = new ArrayList<>();
+        mFirebaseKeys = new ArrayList<>();
+        mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mListNames);
+        mListListView = (ListView) findViewById(R.id.listview_listlist);
+        mListListView.setAdapter(mListAdapter);
     }
 
     private void attachAuthStateChangedListener() {
@@ -175,10 +212,6 @@ public class MainActivity extends AppCompatActivity {
     private void onSignedInInitialize(FirebaseUser user) {
         getDatabaseReference(user);
         attachDatabaseReadListener();
-    }
-
-    private void getDatabaseReference(@NonNull FirebaseUser user) {
-        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
     }
 
     private void onSignedOutCleanup() {
@@ -212,13 +245,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void getDatabaseReference(@NonNull FirebaseUser user) {
+        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
+    }
+
     private void attachDatabaseReadListener() {
         if (mChildEventListener == null) {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String listname = (String) dataSnapshot.getValue();
-                    mListAdapter.add(listname);
+                    String listName = (String) dataSnapshot.getValue();
+                    mListAdapter.add(listName);
                     mFirebaseKeys.add(dataSnapshot.getKey());
                 }
 
@@ -229,8 +266,8 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    String listname = (String) dataSnapshot.getValue();
-                    mListAdapter.remove(listname);
+                    String listName = (String) dataSnapshot.getValue();
+                    mListAdapter.remove(listName);
                     mFirebaseKeys.remove(dataSnapshot.getKey());
                 }
 
@@ -255,6 +292,51 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void startBookListActivity(int position) {
+        Intent bookListIntent = new Intent(MainActivity.this, BookListActivity.class);
+        bookListIntent.putExtra(Constants.key_intent_booklistname, mListNames.get(position));
+        bookListIntent.putExtra(Constants.key_intent_booklistkey, mFirebaseKeys.get(position));
+        startActivity(bookListIntent);
+    }
+
+    private String createDatabaseKeyForNewBookList(String listName) {
+        DatabaseReference newBookListReference = mListnamesDatabaseReference.push();
+        newBookListReference.setValue(listName);
+        return newBookListReference.getKey();
+    }
+
+    private void startNewBookListActivity(String bookListKey, String bookListName) {
+        Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
+        newListIntent.putExtra(Constants.key_intent_booklistname, bookListName);
+        newListIntent.putExtra(Constants.key_intent_booklistkey, bookListKey);
+        startActivity(newListIntent);
+    }
+
+    private void showNewBookListDialog() {
+        AlertDialog.Builder newBookListDialog = new AlertDialog.Builder(MainActivity.this);
+        newBookListDialog.setMessage(R.string.dialog_message_enter_listname);
+        final EditText input = new EditText(MainActivity.this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(params);
+        newBookListDialog.setView(input);
+
+        newBookListDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newBookListName = input.getText().toString();
+                String newBookListKey = createDatabaseKeyForNewBookList(newBookListName);
+                startNewBookListActivity(newBookListKey, newBookListName);
+            }
+        });
+        newBookListDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        newBookListDialog.show();
+    }
+
     private void showInternetInformationDialog() {
         AlertDialog.Builder internetInformationDialog = new AlertDialog.Builder(MainActivity.this);
         internetInformationDialog.setTitle(R.string.dialog_title_internet_information).setMessage(R.string.dialog_message_internet_information)
@@ -268,79 +350,4 @@ public class MainActivity extends AppCompatActivity {
         internetInformationDialog.show();
     }
 
-    private void setAdapter() {
-        mListNames = new ArrayList<>();
-        mFirebaseKeys = new ArrayList<>();
-        mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mListNames);
-        mListListView = (ListView) findViewById(R.id.listview_listlist);
-        mListListView.setAdapter(mListAdapter);
-    }
-
-    private void showNewBooklistDialog() {
-        AlertDialog.Builder newBooklistDialog = new AlertDialog.Builder(MainActivity.this);
-        newBooklistDialog.setMessage(R.string.dialog_message_enter_listname);
-        final EditText input = new EditText(MainActivity.this);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(params);
-        newBooklistDialog.setView(input);
-
-        newBooklistDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // start BookListActivity with user input
-                String newListName = input.getText().toString();
-                DatabaseReference tempDbRef = mListnamesDatabaseReference.push();
-                tempDbRef.setValue(newListName);
-
-                Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
-                newListIntent.putExtra(Constants.key_intent_booklistname, newListName);
-                newListIntent.putExtra(Constants.key_intent_booklistkey, tempDbRef.getKey());
-                startActivity(newListIntent);
-            }
-        });
-        newBooklistDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        newBooklistDialog.show();
-    }
-
-    private void startBookListActivity(int position) {
-        Intent booklistIntent = new Intent(MainActivity.this, BookListActivity.class);
-        booklistIntent.putExtra(Constants.key_intent_booklistname, mListNames.get(position));
-        booklistIntent.putExtra(Constants.key_intent_booklistkey, mFirebaseKeys.get(position));
-        startActivity(booklistIntent);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                return true;
-            case R.id.action_sign_out:
-                // sign out
-                AuthUI.getInstance().signOut(this);
-                return true;
-            case R.id.action_wish_list:
-                // start WishListActivity
-                Intent intent = new Intent(this, WishGalleryActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }
