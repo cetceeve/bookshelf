@@ -28,15 +28,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookListActivity extends AppCompatActivity {
-    private ListView mBooklistView;
+    private ListView mBookListView;
     private BookAdapter mBookAdapter;
 
     private ChildEventListener mChildEventListener;
-    private DatabaseReference mBooklistDatabaseReference;
+    private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListnamesDatabaseReference;
-    private String mBooklistKey;
+    private String mBookListKey;
 
-    private String mBooklistName;
+    private String mBookListName;
     private List<Book> mBooks;
 
     @Override
@@ -49,7 +49,7 @@ public class BookListActivity extends AppCompatActivity {
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setTitle(mBookListName);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Data
@@ -57,7 +57,7 @@ public class BookListActivity extends AppCompatActivity {
         setBookAdapter();
 
         // Listeners
-        attachDatabaseReadListener();
+        // attachDatabaseReadListener();
 
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -66,7 +66,7 @@ public class BookListActivity extends AppCompatActivity {
                 showOptionsToAddBookDialog();
             }
         });
-        mBooklistView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mBookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 startDisplayBookActivity(position);
@@ -78,6 +78,30 @@ public class BookListActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_booklist, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        switch (item.getItemId()) {
+            case R.id.action_rename:
+                showRenameBookListDialog();
+                return true;
+            case R.id.action_delete:
+                showDeleteConfirmationDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -96,65 +120,20 @@ public class BookListActivity extends AppCompatActivity {
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBooklistName = extras.getString(Constants.key_intent_booklistname);
-        mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
+        mBookListName = extras.getString(Constants.key_intent_booklistname);
+        mBookListKey = extras.getString(Constants.key_intent_booklistkey);
     }
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey);
+        mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
         mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklistnames);
     }
 
     private void setBookAdapter() {
         mBooks = new ArrayList<>();
-        mBooklistView = findViewById(R.id.listview_booklist);
+        mBookListView = findViewById(R.id.listview_booklist);
         mBookAdapter = new BookAdapter(this, R.layout.item_book, mBooks);
-        mBooklistView.setAdapter(mBookAdapter);
-    }
-
-    private void showOptionsToAddBookDialog() {
-        // Create Dialog
-        String[] optionsToAddBook = {getString(R.string.dialog_option_add_book_manually), getString(R.string.dialog_option_isbn_search), getString(R.string.dialog_option_barcode_scanner)};
-        AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
-        addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        // start AddBookActivity
-                        Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                        addManuallyIntent.putExtra(Constants.key_intent_booklistkey, mBooklistKey);
-                        startActivity(addManuallyIntent);
-                        break;
-                    case 1:
-                        // TODO: isbn search
-                        Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
-                        startActivity(addByIsbnIntent);
-                        break;
-                    case 2:
-                        // TODO: barcodescanner
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        addBookDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        addBookDialog.show();
-    }
-
-    private void startDisplayBookActivity(int position) {
-        Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
-        displayBookIntent.putExtra(Constants.key_intent_book, mBooks.get(position));
-        displayBookIntent.putExtra(Constants.key_intent_booklistkey, mBooklistKey);
-        startActivity(displayBookIntent);
+        mBookListView.setAdapter(mBookAdapter);
     }
 
     private void attachDatabaseReadListener() {
@@ -195,71 +174,95 @@ public class BookListActivity extends AppCompatActivity {
 
                 }
             };
-            mBooklistDatabaseReference.addChildEventListener(mChildEventListener);
+            mBookListDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
     private void detachReadDatabaseListener() {
         if (mChildEventListener != null) {
-            mBooklistDatabaseReference.removeEventListener(mChildEventListener);
+            mBookListDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_booklist, menu);
-        return true;
+    private void startDisplayBookActivity(int position) {
+        Intent displayBookIntent = new Intent(BookListActivity.this, DisplayBookActivity.class);
+        displayBookIntent.putExtra(Constants.key_intent_book, mBooks.get(position));
+        displayBookIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
+        startActivity(displayBookIntent);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        switch (item.getItemId()) {
-            case R.id.action_rename:
-                showRenameBooklistDialog();
-                return true;
-            case R.id.action_delete:
-                showDeleteConfirmationDialog();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private void deleteBooklist() {
+    private void deleteBookList() {
         detachReadDatabaseListener();
-        mListnamesDatabaseReference.child(mBooklistKey).removeValue();
-        mBooklistDatabaseReference.removeValue();
+        mListnamesDatabaseReference.child(mBookListKey).removeValue();
+        mBookListDatabaseReference.removeValue();
     }
 
-    private void showRenameBooklistDialog() {
-        AlertDialog.Builder renameBooklistDialog = new AlertDialog.Builder(BookListActivity.this);
-        renameBooklistDialog.setMessage(R.string.dialog_message_rename_booklist);
+    private void updateBookListName(String updatedBookListName) {
+        mListnamesDatabaseReference.child(mBookListKey).setValue(updatedBookListName);
+        mBookListName = updatedBookListName;
+        getSupportActionBar().setTitle(mBookListName);
+    }
+
+    private void showRenameBookListDialog() {
+        AlertDialog.Builder renameBookListDialog = new AlertDialog.Builder(BookListActivity.this);
+        renameBookListDialog.setMessage(R.string.dialog_message_rename_booklist);
         final EditText input = new EditText(BookListActivity.this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(params);
-        renameBooklistDialog.setView(input);
+        renameBookListDialog.setView(input);
 
-        renameBooklistDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+        renameBookListDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String updatedListName = input.getText().toString();
-                mListnamesDatabaseReference.child(mBooklistKey).setValue(updatedListName);
-                mBooklistName = updatedListName;
-                getSupportActionBar().setTitle(mBooklistName);
+                updateBookListName(input.getText().toString());
             }
         });
-        renameBooklistDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+        renameBookListDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
         });
-        renameBooklistDialog.show();
+        renameBookListDialog.show();
+    }
+
+    private void showOptionsToAddBookDialog() {
+        // Create Dialog
+        String[] optionsToAddBook = {getString(R.string.dialog_option_add_book_manually), getString(R.string.dialog_option_isbn_search), getString(R.string.dialog_option_barcode_scanner)};
+        AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
+        addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                        // start AddBookActivity
+                        Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
+                        addManuallyIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
+                        startActivity(addManuallyIntent);
+                        break;
+                    case 1:
+                        // TODO: isbn search
+                        Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
+                        startActivity(addByIsbnIntent);
+                        break;
+                    case 2:
+                        // TODO: barcodescanner
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        addBookDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        addBookDialog.show();
     }
 
     private void showDeleteConfirmationDialog() {
@@ -268,7 +271,7 @@ public class BookListActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        deleteBooklist();
+                        deleteBookList();
                         finish();
                     }
                 }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
