@@ -37,6 +37,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter<String> mListAdapter;
     private ArrayList<String> mListNames;
-    private ArrayList<String> mFirebaseKeys;
+    private HashMap<String, String> mFirebaseKeyMap;
 
     private ListView mListListView;
 
@@ -163,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         }
         detachReadDatabaseListener();
         mListAdapter.clear();
-        mFirebaseKeys.clear();
+        mFirebaseKeyMap.clear();
     }
 
     @Override
@@ -186,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setAdapter() {
         mListNames = new ArrayList<>();
-        mFirebaseKeys = new ArrayList<>();
+        mFirebaseKeyMap = new HashMap<>();
         mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mListNames);
         mListListView = (ListView) findViewById(R.id.listview_listlist);
         mListListView.setAdapter(mListAdapter);
@@ -216,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onSignedOutCleanup() {
         mListAdapter.clear();
-        mFirebaseKeys.clear();
+        mFirebaseKeyMap.clear();
         detachReadDatabaseListener();
     }
 
@@ -256,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     String listName = (String) dataSnapshot.getValue();
                     mListAdapter.add(listName);
-                    mFirebaseKeys.add(dataSnapshot.getKey());
+                    mFirebaseKeyMap.put(listName, dataSnapshot.getKey());
                 }
 
                 @Override
@@ -268,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                     String listName = (String) dataSnapshot.getValue();
                     mListAdapter.remove(listName);
-                    mFirebaseKeys.remove(dataSnapshot.getKey());
+                    mFirebaseKeyMap.remove(listName);
                 }
 
                 @Override
@@ -295,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
     private void startBookListActivity(int position) {
         Intent bookListIntent = new Intent(MainActivity.this, BookListActivity.class);
         bookListIntent.putExtra(Constants.key_intent_booklistname, mListNames.get(position));
-        bookListIntent.putExtra(Constants.key_intent_booklistkey, mFirebaseKeys.get(position));
+        bookListIntent.putExtra(Constants.key_intent_booklistkey, mFirebaseKeyMap.get(mListNames.get(position)));
         startActivity(bookListIntent);
     }
 
