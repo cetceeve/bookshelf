@@ -30,26 +30,12 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         TextView titleTextView = convertView.findViewById(R.id.textview_book_title);
         TextView authorTextView = convertView.findViewById(R.id.textview_book_author);
-      //  Switch readBookSwitch = convertView.findViewById(R.id.switch_book_read);
 
         book = getItem(position);
 
         titleTextView.setText(book.getTitle());
         String author = book.getAuthorName();
         authorTextView.setText(author);
-    //    readBookSwitch.setChecked(book.getRead());
-
-       /* readBookSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b){
-                    book.setRead(true);
-                }else {
-                    book.setRead(false);
-                }
-            }
-        });*/
-
 
         return convertView;
     }

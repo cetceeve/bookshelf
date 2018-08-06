@@ -24,12 +24,15 @@ public class DisplayBookActivity extends AppCompatActivity {
     private Book mBook;
     private String mBooklistKey;
     private DatabaseReference mBookDatabaseReference;
+    private DatabaseReference mBooksReadDatabaseReference;
+    private long mNumReadBooks;
 
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
     private Switch mBookRead;
     private ValueEventListener mValueEventListener;
+    private ValueEventListener mValueEventListenerReadBooks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +54,8 @@ public class DisplayBookActivity extends AppCompatActivity {
 
         // Listeners
         attachDatabaseReadListener();
+        attachDatabaseReadListenerReadBooks();
+        setChangeListener();
     }
 
     @Override
@@ -68,6 +73,7 @@ public class DisplayBookActivity extends AppCompatActivity {
 
     private void getDatabaseReference() {
         mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey).child(mBook.getKey());
+        mBooksReadDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.getKey_db_reference_booksRead);
     }
 
     private void initViews() {
@@ -75,15 +81,31 @@ public class DisplayBookActivity extends AppCompatActivity {
         mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
         mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
         mBookRead = (Switch) findViewById(R.id.switch_book_read);
-        mBookRead.setChecked(mBook.getRead());
+        mBookRead.setChecked(mBook.getRead()); // beim neuaufrufen der Activity immer false, warum
+    }
 
+    private void setChangeListener() {
         mBookRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b){
                     mBook.setRead(true);
+                    /*if (mNumReadBooks ==null){
+                        mNumReadBooks=  0;
+                    }*/
+                    mBooksReadDatabaseReference.setValue(mNumReadBooks+1);
+                    Toast.makeText(DisplayBookActivity.this, "you've read " + mNumReadBooks +" book", Toast.LENGTH_SHORT).show();
                 }else{
                     mBook.setRead(false);
+                   /* if (mNumReadBooks ==null){
+                        mNumReadBooks=0;
+                    }*/
+                    if (mNumReadBooks>0){
+                        mBooksReadDatabaseReference.setValue(mNumReadBooks-1);
+                        Toast.makeText(DisplayBookActivity.this, "you've read " + mNumReadBooks +" book", Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(DisplayBookActivity.this, "sorry something went wrong", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
@@ -120,10 +142,34 @@ public class DisplayBookActivity extends AppCompatActivity {
         mBookDatabaseReference.addValueEventListener(mValueEventListener);
     }
 
+    private void attachDatabaseReadListenerReadBooks() {
+        mValueEventListenerReadBooks = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mNumReadBooks = (long) dataSnapshot.getValue();
+                /*if (mNumReadBooks != null) {
+                    mNumReadBooks = 0;
+                }*/
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        mBooksReadDatabaseReference.addValueEventListener(mValueEventListenerReadBooks);
+    }
+
     private void detachReadDatabaseListener() {
         if (mValueEventListener != null) {
             mBookDatabaseReference.removeEventListener(mValueEventListener);
             mValueEventListener = null;
+        }
+    }
+
+    private void detachReadDatabaseListenerReadBooks() {
+        if (mValueEventListenerReadBooks != null) {
+            mBooksReadDatabaseReference.removeEventListener(mValueEventListenerReadBooks);
+            mValueEventListenerReadBooks = null;
         }
     }
 
@@ -160,6 +206,7 @@ public class DisplayBookActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         detachReadDatabaseListener();
+                        detachReadDatabaseListenerReadBooks();
                         mBookDatabaseReference.removeValue();
                         Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
                         finish();

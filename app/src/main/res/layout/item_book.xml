@@ -20,10 +20,5 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         />
-   <!-- <Switch
-        android:id="@+id/switch_book_read"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="read"/> -->
 
 </LinearLayout>
