@@ -28,7 +28,7 @@ import java.util.Date;
 public class WishGalleryActivity extends AppCompatActivity {
 
     private GridView mGridviewPhotos;
-    private ArrayList<File> mPhotos;
+    private ArrayList<Uri> mPhotoUris;
     private PhotoAdapter mPhotoAdapter;
 
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -66,11 +66,24 @@ public class WishGalleryActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            // galleryAddPic();
+            Bundle extras = data.getExtras();
+            if (extras != null) {
+                Uri photoUri = (Uri) extras.get(MediaStore.EXTRA_OUTPUT);
+                mPhotoAdapter.add(photoUri);
+            }
+        }
+    }
+
 
     private void setImageAdapter() {
         mGridviewPhotos = (GridView) findViewById(R.id.gridview_wishgallery);
-        mPhotos = new ArrayList<File>();
-        mPhotoAdapter = new PhotoAdapter(this, R.layout.view_image, mPhotos);
+        mPhotoUris = new ArrayList<>();
+        mPhotoAdapter = new PhotoAdapter(this, R.layout.view_image, mPhotoUris);
         mGridviewPhotos.setAdapter(mPhotoAdapter);
     }
 
@@ -88,10 +101,6 @@ public class WishGalleryActivity extends AppCompatActivity {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-
-                mPhotos.add(photoFile);
-                mPhotoAdapter.notifyDataSetChanged();
-
                 Uri photoURI = FileProvider.getUriForFile(getApplicationContext(),
                         "com.example.android.fileprovider",
                         photoFile);
@@ -100,14 +109,6 @@ public class WishGalleryActivity extends AppCompatActivity {
             }
         }
 
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            galleryAddPic();
-        }
     }
 
 
