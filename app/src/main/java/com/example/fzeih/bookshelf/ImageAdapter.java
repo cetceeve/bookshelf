@@ -10,9 +10,9 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-public class PhotoAdapter extends ArrayAdapter<Uri> {
+public class ImageAdapter extends ArrayAdapter<Uri> {
 
-    public PhotoAdapter(Context context, int layoutResourceId, ArrayList<Uri> data) {
+    public ImageAdapter(Context context, int layoutResourceId, ArrayList<Uri> data) {
         super(context, layoutResourceId, data);
     }
 

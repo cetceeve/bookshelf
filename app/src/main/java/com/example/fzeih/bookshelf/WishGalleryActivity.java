@@ -29,7 +29,7 @@ public class WishGalleryActivity extends AppCompatActivity {
 
     private GridView mGridviewPhotos;
     private ArrayList<Uri> mPhotoUris;
-    private PhotoAdapter mPhotoAdapter;
+    private ImageAdapter mImageAdapter;
 
     static final int REQUEST_TAKE_PHOTO = 1;
 
@@ -72,7 +72,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             galleryAddPic();
-            mPhotoAdapter.add(mCurrentPhotoUri);
+            mImageAdapter.add(mCurrentPhotoUri);
         }
     }
 
@@ -80,8 +80,8 @@ public class WishGalleryActivity extends AppCompatActivity {
     private void setImageAdapter() {
         mGridviewPhotos = (GridView) findViewById(R.id.gridview_wishgallery);
         mPhotoUris = new ArrayList<>();
-        mPhotoAdapter = new PhotoAdapter(this, R.layout.view_image, mPhotoUris);
-        mGridviewPhotos.setAdapter(mPhotoAdapter);
+        mImageAdapter = new ImageAdapter(this, R.layout.view_image, mPhotoUris);
+        mGridviewPhotos.setAdapter(mImageAdapter);
     }
 
     private void dispatchTakePictureIntent() {
@@ -126,7 +126,6 @@ public class WishGalleryActivity extends AppCompatActivity {
     }
 
 
-    // TODO - Bilder werden nicht in Galerie angezeigt
     private void galleryAddPic() {
         if (mCurrentPhotoPath == null) {
             return;
