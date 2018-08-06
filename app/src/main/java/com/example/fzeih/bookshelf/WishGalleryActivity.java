@@ -34,6 +34,7 @@ public class WishGalleryActivity extends AppCompatActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
 
     private String mCurrentPhotoPath;
+    private Uri mCurrentPhotoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,12 +71,8 @@ public class WishGalleryActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            // galleryAddPic();
-            Bundle extras = data.getExtras();
-            if (extras != null) {
-                Uri photoUri = (Uri) extras.get(MediaStore.EXTRA_OUTPUT);
-                mPhotoAdapter.add(photoUri);
-            }
+            galleryAddPic();
+            mPhotoAdapter.add(mCurrentPhotoUri);
         }
     }
 
@@ -101,10 +98,10 @@ public class WishGalleryActivity extends AppCompatActivity {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(getApplicationContext(),
+                mCurrentPhotoUri = FileProvider.getUriForFile(getApplicationContext(),
                         "com.example.android.fileprovider",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoUri);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
@@ -116,7 +113,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
                 ".jpg",         /* suffix */

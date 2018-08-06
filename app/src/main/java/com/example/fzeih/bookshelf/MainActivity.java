@@ -41,7 +41,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
-    private static final int PERMISSION_REQUEST_CAMERA = 1;
+    private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
 
     private DatabaseReference mListnamesDatabaseReference;
     private ChildEventListener mChildEventListener;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         //getSupportActionBar().setIcon(R.drawable.ic_camera_enhance_black_24dp); setzt ganz links das Icon
 
         // Permissions
-        checkForCameraPermission(); // TODO: move to Bücherwunschliste-Gallerie
+        checkForExternalStoragePermission(); // TODO: move to Bücherwunschliste-Gallerie
 
         // Data
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
@@ -90,14 +90,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case PERMISSION_REQUEST_CAMERA:
+            case PERMISSION_REQUEST_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
                 } else {
                     // permission denied
                     // TODO: handle permission denied
                     // Wunschliste dann nicht anbieten?
-                    Toast.makeText(MainActivity.this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "External storage permission denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
@@ -141,10 +141,10 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
-    private void checkForCameraPermission() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+    private void checkForExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // permission is not granted
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
 
         }
     }
