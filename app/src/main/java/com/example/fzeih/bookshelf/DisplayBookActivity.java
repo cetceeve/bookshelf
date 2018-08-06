@@ -1,7 +1,9 @@
 package com.example.fzeih.bookshelf;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,7 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 public class DisplayBookActivity extends AppCompatActivity {
 
     private Book mBook;
-    private String mBooklistName;
+    private String mBooklistKey;
     private DatabaseReference mBookDatabaseReference;
 
     private TextView mTitleTextView;
@@ -33,7 +35,7 @@ public class DisplayBookActivity extends AppCompatActivity {
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle(mBooklistName);
+        getSupportActionBar().setTitle(mBooklistKey);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
@@ -58,17 +60,17 @@ public class DisplayBookActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         mBook = (Book) extras.get(Constants.key_intent_book);
-        mBooklistName = extras.getString(Constants.key_intent_booklistname);
+        mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
     }
 
     private void getDatabaseReference() {
-        mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistName).child(mBook.getKey());
+        mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey).child(mBook.getKey());
     }
 
     private void initViews() {
-        mTitleTextView = (TextView)findViewById(R.id.textView_title_book);
-        mAuthorNameTextView = (TextView)findViewById(R.id.textView_authorName_book);
-        mIsbnTextView = (TextView)findViewById(R.id.textView_isbn_book);
+        mTitleTextView = (TextView) findViewById(R.id.textView_title_book);
+        mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
+        mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
     }
 
     private void setBookData() {
@@ -78,9 +80,9 @@ public class DisplayBookActivity extends AppCompatActivity {
     }
 
     private void startEditBookAcitivity() {
-        Intent intent = new Intent(DisplayBookActivity.this,EditBookActivity.class);
+        Intent intent = new Intent(DisplayBookActivity.this, EditBookActivity.class);
         intent.putExtra(Constants.key_intent_book, mBook);
-        intent.putExtra(Constants.key_intent_booklistname, mBooklistName);
+        intent.putExtra(Constants.key_intent_booklistkey, mBooklistKey);
         startActivity(intent);
     }
 
@@ -90,7 +92,9 @@ public class DisplayBookActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mBook = dataSnapshot.getValue(Book.class);
-                setBookData();
+                if (mBook != null) {
+                    setBookData();
+                }
             }
 
             @Override
@@ -119,10 +123,7 @@ public class DisplayBookActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                detachReadDatabaseListener();
-                mBookDatabaseReference.removeValue();
-                Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
-                finish();
+                showDeleteConfirmationDialog();
                 return true;
             case R.id.action_edit:
                 startEditBookAcitivity();
@@ -134,5 +135,25 @@ public class DisplayBookActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(DisplayBookActivity.this);
+        deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
+                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        detachReadDatabaseListener();
+                        mBookDatabaseReference.removeValue();
+                        Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        deleteConfirmationDialog.show();
     }
 }
