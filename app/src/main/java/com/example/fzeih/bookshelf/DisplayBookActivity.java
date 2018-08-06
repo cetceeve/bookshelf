@@ -3,6 +3,7 @@ package com.example.fzeih.bookshelf;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -25,13 +26,13 @@ public class DisplayBookActivity extends AppCompatActivity {
     private String mBooklistKey;
     private DatabaseReference mBookDatabaseReference;
     private DatabaseReference mBooksReadDatabaseReference;
-    private long mNumReadBooks;
+    private Long mNumReadBooks = 0L;
 
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
     private Switch mBookRead;
-    private ValueEventListener mValueEventListener;
+    private ValueEventListener mValueEventListenerBook;
     private ValueEventListener mValueEventListenerReadBooks;
 
     @Override
@@ -53,7 +54,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         getDatabaseReference();
 
         // Listeners
-        attachDatabaseReadListener();
+        attachDatabaseReadListenerBook();
         attachDatabaseReadListenerReadBooks();
         setChangeListener();
     }
@@ -81,31 +82,18 @@ public class DisplayBookActivity extends AppCompatActivity {
         mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
         mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
         mBookRead = (Switch) findViewById(R.id.switch_book_read);
-        mBookRead.setChecked(mBook.getRead()); // beim neuaufrufen der Activity immer false, warum
     }
 
     private void setChangeListener() {
         mBookRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b){
-                    mBook.setRead(true);
-                    /*if (mNumReadBooks ==null){
-                        mNumReadBooks=  0;
-                    }*/
-                    mBooksReadDatabaseReference.setValue(mNumReadBooks+1);
-                    Toast.makeText(DisplayBookActivity.this, "you've read " + mNumReadBooks +" book", Toast.LENGTH_SHORT).show();
-                }else{
+                if (b) {
+                    mBook.setRead(true); // TODO: communicate to database
+                    mBooksReadDatabaseReference.setValue(mNumReadBooks + 1);
+                } else {
                     mBook.setRead(false);
-                   /* if (mNumReadBooks ==null){
-                        mNumReadBooks=0;
-                    }*/
-                    if (mNumReadBooks>0){
-                        mBooksReadDatabaseReference.setValue(mNumReadBooks-1);
-                        Toast.makeText(DisplayBookActivity.this, "you've read " + mNumReadBooks +" book", Toast.LENGTH_SHORT).show();
-                    }else {
-                        Toast.makeText(DisplayBookActivity.this, "sorry something went wrong", Toast.LENGTH_SHORT).show();
-                    }
+                    mBooksReadDatabaseReference.setValue(mNumReadBooks - 1);
                 }
             }
         });
@@ -115,6 +103,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         mTitleTextView.setText(mBook.getTitle());
         mAuthorNameTextView.setText(mBook.getAuthorName());
         mIsbnTextView.setText(mBook.getIsbn());
+        mBookRead.setChecked(mBook.getRead()); // TODO: rework Book.java
     }
 
     private void startEditBookAcitivity() {
@@ -125,8 +114,8 @@ public class DisplayBookActivity extends AppCompatActivity {
     }
 
 
-    private void attachDatabaseReadListener() {
-        mValueEventListener = new ValueEventListener() {
+    private void attachDatabaseReadListenerBook() {
+        mValueEventListenerBook = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mBook = dataSnapshot.getValue(Book.class);
@@ -139,17 +128,18 @@ public class DisplayBookActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         };
-        mBookDatabaseReference.addValueEventListener(mValueEventListener);
+        mBookDatabaseReference.addValueEventListener(mValueEventListenerBook);
     }
 
     private void attachDatabaseReadListenerReadBooks() {
         mValueEventListenerReadBooks = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mNumReadBooks = (long) dataSnapshot.getValue();
-                /*if (mNumReadBooks != null) {
-                    mNumReadBooks = 0;
-                }*/
+                mNumReadBooks = (Long) dataSnapshot.getValue();
+                Toast.makeText(DisplayBookActivity.this, "you've read " + mNumReadBooks + " book", Toast.LENGTH_LONG).show();
+
+                Snackbar.make(mBookRead, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
 
             @Override
@@ -160,9 +150,9 @@ public class DisplayBookActivity extends AppCompatActivity {
     }
 
     private void detachReadDatabaseListener() {
-        if (mValueEventListener != null) {
-            mBookDatabaseReference.removeEventListener(mValueEventListener);
-            mValueEventListener = null;
+        if (mValueEventListenerBook != null) {
+            mBookDatabaseReference.removeEventListener(mValueEventListenerBook);
+            mValueEventListenerBook = null;
         }
     }
 
