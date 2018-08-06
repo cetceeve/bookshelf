@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditBookActivity"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView_title_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_title"/>
+
+    <EditText
+        android:id="@+id/editText_title_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textView_authorName_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_author_name"/>
+
+    <EditText
+        android:id="@+id/editText_authorName_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/textView_isbn_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_isbn"/>
+
+    <EditText
+        android:id="@+id/editText_isbn_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/button_edit_bookitem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="edit"/>
+</LinearLayout>
