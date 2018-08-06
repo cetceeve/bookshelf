@@ -8,7 +8,9 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,17 +23,14 @@ import javax.net.ssl.HttpsURLConnection;
 public class NetworkFragment extends Fragment {
     public static final String TAG = "NetworkFragment";
 
-    private static final String URL_KEY = "UrlKey";
-
     private DownloadCallback mCallback;
     private DownloadTask mDownloadTask;
-    private String mUrlString;
 
     /**
      * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
      * from.
      */
-    public static NetworkFragment getInstance(FragmentManager fragmentManager, String url) {
+    public static NetworkFragment getInstance(FragmentManager fragmentManager) {
         // Recover NetworkFragment in case we are re-creating the Activity due to a config change.
         // This is necessary because NetworkFragment might have a task that began running before
         // the config change occurred and has not finished yet.
@@ -39,9 +38,6 @@ public class NetworkFragment extends Fragment {
         NetworkFragment networkFragment = (NetworkFragment) fragmentManager.findFragmentByTag(NetworkFragment.TAG);
         if (networkFragment == null) {
             networkFragment = new NetworkFragment();
-            Bundle args = new Bundle();
-            args.putString(URL_KEY, url);
-            networkFragment.setArguments(args);
             fragmentManager.beginTransaction().add(networkFragment, TAG).commit();
         }
         return networkFragment;
@@ -50,7 +46,6 @@ public class NetworkFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mUrlString = getArguments().getString(URL_KEY);
         // Retain this Fragment across configuration changes in the host Activity.
         setRetainInstance(true);
     }
@@ -79,10 +74,11 @@ public class NetworkFragment extends Fragment {
     /**
      * Start non-blocking execution of DownloadTask.
      */
-    public void startDownload() {
+    public void startDownload(String urlString) {
         cancelDownload();
+        String url = urlString;
         mDownloadTask = new DownloadTask(mCallback);
-        mDownloadTask.execute(mUrlString);
+        mDownloadTask.execute(url);
     }
 
     /**
@@ -109,9 +105,11 @@ public class NetworkFragment extends Fragment {
         class Result {
             public String mResultValue;
             public Exception mException;
+
             public Result(String resultValue) {
                 mResultValue = resultValue;
             }
+
             public Result(Exception exception) {
                 mException = exception;
             }
@@ -211,7 +209,7 @@ public class NetworkFragment extends Fragment {
                 publishProgress(DownloadCallback.Progress.GET_INPUT_STREAM_SUCCESS, 0);
                 if (stream != null) {
                     // Converts Stream to String with max length of 500.
-                    result = readStream(stream, 500);
+                    result = readStream(stream);
                 }
             } finally {
                 // Close Stream and disconnect HTTPS connection.
@@ -228,21 +226,18 @@ public class NetworkFragment extends Fragment {
         /**
          * Converts the contents of an InputStream to a String.
          */
-        public String readStream(InputStream stream, int maxReadSize)
-                throws IOException, UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(stream, "UTF-8");
-            char[] rawBuffer = new char[maxReadSize];
-            int readSize;
+        public String readStream(InputStream stream)
+                throws IOException {
+
             StringBuffer buffer = new StringBuffer();
-            while (((readSize = reader.read(rawBuffer)) != -1) && maxReadSize > 0) {
-                if (readSize > maxReadSize) {
-                    readSize = maxReadSize;
-                }
-                buffer.append(rawBuffer, 0, readSize);
-                maxReadSize -= readSize;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                buffer.append(line + "\n");
             }
+
             return buffer.toString();
+
         }
     }
 }
