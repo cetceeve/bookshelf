@@ -9,13 +9,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -91,6 +88,7 @@ public class NetworkFragment extends Fragment {
     }
 
     private class DownloadTask extends AsyncTask<String, Integer, DownloadTask.Result> {
+
         private DownloadCallback<String> mCallback;
 
         DownloadTask(DownloadCallback<String> callback) {
@@ -165,9 +163,11 @@ public class NetworkFragment extends Fragment {
                     mCallback.updateFromDownload(result.mException.getMessage());
                 } else if (result.mResultValue != null) {
                     mCallback.updateFromDownload(result.mResultValue);
+
                 }
                 mCallback.finishDownloading();
             }
+
         }
 
         /**
@@ -208,7 +208,7 @@ public class NetworkFragment extends Fragment {
                 stream = connection.getInputStream();
                 publishProgress(DownloadCallback.Progress.GET_INPUT_STREAM_SUCCESS, 0);
                 if (stream != null) {
-                    // Converts Stream to String with max length of 500.
+                    // Converts Stream to String
                     result = readStream(stream);
                 }
             } finally {
@@ -220,6 +220,7 @@ public class NetworkFragment extends Fragment {
                     connection.disconnect();
                 }
             }
+
             return result;
         }
 
