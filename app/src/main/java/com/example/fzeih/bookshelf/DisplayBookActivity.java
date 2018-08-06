@@ -7,6 +7,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +28,7 @@ public class DisplayBookActivity extends AppCompatActivity {
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
+    private Switch mBookRead;
     private ValueEventListener mValueEventListener;
 
     @Override
@@ -71,6 +74,19 @@ public class DisplayBookActivity extends AppCompatActivity {
         mTitleTextView = (TextView) findViewById(R.id.textView_title_book);
         mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
         mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
+        mBookRead = (Switch) findViewById(R.id.switch_book_read);
+        mBookRead.setChecked(mBook.getRead());
+
+        mBookRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b){
+                    mBook.setRead(true);
+                }else{
+                    mBook.setRead(false);
+                }
+            }
+        });
     }
 
     private void setBookData() {

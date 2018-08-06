@@ -26,6 +26,10 @@ public class Book implements Parcelable{
         this.key = key;
     }
 
+    public void setRead(boolean read) {
+        this.read = read;
+    }
+
     public void setAuthorName(String authorName) {
         this.authorName = authorName;
     }
@@ -53,6 +57,10 @@ public class Book implements Parcelable{
 
     public String getIsbn() {
         return isbn;
+    }
+
+    public boolean getRead() {
+        return read;
     }
 
     protected Book(Parcel in) {

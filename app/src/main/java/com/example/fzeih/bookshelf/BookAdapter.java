@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -18,6 +19,8 @@ public class BookAdapter extends ArrayAdapter<Book> {
         super(context, resource, objects);
     }
 
+    Book book;
+
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -27,12 +30,25 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         TextView titleTextView = convertView.findViewById(R.id.textview_book_title);
         TextView authorTextView = convertView.findViewById(R.id.textview_book_author);
+      //  Switch readBookSwitch = convertView.findViewById(R.id.switch_book_read);
 
-        Book book = getItem(position);
+        book = getItem(position);
 
         titleTextView.setText(book.getTitle());
         String author = book.getAuthorName();
         authorTextView.setText(author);
+    //    readBookSwitch.setChecked(book.getRead());
+
+       /* readBookSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b){
+                    book.setRead(true);
+                }else {
+                    book.setRead(false);
+                }
+            }
+        });*/
 
 
         return convertView;
