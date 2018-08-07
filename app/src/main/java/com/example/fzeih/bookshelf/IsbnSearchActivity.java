@@ -77,7 +77,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
         mNetworkFragment = NetworkFragment.getInstance(getFragmentManager());
 
-
+        // Listeners
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -94,7 +94,17 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
                 mBookWasRead = !mBookWasRead;
             }
         });
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detachReadDatabaseListenerReadBooks();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
         attachDatabaseReadListenerReadBooks();
     }
 
@@ -122,6 +132,13 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             }
         };
         mBooksReadDatabaseReference.addValueEventListener(mValueEventListenerReadBooks);
+    }
+
+    private void detachReadDatabaseListenerReadBooks() {
+        if (mValueEventListenerReadBooks != null) {
+            mBooksReadDatabaseReference.removeEventListener(mValueEventListenerReadBooks);
+            mValueEventListenerReadBooks = null;
+        }
     }
 
     private void initViews() {

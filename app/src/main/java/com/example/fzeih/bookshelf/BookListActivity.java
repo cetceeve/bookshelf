@@ -57,8 +57,6 @@ public class BookListActivity extends AppCompatActivity {
         setBookAdapter();
 
         // Listeners
-        // attachDatabaseReadListener();
-
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override

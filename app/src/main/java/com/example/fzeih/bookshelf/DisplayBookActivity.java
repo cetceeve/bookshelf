@@ -54,15 +54,27 @@ public class DisplayBookActivity extends AppCompatActivity {
         getDatabaseReference();
 
         // Listeners
-        attachDatabaseReadListenerBook();
-        attachDatabaseReadListenerReadBooks();
-        setChangeListener();
+        setSwitchStateChangeListener();
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detachReadDatabaseListener();
+        detachReadDatabaseListenerReadBooks();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        attachDatabaseReadListenerBook();
+        attachDatabaseReadListenerReadBooks();
     }
 
     private void readIntent() {
@@ -84,7 +96,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         mBookReadSwitch = (Switch) findViewById(R.id.switch_book_read);
     }
 
-    private void setChangeListener() {
+    private void setSwitchStateChangeListener() {
         mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {

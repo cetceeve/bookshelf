@@ -63,13 +63,24 @@ public class AddBookActivity extends AppCompatActivity {
                 mBookWasRead = !mBookWasRead;
             }
         });
-
-        attachDatabaseReadListenerReadBooks();
     }
+
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detachReadDatabaseListenerReadBooks();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        attachDatabaseReadListenerReadBooks();
     }
 
     private void readIntent() {
@@ -95,6 +106,13 @@ public class AddBookActivity extends AppCompatActivity {
             }
         };
         mBooksReadDatabaseReference.addValueEventListener(mValueEventListenerReadBooks);
+    }
+
+    private void detachReadDatabaseListenerReadBooks() {
+        if (mValueEventListenerReadBooks != null) {
+            mBooksReadDatabaseReference.removeEventListener(mValueEventListenerReadBooks);
+            mValueEventListenerReadBooks = null;
+        }
     }
 
     private void initViews() {
