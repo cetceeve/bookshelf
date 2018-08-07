@@ -242,8 +242,8 @@ public class BookListActivity extends AppCompatActivity {
                         startActivity(addManuallyIntent);
                         break;
                     case 1:
-                        // TODO: isbn search
                         Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
+                        addByIsbnIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
                         startActivity(addByIsbnIntent);
                         break;
                     case 2:
