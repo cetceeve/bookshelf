@@ -1,5 +1,6 @@
 package com.example.fzeih.bookshelf;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -7,6 +8,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,6 +29,7 @@ import java.util.Date;
 
 
 public class WishGalleryActivity extends AppCompatActivity {
+    private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
 
     private GridView mGridviewPhotos;
     private ArrayList<Uri> mPhotoUris;
@@ -46,6 +50,8 @@ public class WishGalleryActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Wish Gallery");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Permissions
+        checkForExternalStoragePermission();
 
         //Adapter
         setImageAdapter();
@@ -68,11 +74,35 @@ public class WishGalleryActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                } else {
+                    // permission denied
+                    // TODO: handle permission denied
+                    // Wunschliste dann nicht anbieten?
+                    Toast.makeText(WishGalleryActivity.this, "External storage permission denied", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             galleryAddPic();
             mImageAdapter.add(mCurrentPhotoUri);
+        }
+    }
+
+    private void checkForExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(WishGalleryActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // permission is not granted
+            ActivityCompat.requestPermissions(WishGalleryActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
+
         }
     }
 

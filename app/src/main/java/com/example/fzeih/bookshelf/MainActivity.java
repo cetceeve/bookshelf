@@ -1,18 +1,14 @@
 package com.example.fzeih.bookshelf;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -42,7 +38,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
-    private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
 
     private DatabaseReference mListnamesDatabaseReference;
     private ChildEventListener mChildEventListener;
@@ -62,9 +57,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //getSupportActionBar().setIcon(R.drawable.ic_camera_enhance_black_24dp); setzt ganz links das Icon
-
-        // Permissions
-        checkForExternalStoragePermission(); // TODO: move to Bücherwunschliste-Gallerie
 
         // Data
         FirebaseDatabase.getInstance().setPersistenceEnabled(false);
@@ -119,22 +111,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSION_REQUEST_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted
-                } else {
-                    // permission denied
-                    // TODO: handle permission denied
-                    // Wunschliste dann nicht anbieten?
-                    Toast.makeText(MainActivity.this, "External storage permission denied", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -171,14 +147,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onPostResume() {
         super.onPostResume();
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-
-    private void checkForExternalStoragePermission() {
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // permission is not granted
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
-
-        }
     }
 
     private void initAuthentication() {
