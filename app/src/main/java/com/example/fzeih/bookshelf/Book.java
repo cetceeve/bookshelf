@@ -72,10 +72,6 @@ public class Book implements Parcelable {
         return read;
     }
 
-    public void toggleRead() {
-        read = !read;
-    }
-
     @Override
     public int describeContents() {
         return 0;

@@ -4,17 +4,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,9 +30,14 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private EditText mIsbnEditText;
     private Button mSearchButton, mAddResultButton;
     private TextView mResultTextView;
+    private Switch mBookReadSwitch;
+    private boolean mBookWasRead = false;
 
     private String mBooklistKey;
     private DatabaseReference mBooklistDatabaseReference;
+    private DatabaseReference mBooksReadDatabaseReference;
+    private ValueEventListener mValueEventListenerReadBooks;
+    private Long mNumReadBooks;
 
     // Keep a reference to the NetworkFragment, which owns the AsyncTask object
     // that is used to execute network ops.
@@ -78,6 +88,14 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
             }
         });
+        mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mBookWasRead = !mBookWasRead;
+            }
+        });
+
+        attachDatabaseReadListenerReadBooks();
     }
 
     private void readIntent() {
@@ -89,6 +107,21 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void getDatabaseReference() {
         mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey);
+        mBooksReadDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_books_read);
+    }
+
+    private void attachDatabaseReadListenerReadBooks() {
+        mValueEventListenerReadBooks = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mNumReadBooks = (Long) dataSnapshot.getValue();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        };
+        mBooksReadDatabaseReference.addValueEventListener(mValueEventListenerReadBooks);
     }
 
     private void initViews() {
@@ -97,6 +130,9 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mResultTextView = (TextView) findViewById(R.id.textView_result_isbnsearch);
         mAddResultButton = (Button) findViewById(R.id.button_add_isbnsearch);
         mAddResultButton.setVisibility(View.INVISIBLE);
+        mBookReadSwitch = findViewById(R.id.switch_book_read_isbn_search);
+        mBookReadSwitch.setVisibility(View.INVISIBLE);
+
     }
 
     @Override
@@ -131,6 +167,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
                 }
                 if (mTitle != null && mAuthor != null) {
                     mResultTextView.setText(mTitle + "\n" + mAuthor);
+                    mBookReadSwitch.setVisibility(View.VISIBLE);
                     mAddResultButton.setVisibility(View.VISIBLE);
                 }
             }
@@ -146,9 +183,12 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             public void onClick(View v) {
                 // upload data
                 DatabaseReference nextBookDatabaseReference = mBooklistDatabaseReference.push();
-                Book bookItem = new Book(nextBookDatabaseReference.getKey(), mAuthor, mTitle, mIsbnQueryInput);
+                Book bookItem = new Book(nextBookDatabaseReference.getKey(), mAuthor, mTitle, mIsbnQueryInput, mBookWasRead);
                 nextBookDatabaseReference.setValue(bookItem);
                 Toast.makeText(IsbnSearchActivity.this, "Added book to list", Toast.LENGTH_SHORT).show();
+                if (mBookWasRead) {
+                    mBooksReadDatabaseReference.setValue(mNumReadBooks + 1);
+                }
                 finish();
             }
         });

@@ -42,6 +42,12 @@
            android:layout_height="wrap_content"
            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
+       <Switch
+           android:id="@+id/switch_book_read_isbn_search"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="read"/>
+
        <Button
            android:id="@+id/button_add_isbnsearch"
            android:layout_width="wrap_content"
