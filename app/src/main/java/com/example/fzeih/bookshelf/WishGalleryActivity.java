@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -17,19 +19,24 @@ import android.view.View;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-
-// TODO - Bilder werden falsch angezeigt
-// TODO - wie können die Bilder gespeichert werden?
-
-
 public class WishGalleryActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
+
+    private DatabaseReference mPhotoGalleryDatabaseReference;
+    private ChildEventListener mChildEventListener;
 
     private GridView mGridviewPhotos;
     private ArrayList<Uri> mPhotoUris;
@@ -53,7 +60,8 @@ public class WishGalleryActivity extends AppCompatActivity {
         // Permissions
         checkForExternalStoragePermission();
 
-        //Adapter
+        //Data
+        getDatabaseReference();
         setImageAdapter();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -71,6 +79,25 @@ public class WishGalleryActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detachReadDatabaseListener();
+        mPhotoUris.clear();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        attachDatabaseReadListener();
     }
 
     @Override
@@ -94,7 +121,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             galleryAddPic();
-            mImageAdapter.add(mCurrentPhotoUri);
+            firebaseAddPicUri();
         }
     }
 
@@ -106,6 +133,9 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
     }
 
+    private void getDatabaseReference() {
+        mPhotoGalleryDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_photogallery);
+    }
 
     private void setImageAdapter() {
         mGridviewPhotos = (GridView) findViewById(R.id.gridview_wishgallery);
@@ -155,7 +185,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         return image;
     }
 
-
     private void galleryAddPic() {
         if (mCurrentPhotoPath == null) {
             return;
@@ -168,10 +197,45 @@ public class WishGalleryActivity extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+    private void firebaseAddPicUri() {
+        mPhotoGalleryDatabaseReference.push().setValue(mCurrentPhotoUri.toString());
     }
 
+    private void attachDatabaseReadListener() {
+        if (mChildEventListener == null) {
+            mChildEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    String photoUriString = (String) dataSnapshot.getValue();
+                    mImageAdapter.add(Uri.parse(photoUriString));
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                    String photoUriString = (String) dataSnapshot.getValue();
+                    mImageAdapter.remove(Uri.parse(photoUriString));
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            };
+        }
+        mPhotoGalleryDatabaseReference.addChildEventListener(mChildEventListener);
+    }
+
+    private void detachReadDatabaseListener() {
+        if (mChildEventListener != null) {
+            mPhotoGalleryDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+        }
+    }
 }
