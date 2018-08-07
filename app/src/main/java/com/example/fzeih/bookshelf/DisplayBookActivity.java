@@ -213,6 +213,9 @@ public class DisplayBookActivity extends AppCompatActivity {
                         detachReadDatabaseListener();
                         detachReadDatabaseListenerReadBooks();
                         mBookDatabaseReference.removeValue();
+                        if (mBook.getRead()) {
+                            mBooksReadDatabaseReference.setValue(mNumReadBooks - 1);
+                        }
                         Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
                         finish();
                     }
