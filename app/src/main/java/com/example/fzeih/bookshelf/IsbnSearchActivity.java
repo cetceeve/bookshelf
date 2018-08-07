@@ -181,14 +181,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mAddResultButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // upload data
-                DatabaseReference nextBookDatabaseReference = mBooklistDatabaseReference.push();
-                Book bookItem = new Book(nextBookDatabaseReference.getKey(), mAuthor, mTitle, mIsbnQueryInput, mBookWasRead);
-                nextBookDatabaseReference.setValue(bookItem);
-                Toast.makeText(IsbnSearchActivity.this, "Added book to list", Toast.LENGTH_SHORT).show();
-                if (mBookWasRead) {
-                    mBooksReadDatabaseReference.setValue(mNumReadBooks + 1);
-                }
+                uploadBookData();
                 finish();
             }
         });
@@ -235,6 +228,16 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             // Execute the async download.
             mNetworkFragment.startDownload(mRequestUrl);
             mDownloading = true;
+        }
+    }
+
+    private void uploadBookData() {
+        DatabaseReference nextBookDatabaseReference = mBooklistDatabaseReference.push();
+        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mAuthor, mTitle, mIsbnQueryInput, mBookWasRead);
+        nextBookDatabaseReference.setValue(bookItem);
+        Toast.makeText(IsbnSearchActivity.this, "Added book to list", Toast.LENGTH_SHORT).show();
+        if (mBookWasRead) {
+            mBooksReadDatabaseReference.setValue(mNumReadBooks + 1);
         }
     }
 }
