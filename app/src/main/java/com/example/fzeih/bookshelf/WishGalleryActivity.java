@@ -45,7 +45,6 @@ public class WishGalleryActivity extends AppCompatActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
 
     private String mCurrentPhotoPath;
-    private Uri mCurrentPhotoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,10 +157,10 @@ public class WishGalleryActivity extends AppCompatActivity {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                mCurrentPhotoUri = FileProvider.getUriForFile(getApplicationContext(),
+                Uri currentPhotoUri = FileProvider.getUriForFile(getApplicationContext(),
                         "com.example.android.fileprovider",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoUri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, currentPhotoUri);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
@@ -198,7 +197,7 @@ public class WishGalleryActivity extends AppCompatActivity {
     }
 
     private void firebaseAddPicUri() {
-        mPhotoGalleryDatabaseReference.push().setValue(mCurrentPhotoUri.toString());
+        mPhotoGalleryDatabaseReference.push().setValue(mCurrentPhotoPath);
     }
 
     private void attachDatabaseReadListener() {
@@ -206,8 +205,13 @@ public class WishGalleryActivity extends AppCompatActivity {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String photoUriString = (String) dataSnapshot.getValue();
-                    mImageAdapter.add(Uri.parse(photoUriString));
+                    String photoPath = (String) dataSnapshot.getValue();
+                    File file = new File(photoPath);
+                    if (file.exists()) {
+                        mImageAdapter.add(Uri.parse(photoPath));
+                    } else {
+                        mPhotoGalleryDatabaseReference.child(dataSnapshot.getKey()).removeValue();
+                    }
                 }
 
                 @Override
@@ -216,8 +220,8 @@ public class WishGalleryActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    String photoUriString = (String) dataSnapshot.getValue();
-                    mImageAdapter.remove(Uri.parse(photoUriString));
+                    String photoPath = (String) dataSnapshot.getValue();
+                    mImageAdapter.remove(Uri.parse(photoPath));
                 }
 
                 @Override
