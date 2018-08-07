@@ -26,12 +26,12 @@ public class DisplayBookActivity extends AppCompatActivity {
     private String mBooklistKey;
     private DatabaseReference mBookDatabaseReference;
     private DatabaseReference mBooksReadDatabaseReference;
-    private Long mNumReadBooks = 0L;
+    private Long mNumReadBooks;
 
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
-    private Switch mBookRead;
+    private Switch mBookReadSwitch;
     private ValueEventListener mValueEventListenerBook;
     private ValueEventListener mValueEventListenerReadBooks;
 
@@ -74,25 +74,30 @@ public class DisplayBookActivity extends AppCompatActivity {
 
     private void getDatabaseReference() {
         mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey).child(mBook.getKey());
-        mBooksReadDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.getKey_db_reference_booksRead);
+        mBooksReadDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_books_read);
     }
 
     private void initViews() {
         mTitleTextView = (TextView) findViewById(R.id.textView_title_book);
         mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
         mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
-        mBookRead = (Switch) findViewById(R.id.switch_book_read);
+        mBookReadSwitch = (Switch) findViewById(R.id.switch_book_read);
     }
 
     private void setChangeListener() {
-        mBookRead.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (mNumReadBooks == null) {
+                    mNumReadBooks = 0L;
+                }
                 if (b) {
-                    mBook.setRead(true); // TODO: communicate to database
+                    Book changedBook = new Book(mBook.getKey(), mBook.getAuthorName(), mBook.getTitle(), mBook.getIsbn(), true);
+                    mBookDatabaseReference.setValue(changedBook);
                     mBooksReadDatabaseReference.setValue(mNumReadBooks + 1);
                 } else {
-                    mBook.setRead(false);
+                    Book changedBook = new Book(mBook.getKey(), mBook.getAuthorName(), mBook.getTitle(), mBook.getIsbn(), false);
+                    mBookDatabaseReference.setValue(changedBook);
                     mBooksReadDatabaseReference.setValue(mNumReadBooks - 1);
                 }
             }
@@ -103,7 +108,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         mTitleTextView.setText(mBook.getTitle());
         mAuthorNameTextView.setText(mBook.getAuthorName());
         mIsbnTextView.setText(mBook.getIsbn());
-        mBookRead.setChecked(mBook.getRead()); // TODO: rework Book.java
+        mBookReadSwitch.setChecked(mBook.getRead());
     }
 
     private void startEditBookAcitivity() {
@@ -136,9 +141,7 @@ public class DisplayBookActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mNumReadBooks = (Long) dataSnapshot.getValue();
-                Toast.makeText(DisplayBookActivity.this, "you've read " + mNumReadBooks + " book", Toast.LENGTH_LONG).show();
-
-                Snackbar.make(mBookRead, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(mBookReadSwitch, "you've read " + mNumReadBooks + " book", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
 

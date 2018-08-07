@@ -3,7 +3,7 @@ package com.example.fzeih.bookshelf;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Book implements Parcelable{
+public class Book implements Parcelable {
 
     private String key;
     private String authorName;
@@ -20,6 +20,15 @@ public class Book implements Parcelable{
         this.authorName = authorName;
         this.title = title;
         this.isbn = isbn;
+        this.read = false;
+    }
+
+    public Book(String key, String authorName, String title, String isbn, boolean read){
+        this.key = key;
+        this.authorName = authorName;
+        this.title = title;
+        this.isbn = isbn;
+        this.read = read;
     }
 
     public void setKey(String key) {
@@ -63,11 +72,8 @@ public class Book implements Parcelable{
         return read;
     }
 
-    protected Book(Parcel in) {
-        key = in.readString();
-        authorName = in.readString();
-        title = in.readString();
-        isbn = in.readString();
+    public void toggleRead() {
+        read = !read;
     }
 
     @Override
@@ -77,17 +83,25 @@ public class Book implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(key);
-        dest.writeString(authorName);
-        dest.writeString(title);
-        dest.writeString(isbn);
+        dest.writeString(this.key);
+        dest.writeString(this.authorName);
+        dest.writeString(this.title);
+        dest.writeString(this.isbn);
+        dest.writeByte(this.read ? (byte) 1 : (byte) 0);
     }
 
-    @SuppressWarnings("unused")
+    protected Book(Parcel in) {
+        this.key = in.readString();
+        this.authorName = in.readString();
+        this.title = in.readString();
+        this.isbn = in.readString();
+        this.read = in.readByte() != 0;
+    }
+
     public static final Parcelable.Creator<Book> CREATOR = new Parcelable.Creator<Book>() {
         @Override
-        public Book createFromParcel(Parcel in) {
-            return new Book(in);
+        public Book createFromParcel(Parcel source) {
+            return new Book(source);
         }
 
         @Override
