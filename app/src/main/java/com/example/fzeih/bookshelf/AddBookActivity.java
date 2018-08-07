@@ -38,7 +38,7 @@ public class AddBookActivity extends AppCompatActivity {
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle(mBooklistKey);
+        getSupportActionBar().setTitle("Add Book");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 

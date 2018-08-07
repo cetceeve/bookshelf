@@ -28,7 +28,7 @@ public class EditBookActivity extends AppCompatActivity {
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle(mBooklistKey);
+        getSupportActionBar().setTitle("Edit Book");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Views
