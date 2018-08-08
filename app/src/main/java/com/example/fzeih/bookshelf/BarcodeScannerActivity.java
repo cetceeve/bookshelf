@@ -60,8 +60,8 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
                 } else {
                     // permission denied
                     // TODO: handle permission denied
-                    // Wunschliste dann nicht anbieten?
-                    Toast.makeText(BarcodeScannerActivity.this, "External storage permission denied", Toast.LENGTH_SHORT).show();
+                    // Barcodescanner dann nicht anbieten?
+                    Toast.makeText(BarcodeScannerActivity.this, "Camera permission denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
