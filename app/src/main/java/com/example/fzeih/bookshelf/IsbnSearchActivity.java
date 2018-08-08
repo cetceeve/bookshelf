@@ -26,7 +26,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback {
-
     private EditText mIsbnEditText;
     private Button mSearchButton, mAddResultButton;
     private TextView mResultTextView;
@@ -86,9 +85,15 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             public void onClick(View v) {
                 mIsbnQueryInput = mIsbnEditText.getText().toString();
                 mRequestUrl = BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
-
                 startDownload();
 
+            }
+        });
+        mAddResultButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadBookData();
+                finish();
             }
         });
         mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -150,13 +155,14 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mSearchButton = (Button) findViewById(R.id.button_searchByIsbn);
         mResultTextView = (TextView) findViewById(R.id.textView_result_isbnsearch);
         mAddResultButton = (Button) findViewById(R.id.button_add_isbnsearch);
-        mAddResultButton.setVisibility(View.INVISIBLE);
         mBookReadSwitch = findViewById(R.id.switch_book_read_isbn_search);
-        mBookReadSwitch.setVisibility(View.INVISIBLE);
 
         if (mIsbn != null) {
             mIsbnEditText.setText(mIsbn);
         }
+
+        mBookReadSwitch.setVisibility(View.INVISIBLE);
+        mAddResultButton.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -168,47 +174,41 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     @Override
     public void updateFromDownload(Object result) {
         // Update your UI here based on result of download
-        getResults(result);
-        addNewBook();
+        if (result != null)
+            if (result.getClass() == Exception.class) {
+                Toast.makeText(IsbnSearchActivity.this, "Error during search operation.", Toast.LENGTH_LONG).show();
+                ((Exception) result).printStackTrace();
+            } else {
+                if (getResults(result.toString())) {
+                    mResultTextView.setText(mTitle + "\n" + mAuthor);
+                    mBookReadSwitch.setVisibility(View.VISIBLE);
+                    mAddResultButton.setVisibility(View.VISIBLE);
+                }
+            } else {
+            Toast.makeText(IsbnSearchActivity.this, "Something went wrong!", Toast.LENGTH_LONG).show();
+        }
     }
 
-    private void getResults(Object result) {
+    private boolean getResults(String resultString) {
         // parse JSON
         mTitle = null;
         mAuthor = null;
         try {
-            JSONObject jsonObject = new JSONObject((String) result);
+            JSONObject jsonObject = new JSONObject(resultString);
             JSONArray itemsArray = jsonObject.getJSONArray("items");
             for (int i = 0; i < itemsArray.length(); i++) {
                 JSONObject book = itemsArray.getJSONObject(i);
                 JSONObject volumeInfo = book.getJSONObject("volumeInfo");
 
-                try {
-                    mTitle = volumeInfo.getString("title");
-                    mAuthor = volumeInfo.getString("authors");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if (mTitle != null && mAuthor != null) {
-                    mResultTextView.setText(mTitle + "\n" + mAuthor);
-                    mBookReadSwitch.setVisibility(View.VISIBLE);
-                    mAddResultButton.setVisibility(View.VISIBLE);
-                }
+                mTitle = volumeInfo.getString("title");
+                mAuthor = cleanAuthorString(volumeInfo.getString("authors"));
             }
+            return true;
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(IsbnSearchActivity.this, "Invalid ISBN! Could not find a book", Toast.LENGTH_LONG).show();
+            Toast.makeText(IsbnSearchActivity.this, "Invalid ISBN! No book found.", Toast.LENGTH_LONG).show();
+            return false;
         }
-    }
-
-    private void addNewBook() {
-        mAddResultButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                uploadBookData();
-                finish();
-            }
-        });
     }
 
     @Override
@@ -263,5 +263,24 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         if (mBookWasRead) {
             mBooksReadDatabaseReference.setValue(mNumReadBooks + 1);
         }
+    }
+
+    private String cleanAuthorString(String string) {
+        string = string.substring(1, string.length() - 1);
+        String[] strings = string.split("\"");
+        String res = strings[0];
+        for (int i = 1; i < strings.length; i++) {
+            res += strings[i];
+        }
+        res.trim();
+        char[] chars = res.toCharArray();
+        res = "";
+        for (char c: chars) {
+            res += c;
+            if (c == ',') {
+                res += " ";
+            }
+        }
+        return res;
     }
 }
