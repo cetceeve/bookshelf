@@ -57,6 +57,9 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private String mTitle;
     private String mAuthor;
 
+    // Input from Barcode Scanner
+    private String mIsbn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +115,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
+        mIsbn = extras.getString(Constants.key_intent_isbn);
     }
 
 
@@ -150,6 +154,9 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mBookReadSwitch = findViewById(R.id.switch_book_read_isbn_search);
         mBookReadSwitch.setVisibility(View.INVISIBLE);
 
+        if (mIsbn != null) {
+            mIsbnEditText.setText(mIsbn);
+        }
     }
 
     @Override

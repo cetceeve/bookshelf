@@ -282,7 +282,9 @@ public class BookListActivity extends AppCompatActivity {
                         startActivity(addByIsbnIntent);
                         break;
                     case 2:
-                        // TODO: barcodescanner
+                        Intent addByBarcodeIntent = new Intent(BookListActivity.this, BarcodeScannerActivity.class);
+                        addByBarcodeIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
+                        startActivity(addByBarcodeIntent);
                         break;
                     default:
                         break;
