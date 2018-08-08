@@ -68,9 +68,9 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
     }
 
     private void checkForCameraPermission() {
-        if (ContextCompat.checkSelfPermission(BarcodeScannerActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(BarcodeScannerActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // permission is not granted
-            ActivityCompat.requestPermissions(BarcodeScannerActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CAMERA);
+            ActivityCompat.requestPermissions(BarcodeScannerActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
         }
     }
 
