@@ -84,8 +84,10 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getQuery();
-                startDownload();
+                if (!mDownloading) {
+                    getQuery();
+                    startDownload();
+                }
 
             }
         });
