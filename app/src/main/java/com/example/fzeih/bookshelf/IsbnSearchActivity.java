@@ -77,14 +77,14 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         // Views
         initViews();
 
+        // Downloader
         mNetworkFragment = NetworkFragment.getInstance(getFragmentManager());
 
         // Listeners
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mIsbnQueryInput = mIsbnEditText.getText().toString();
-                mRequestUrl = BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
+                getQuery();
                 startDownload();
 
             }
@@ -114,6 +114,12 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     protected void onPostResume() {
         super.onPostResume();
         attachDatabaseReadListenerReadBooks();
+
+        // If called with input search immediately
+        if (mIsbn != null) {
+            getQuery();
+            startDownload();
+        }
     }
 
     private void readIntent() {
@@ -174,7 +180,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     @Override
     public void updateFromDownload(Object result) {
         // Update your UI here based on result of download
-        if (result != null)
+        if (result != null) {
             if (result.getClass() == Exception.class) {
                 Toast.makeText(IsbnSearchActivity.this, "Error during search operation.", Toast.LENGTH_LONG).show();
                 ((Exception) result).printStackTrace();
@@ -184,7 +190,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
                     mBookReadSwitch.setVisibility(View.VISIBLE);
                     mAddResultButton.setVisibility(View.VISIBLE);
                 }
-            } else {
+            }
+        } else {
             Toast.makeText(IsbnSearchActivity.this, "Something went wrong!", Toast.LENGTH_LONG).show();
         }
     }
@@ -247,6 +254,11 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         }
     }
 
+    private void getQuery() {
+        mIsbnQueryInput = mIsbnEditText.getText().toString();
+        mRequestUrl = BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
+    }
+
     private void startDownload() {
         if (!mDownloading && mNetworkFragment != null) {
             // Execute the async download.
@@ -275,7 +287,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         res.trim();
         char[] chars = res.toCharArray();
         res = "";
-        for (char c: chars) {
+        for (char c : chars) {
             res += c;
             if (c == ',') {
                 res += " ";
