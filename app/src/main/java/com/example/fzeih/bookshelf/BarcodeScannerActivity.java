@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -35,14 +36,11 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
         readIntent();
 
         // ZXing Barcode Scanner
-        /*
-        ArrayList<BarcodeFormat> formats = new ArrayList<>();
-        formats.add(BarcodeFormat.EAN_13);
-        */
-
         mScannerView = new ZXingScannerView(this);
-        // mScannerView.setFormats(formats);
-        mScannerView.setAspectTolerance(0.5f);
+        // Huawei phones need special setting
+        if (Build.MANUFACTURER.toUpperCase().equals("HUAWEI")) {
+            mScannerView.setAspectTolerance(0.5f);
+        }
         mScannerView.startCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
         setContentView(mScannerView);
     }
@@ -91,17 +89,10 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
 
     @Override
     public void handleResult(Result rawResult) {
-        // Do something with the result here
-        // Log.v(TAG, rawResult.getText()); // Prints scan results
-        // Log.v(TAG, rawResult.getBarcodeFormat().toString()); // Prints the scan format (qrcode, pdf417 etc.)
-
-        // If you would like to resume scanning, call this method below:
-        // mScannerView.resumeCameraPreview(this);
-        String resultIsbn = rawResult.getText();
-        Toast.makeText(BarcodeScannerActivity.this, resultIsbn, Toast.LENGTH_LONG).show();
+        // start IsbnSearchActivity with input
         Intent addByIsbnIntent = new Intent(BarcodeScannerActivity.this, IsbnSearchActivity.class);
         addByIsbnIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
-        addByIsbnIntent.putExtra(Constants.key_intent_isbn, resultIsbn);
+        addByIsbnIntent.putExtra(Constants.key_intent_isbn, rawResult.getText());
         startActivity(addByIsbnIntent);
         finish();
     }
