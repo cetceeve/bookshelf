@@ -41,16 +41,17 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
 
     private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mListnamesDatabaseReference;
-    private ChildEventListener mChildEventListener;
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
-    private ArrayAdapter<String> mListAdapter;
-    private ArrayList<String> mListNames;
-    private HashMap<String, String> mFirebaseKeyMap;
+    private DatabaseReference mListnamesDatabaseReference;
+
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private ChildEventListener mChildEventListener;
 
     private ListView mListListView;
+    private ArrayList<String> mListNames;
+    private HashMap<String, String> mFirebaseKeyMap;
+    private ArrayAdapter<String> mListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -271,6 +272,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private String pushListNameToDatabase(String listName) {
+        DatabaseReference newBookListReference = mListnamesDatabaseReference.push();
+        newBookListReference.setValue(listName);
+        return newBookListReference.getKey();
+    }
+
     private void startBookListActivity(int position) {
         Intent bookListIntent = new Intent(MainActivity.this, BookListActivity.class);
         bookListIntent.putExtra(Constants.key_intent_booklistname, mListNames.get(position));
@@ -283,12 +290,6 @@ public class MainActivity extends AppCompatActivity {
         newListIntent.putExtra(Constants.key_intent_booklistname, bookListName);
         newListIntent.putExtra(Constants.key_intent_booklistkey, bookListKey);
         startActivity(newListIntent);
-    }
-
-    private String pushListNameToDatabase(String listName) {
-        DatabaseReference newBookListReference = mListnamesDatabaseReference.push();
-        newBookListReference.setValue(listName);
-        return newBookListReference.getKey();
     }
 
     private void showNewBookListDialog() {
