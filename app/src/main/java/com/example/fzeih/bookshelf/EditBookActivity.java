@@ -6,30 +6,33 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class EditBookActivity extends AppCompatActivity {
     private DatabaseReference mBookDatabaseReference;
 
-    private Button mEditButton;
+    private Book mBook;
+    private String mBookListKey;
+
     private EditText mTitleEditText;
     private EditText mAuthorNameEditText;
     private EditText mIsbnEditText;
-    private Book mBook;
-    private String mBooklistKey;
+    private Button mEditButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_book);
+        getSupportActionBar().setTitle("Edit Book");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle("Edit Book");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Views
         initViews();
@@ -57,12 +60,20 @@ public class EditBookActivity extends AppCompatActivity {
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBook = (Book) extras.get(Constants.key_intent_book);
-        mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
+        if (extras != null) {
+            mBook = (Book) extras.get(Constants.key_intent_book);
+            mBookListKey = extras.getString(Constants.key_intent_booklistkey);
+        }
     }
 
     private void getDatabaseReference() {
-        mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey).child(mBook.getKey());
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey).child(mBook.getKey());
+        } else {
+            Toast.makeText(EditBookActivity.this, "ERROR: User is not signed in", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     private void initViews() {
@@ -73,15 +84,22 @@ public class EditBookActivity extends AppCompatActivity {
     }
 
     private void setBookData() {
-        mTitleEditText.setText(mBook.getTitle());
-        mAuthorNameEditText.setText(mBook.getAuthorName());
-        mIsbnEditText.setText(mBook.getIsbn());
+        if (mBook != null) {
+            mTitleEditText.setText(mBook.getTitle());
+            mAuthorNameEditText.setText(mBook.getAuthorName());
+            mIsbnEditText.setText(mBook.getIsbn());
+        } else {
+            Toast.makeText(EditBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void uploadUserInput() {
+        // get user input
         mBook.setTitle(mTitleEditText.getText().toString());
         mBook.setAuthorName(mAuthorNameEditText.getText().toString());
         mBook.setIsbn(mIsbnEditText.getText().toString());
+
+        // upload data
         mBookDatabaseReference.setValue(mBook);
     }
 }

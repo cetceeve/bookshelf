@@ -227,8 +227,7 @@ public class NetworkFragment extends Fragment {
         /**
          * Converts the contents of an InputStream to a String.
          */
-        public String readStream(InputStream stream)
-                throws IOException {
+        public String readStream(InputStream stream) throws IOException {
 
             StringBuffer buffer = new StringBuffer();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
@@ -238,7 +237,6 @@ public class NetworkFragment extends Fragment {
             }
 
             return buffer.toString();
-
         }
     }
 }

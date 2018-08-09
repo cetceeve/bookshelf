@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -39,16 +40,18 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
 
-    private DatabaseReference mListnamesDatabaseReference;
-    private ChildEventListener mChildEventListener;
+    private FirebaseDatabase mFirebaseDatabase;
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
-    private ArrayAdapter<String> mListAdapter;
-    private ArrayList<String> mListNames;
-    private HashMap<String, String> mFirebaseKeyMap;
+    private DatabaseReference mListnamesDatabaseReference;
+
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private ChildEventListener mChildEventListener;
 
     private ListView mListListView;
+    private ArrayList<String> mListNames;
+    private HashMap<String, String> mFirebaseKeyMap;
+    private ArrayAdapter<String> mListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
         //getSupportActionBar().setIcon(R.drawable.ic_camera_enhance_black_24dp); setzt ganz links das Icon
 
         // Data
-        FirebaseDatabase.getInstance().setPersistenceEnabled(false);
         initAuthentication();
+        initDatabase();
         setAdapter();
 
         // Listeners
@@ -83,16 +86,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return true;
@@ -115,19 +114,24 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
-            // IdpResponse response = IdpResponse.fromResultIntent(data);
-
-            if (resultCode == RESULT_OK) {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (resultCode == RESULT_FIRST_USER) {
                 // Successfully signed in
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                Toast.makeText(this, "Hello " + user.getDisplayName() + "! You are successfully signed in!", Toast.LENGTH_LONG).show();
+                Snackbar.make(mListListView, "Welcome to Bookshelf " + user.getDisplayName() + ".", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            } else if (resultCode == RESULT_OK) {
+                Snackbar.make(mListListView, "Welcome back " + user.getDisplayName() + ".", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             } else {
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
                 // response.getError().getErrorCode() and handle the error.
-                // ...
-                // TODO: handle error
-                finish();
+                // ... TODO: find out how to do this
+                if (resultCode == RESULT_CANCELED) {
+                    finish();
+                } else {
+                    Toast.makeText(MainActivity.this, "Something went wrong during sign-in!", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+
             }
         }
     }
@@ -138,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         if (mAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
-        detachReadDatabaseListener();
+        detachDatabaseReadListener();
         mListAdapter.clear();
         mFirebaseKeyMap.clear();
     }
@@ -151,6 +155,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void initAuthentication() {
         mFirebaseAuth = FirebaseAuth.getInstance();
+    }
+
+    private void initDatabase() {
+        if (mFirebaseDatabase == null) {
+            mFirebaseDatabase = FirebaseDatabase.getInstance();
+            // mFirebaseDatabase.setPersistenceEnabled(false); // causes most crash-bugs
+        }
     }
 
     private void setAdapter() {
@@ -186,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
     private void onSignedOutCleanup() {
         mListAdapter.clear();
         mFirebaseKeyMap.clear();
-        detachReadDatabaseListener();
+        detachDatabaseReadListener();
     }
 
     private void displaySignInUI() {
@@ -254,11 +265,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void detachReadDatabaseListener() {
+    private void detachDatabaseReadListener() {
         if (mChildEventListener != null) {
             mListnamesDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
+    }
+
+    private String pushListNameToDatabase(String listName) {
+        DatabaseReference newBookListReference = mListnamesDatabaseReference.push();
+        newBookListReference.setValue(listName);
+        return newBookListReference.getKey();
     }
 
     private void startBookListActivity(int position) {
@@ -268,13 +285,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(bookListIntent);
     }
 
-    private String createDatabaseKeyForNewBookList(String listName) {
-        DatabaseReference newBookListReference = mListnamesDatabaseReference.push();
-        newBookListReference.setValue(listName);
-        return newBookListReference.getKey();
-    }
-
-    private void startNewBookListActivity(String bookListKey, String bookListName) {
+    private void startBookListActivity(String bookListKey, String bookListName) {
         Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
         newListIntent.putExtra(Constants.key_intent_booklistname, bookListName);
         newListIntent.putExtra(Constants.key_intent_booklistkey, bookListKey);
@@ -284,17 +295,21 @@ public class MainActivity extends AppCompatActivity {
     private void showNewBookListDialog() {
         AlertDialog.Builder newBookListDialog = new AlertDialog.Builder(MainActivity.this);
         newBookListDialog.setMessage(R.string.dialog_message_enter_listname);
+        // create EditText
         final EditText input = new EditText(MainActivity.this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(params);
+        // set EditText
         newBookListDialog.setView(input);
 
         newBookListDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String newBookListName = input.getText().toString();
-                String newBookListKey = createDatabaseKeyForNewBookList(newBookListName);
-                startNewBookListActivity(newBookListKey, newBookListName);
+                if (newBookListName.length() != 0) {
+                    String newBookListKey = pushListNameToDatabase(newBookListName);
+                    startBookListActivity(newBookListKey, newBookListName);
+                }
             }
         });
         newBookListDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {

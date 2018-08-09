@@ -16,8 +16,10 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,19 +31,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BookListActivity extends AppCompatActivity {
-    private ListView mBookListView;
-    private BookAdapter mBookAdapter;
 
-    private ChildEventListener mChildEventListener;
-    private ValueEventListener mValueEventListenerReadBooks;
     private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListnamesDatabaseReference;
-    private DatabaseReference mBooksReadDatabaseReference;
-    private String mBookListKey;
-    private Long mNumReadBooks;
+    private DatabaseReference mNumOfReadBooksDatabaseReference;
 
+    private ChildEventListener mBookListChildEventListener;
+    private ValueEventListener mNumOfReadBooksValueEventListener;
+
+    private String mBookListKey;
     private String mBookListName;
+    private Long mNumOfReadBooks;
+
+    private ListView mBookListView;
     private List<Book> mBooks;
+    private BookAdapter mBookAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +53,12 @@ public class BookListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_book_list);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle(mBookListName);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(mBookListName); // from intent
 
         // Data
         getDatabaseReference();
@@ -84,16 +88,12 @@ public class BookListActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_booklist, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_rename:
                 showRenameBookListDialog();
@@ -109,29 +109,37 @@ public class BookListActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        detachReadDatabaseListener();
-        detachReadDatabaseListenerReadBooks();
+        detachBookDatabaseReadListener();
+        detachNumOfReadBooksDatabaseReadListener();
         mBookAdapter.clear();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachDatabaseReadListener();
-        attachDatabaseReadListenerReadBooks();
+        attachBookDatabaseReadListener();
+        attachNumOfReadBooksDatabaseReadListener();
     }
 
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBookListName = extras.getString(Constants.key_intent_booklistname);
-        mBookListKey = extras.getString(Constants.key_intent_booklistkey);
+        if (extras != null) {
+            mBookListName = extras.getString(Constants.key_intent_booklistname);
+            mBookListKey = extras.getString(Constants.key_intent_booklistkey);
+        }
     }
 
     private void getDatabaseReference() {
-        mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
-        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklistnames);
-        mBooksReadDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_books_read);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
+            mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
+            mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
+        } else {
+            Toast.makeText(BookListActivity.this, "ERROR: User is not signed in", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     private void setBookAdapter() {
@@ -141,9 +149,9 @@ public class BookListActivity extends AppCompatActivity {
         mBookListView.setAdapter(mBookAdapter);
     }
 
-    private void attachDatabaseReadListener() {
-        if (mChildEventListener == null) {
-            mChildEventListener = new ChildEventListener() {
+    private void attachBookDatabaseReadListener() {
+        if (mBookListChildEventListener == null) {
+            mBookListChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     Book book = dataSnapshot.getValue(Book.class);
@@ -176,38 +184,65 @@ public class BookListActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 }
             };
-            mBookListDatabaseReference.addChildEventListener(mChildEventListener);
+            mBookListDatabaseReference.addChildEventListener(mBookListChildEventListener);
         }
     }
 
-    private void attachDatabaseReadListenerReadBooks() {
-        mValueEventListenerReadBooks = new ValueEventListener() {
+    private void attachNumOfReadBooksDatabaseReadListener() {
+        mNumOfReadBooksValueEventListener = new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mNumReadBooks = (Long) dataSnapshot.getValue();
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mNumOfReadBooks = (Long) dataSnapshot.getValue();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         };
-        mBooksReadDatabaseReference.addValueEventListener(mValueEventListenerReadBooks);
+        mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
     }
 
-    private void detachReadDatabaseListener() {
-        if (mChildEventListener != null) {
-            mBookListDatabaseReference.removeEventListener(mChildEventListener);
-            mChildEventListener = null;
+    private void detachBookDatabaseReadListener() {
+        if (mBookListChildEventListener != null) {
+            mBookListDatabaseReference.removeEventListener(mBookListChildEventListener);
+            mBookListChildEventListener = null;
         }
     }
 
-    private void detachReadDatabaseListenerReadBooks() {
-        if (mValueEventListenerReadBooks != null) {
-            mBooksReadDatabaseReference.removeEventListener(mValueEventListenerReadBooks);
-            mValueEventListenerReadBooks = null;
+    private void detachNumOfReadBooksDatabaseReadListener() {
+        if (mNumOfReadBooksValueEventListener != null) {
+            mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
+            mNumOfReadBooksValueEventListener = null;
+        }
+    }
+
+    private void deleteBookList() {
+        detachBookDatabaseReadListener();
+        detachNumOfReadBooksDatabaseReadListener();
+
+        // remove data
+        mListnamesDatabaseReference.child(mBookListKey).removeValue();
+        mBookListDatabaseReference.removeValue();
+
+        // update number of read books
+        Long numOfRemovedReadBooks = 0L;
+        for (Book book: mBooks) {
+            if (book.getRead()) {
+                numOfRemovedReadBooks++;
+            }
+        }
+        mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - numOfRemovedReadBooks);
+
+        finish();
+    }
+
+    private void updateBookListName(String updatedBookListName) {
+        if (updatedBookListName.length() != 0) {
+            mListnamesDatabaseReference.child(mBookListKey).setValue(updatedBookListName);
+            mBookListName = updatedBookListName;
+            getSupportActionBar().setTitle(mBookListName);
         }
     }
 
@@ -216,27 +251,6 @@ public class BookListActivity extends AppCompatActivity {
         displayBookIntent.putExtra(Constants.key_intent_book, mBooks.get(position));
         displayBookIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
         startActivity(displayBookIntent);
-    }
-
-    private void deleteBookList() {
-        detachReadDatabaseListener();
-        detachReadDatabaseListenerReadBooks();
-        mListnamesDatabaseReference.child(mBookListKey).removeValue();
-        mBookListDatabaseReference.removeValue();
-
-        Long numRemovedReadBooks = 0L;
-        for (Book book: mBooks) {
-            if (book.getRead()) {
-                numRemovedReadBooks++;
-            }
-        }
-        mBooksReadDatabaseReference.setValue(mNumReadBooks - numRemovedReadBooks);
-    }
-
-    private void updateBookListName(String updatedBookListName) {
-        mListnamesDatabaseReference.child(mBookListKey).setValue(updatedBookListName);
-        mBookListName = updatedBookListName;
-        getSupportActionBar().setTitle(mBookListName);
     }
 
     private void showRenameBookListDialog() {
@@ -262,8 +276,24 @@ public class BookListActivity extends AppCompatActivity {
         renameBookListDialog.show();
     }
 
+    private void showDeleteConfirmationDialog() {
+        AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(BookListActivity.this);
+        deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
+                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteBookList();
+                    }
+                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        deleteConfirmationDialog.show();
+    }
+
     private void showOptionsToAddBookDialog() {
-        // Create Dialog
         String[] optionsToAddBook = {getString(R.string.dialog_option_add_book_manually), getString(R.string.dialog_option_isbn_search), getString(R.string.dialog_option_barcode_scanner)};
         AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
         addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
@@ -277,11 +307,13 @@ public class BookListActivity extends AppCompatActivity {
                         startActivity(addManuallyIntent);
                         break;
                     case 1:
+                        // start IsbnSearchActivity
                         Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
                         addByIsbnIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
                         startActivity(addByIsbnIntent);
                         break;
                     case 2:
+                        // start Barcode Scanner
                         Intent addByBarcodeIntent = new Intent(BookListActivity.this, BarcodeScannerActivity.class);
                         addByBarcodeIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
                         startActivity(addByBarcodeIntent);
@@ -300,23 +332,5 @@ public class BookListActivity extends AppCompatActivity {
         });
 
         addBookDialog.show();
-    }
-
-    private void showDeleteConfirmationDialog() {
-        AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(BookListActivity.this);
-        deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
-                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deleteBookList();
-                        finish();
-                    }
-                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        deleteConfirmationDialog.show();
     }
 }
