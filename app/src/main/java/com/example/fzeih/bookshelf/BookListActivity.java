@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,7 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookListActivity extends AppCompatActivity {
+public class BookListActivity extends AppCompatActivity implements BookDeletionListener{
 
     private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListnamesDatabaseReference;
@@ -78,6 +79,9 @@ public class BookListActivity extends AppCompatActivity {
                 startDisplayBookActivity(position);
             }
         });
+
+        // register as listener
+        ListenerAdministrator.registerListener(this);
     }
 
     @Override
@@ -138,7 +142,7 @@ public class BookListActivity extends AppCompatActivity {
             mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(BookListActivity.this, "ERROR: User is not signed in", Toast.LENGTH_SHORT).show();
-            finish();
+            closeActivity();
         }
     }
 
@@ -235,7 +239,7 @@ public class BookListActivity extends AppCompatActivity {
         }
         mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - numOfRemovedReadBooks);
 
-        finish();
+        closeActivity();
     }
 
     private void updateBookListName(String updatedBookListName) {
@@ -332,5 +336,34 @@ public class BookListActivity extends AppCompatActivity {
         });
 
         addBookDialog.show();
+    }
+
+    @Override
+    public void bookDeleted(DatabaseReference deletedBookDatabaseReference, Book deletedBook) {
+        Snackbar.make(mBookListView, "Book deleted!", Snackbar.LENGTH_LONG)
+                .setAction("Undo", new UndoBookDeletionListener(deletedBookDatabaseReference, deletedBook)).show();
+    }
+
+    private class UndoBookDeletionListener implements View.OnClickListener{
+        private Book deletedBook;
+        private DatabaseReference deletedBookDatabaseReference;
+
+        private UndoBookDeletionListener(DatabaseReference deletedBookDatabaseReference, Book deletedBook) {
+            this.deletedBook = deletedBook;
+            this.deletedBookDatabaseReference = deletedBookDatabaseReference;
+        }
+        @Override
+        public void onClick(View v) {
+            // undo book deletion
+            deletedBookDatabaseReference.setValue(deletedBook);
+            if (deletedBook.getRead()) {
+                mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+            }
+        }
+    }
+
+    private void closeActivity() {
+        ListenerAdministrator.removeListener(this);
+        finish();
     }
 }
