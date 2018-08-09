@@ -6,9 +6,11 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.zxing.Result;
@@ -19,13 +21,13 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
     private static final int PERMISSION_REQUEST_CAMERA = 2;
 
     private ZXingScannerView mScannerView;
+
     private String mBookListKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode_scanner);
-
         getSupportActionBar().setTitle("Barcode Scanner");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -35,14 +37,8 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
         // Intent
         readIntent();
 
-        // ZXing Barcode Scanner
-        mScannerView = new ZXingScannerView(this);
-        // Huawei phones need special setting
-        if (Build.MANUFACTURER.toUpperCase().equals("HUAWEI")) {
-            mScannerView.setAspectTolerance(0.5f);
-        }
-        mScannerView.startCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
-        setContentView(mScannerView);
+        // Barcode Scanner
+        initZXingScannerView();
     }
 
     @Override
@@ -59,9 +55,8 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
                     // permission was granted
                 } else {
                     // permission denied
-                    // TODO: handle permission denied
-                    // Wunschliste dann nicht anbieten?
-                    Toast.makeText(BarcodeScannerActivity.this, "External storage permission denied", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mScannerView, "Barcode scanner needs camera permission to work!", Snackbar.LENGTH_LONG)
+                            .setAction("Try Again", new PermissionDeniedSnackbarListener()).show();
                 }
                 break;
         }
@@ -100,7 +95,30 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBookListKey = extras.getString(Constants.key_intent_booklistkey);
+        if (extras != null) {
+            mBookListKey = extras.getString(Constants.key_intent_booklistkey);
+        } else {
+            Toast.makeText(BarcodeScannerActivity.this, "ERROR: Missing BookListKey", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
+    private void initZXingScannerView() {
+        mScannerView = new ZXingScannerView(this);
+
+        // Huawei phones need special setting
+        if (Build.MANUFACTURER.toUpperCase().equals("HUAWEI")) {
+            mScannerView.setAspectTolerance(0.5f);
+        }
+
+        mScannerView.startCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
+        setContentView(mScannerView);
+    }
+
+    private class PermissionDeniedSnackbarListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            checkForCameraPermission();
+        }
+    }
 }
