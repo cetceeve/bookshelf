@@ -10,8 +10,8 @@ public class Book implements Parcelable {
     private String title;
     private String isbn;
     private boolean read = false;
-    // cover, genre, ...
 
+    // TODO: deal with empty entries
     public Book() {
     }
 

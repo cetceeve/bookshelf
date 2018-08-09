@@ -93,6 +93,9 @@ public class DisplayBookActivity extends AppCompatActivity {
         if (user != null) {
             mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey).child(mBook.getKey());
             mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
+        } else {
+            Toast.makeText(DisplayBookActivity.this, "ERROR: User is not signed in!", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -104,10 +107,14 @@ public class DisplayBookActivity extends AppCompatActivity {
     }
 
     private void setBookData() {
-        mTitleTextView.setText(mBook.getTitle());
-        mAuthorNameTextView.setText(mBook.getAuthorName());
-        mIsbnTextView.setText(mBook.getIsbn());
-        mBookReadSwitch.setChecked(mBook.getRead());
+        if (mBook != null) {
+            mTitleTextView.setText(mBook.getTitle());
+            mAuthorNameTextView.setText(mBook.getAuthorName());
+            mIsbnTextView.setText(mBook.getIsbn());
+            mBookReadSwitch.setChecked(mBook.getRead());
+        } else {
+            Toast.makeText(DisplayBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setSwitchStateChangeListener() {
