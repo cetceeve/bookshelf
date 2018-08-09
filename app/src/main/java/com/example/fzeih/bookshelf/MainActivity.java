@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         if (mAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
-        detachReadDatabaseListener();
+        detachDatabaseReadListener();
         mListAdapter.clear();
         mFirebaseKeyMap.clear();
     }
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
     private void onSignedOutCleanup() {
         mListAdapter.clear();
         mFirebaseKeyMap.clear();
-        detachReadDatabaseListener();
+        detachDatabaseReadListener();
     }
 
     private void displaySignInUI() {
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void detachReadDatabaseListener() {
+    private void detachDatabaseReadListener() {
         if (mChildEventListener != null) {
             mListnamesDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;

@@ -33,14 +33,14 @@ public class BookListActivity extends AppCompatActivity {
 
     private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListnamesDatabaseReference;
-    private DatabaseReference mBooksReadDatabaseReference;
+    private DatabaseReference mNumOfReadBooksDatabaseReference;
 
-    private ChildEventListener mChildEventListener;
-    private ValueEventListener mValueEventListenerReadBooks;
+    private ChildEventListener mBookListChildEventListener;
+    private ValueEventListener mNumOfReadBooksValueEventListener;
 
     private String mBookListKey;
-    private Long mNumReadBooks;
     private String mBookListName;
+    private Long mNumOfReadBooks;
 
     private ListView mBookListView;
     private List<Book> mBooks;
@@ -57,7 +57,7 @@ public class BookListActivity extends AppCompatActivity {
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle(mBookListName); // send with intent
+        getSupportActionBar().setTitle(mBookListName); // from intent
 
         // Data
         getDatabaseReference();
@@ -108,16 +108,16 @@ public class BookListActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        detachReadDatabaseListener();
-        detachReadDatabaseListenerReadBooks();
+        detachBookDatabaseReadListener();
+        detachNumOfReadBooksDatabaseReadListener();
         mBookAdapter.clear();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachDatabaseReadListener();
-        attachDatabaseReadListenerReadBooks();
+        attachBookDatabaseReadListener();
+        attachNumOfReadBooksDatabaseReadListener();
     }
 
     private void readIntent() {
@@ -134,7 +134,7 @@ public class BookListActivity extends AppCompatActivity {
         if (user != null) {
             mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
             mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
-            mBooksReadDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
+            mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         }
     }
 
@@ -145,9 +145,9 @@ public class BookListActivity extends AppCompatActivity {
         mBookListView.setAdapter(mBookAdapter);
     }
 
-    private void attachDatabaseReadListener() {
-        if (mChildEventListener == null) {
-            mChildEventListener = new ChildEventListener() {
+    private void attachBookDatabaseReadListener() {
+        if (mBookListChildEventListener == null) {
+            mBookListChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     Book book = dataSnapshot.getValue(Book.class);
@@ -182,54 +182,54 @@ public class BookListActivity extends AppCompatActivity {
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                 }
             };
-            mBookListDatabaseReference.addChildEventListener(mChildEventListener);
+            mBookListDatabaseReference.addChildEventListener(mBookListChildEventListener);
         }
     }
 
-    private void attachDatabaseReadListenerReadBooks() {
-        mValueEventListenerReadBooks = new ValueEventListener() {
+    private void attachNumOfReadBooksDatabaseReadListener() {
+        mNumOfReadBooksValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mNumReadBooks = (Long) dataSnapshot.getValue();
+                mNumOfReadBooks = (Long) dataSnapshot.getValue();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         };
-        mBooksReadDatabaseReference.addValueEventListener(mValueEventListenerReadBooks);
+        mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
     }
 
-    private void detachReadDatabaseListener() {
-        if (mChildEventListener != null) {
-            mBookListDatabaseReference.removeEventListener(mChildEventListener);
-            mChildEventListener = null;
+    private void detachBookDatabaseReadListener() {
+        if (mBookListChildEventListener != null) {
+            mBookListDatabaseReference.removeEventListener(mBookListChildEventListener);
+            mBookListChildEventListener = null;
         }
     }
 
-    private void detachReadDatabaseListenerReadBooks() {
-        if (mValueEventListenerReadBooks != null) {
-            mBooksReadDatabaseReference.removeEventListener(mValueEventListenerReadBooks);
-            mValueEventListenerReadBooks = null;
+    private void detachNumOfReadBooksDatabaseReadListener() {
+        if (mNumOfReadBooksValueEventListener != null) {
+            mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
+            mNumOfReadBooksValueEventListener = null;
         }
     }
 
     private void deleteBookList() {
-        detachReadDatabaseListener();
-        detachReadDatabaseListenerReadBooks();
+        detachBookDatabaseReadListener();
+        detachNumOfReadBooksDatabaseReadListener();
 
         // remove data
         mListnamesDatabaseReference.child(mBookListKey).removeValue();
         mBookListDatabaseReference.removeValue();
 
         // update number of read books
-        Long numRemovedReadBooks = 0L;
+        Long numOfRemovedReadBooks = 0L;
         for (Book book: mBooks) {
             if (book.getRead()) {
-                numRemovedReadBooks++;
+                numOfRemovedReadBooks++;
             }
         }
-        mBooksReadDatabaseReference.setValue(mNumReadBooks - numRemovedReadBooks);
+        mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - numOfRemovedReadBooks);
 
         finish();
     }
