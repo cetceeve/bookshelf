@@ -31,7 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookListActivity extends AppCompatActivity implements BookDeletionListener{
+public class BookListActivity extends AppCompatActivity implements BookDeletionListener {
 
     private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListnamesDatabaseReference;
@@ -177,8 +177,15 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    Book book = dataSnapshot.getValue(Book.class);
-                    mBookAdapter.remove(book);
+                    // delete book by id, ensures correct deletion if triggered from another device
+                    String bookId = dataSnapshot.getKey();
+                    for (Book book : mBooks) {
+                        if (book.getKey().equals(bookId)) {
+                            mBooks.remove(book);
+                            mBookAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
                 }
 
                 @Override
@@ -232,7 +239,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
 
         // update number of read books
         Long numOfRemovedReadBooks = 0L;
-        for (Book book: mBooks) {
+        for (Book book : mBooks) {
             if (book.getRead()) {
                 numOfRemovedReadBooks++;
             }
@@ -344,7 +351,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
                 .setAction("Undo", new UndoBookDeletionListener(deletedBookDatabaseReference, deletedBook)).show();
     }
 
-    private class UndoBookDeletionListener implements View.OnClickListener{
+    private class UndoBookDeletionListener implements View.OnClickListener {
         private Book deletedBook;
         private DatabaseReference deletedBookDatabaseReference;
 
@@ -352,6 +359,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
             this.deletedBook = deletedBook;
             this.deletedBookDatabaseReference = deletedBookDatabaseReference;
         }
+
         @Override
         public void onClick(View v) {
             // undo book deletion
@@ -360,6 +368,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
                 mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
             }
         }
+
     }
 
     private void closeActivity() {
