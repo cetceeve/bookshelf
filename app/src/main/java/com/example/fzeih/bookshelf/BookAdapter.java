@@ -7,19 +7,16 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.List;
 
 public class BookAdapter extends ArrayAdapter<Book> {
+    Book mBook;
 
     public BookAdapter(@NonNull Context context, int resource, @NonNull List<Book> objects) {
         super(context, resource, objects);
     }
-
-    Book book;
 
     @NonNull
     @Override
@@ -31,10 +28,10 @@ public class BookAdapter extends ArrayAdapter<Book> {
         TextView titleTextView = convertView.findViewById(R.id.textview_book_title);
         TextView authorTextView = convertView.findViewById(R.id.textview_book_author);
 
-        book = getItem(position);
+        mBook = getItem(position);
 
-        titleTextView.setText(book.getTitle());
-        String author = book.getAuthorName();
+        titleTextView.setText(mBook.getTitle());
+        String author = mBook.getAuthorName();
         authorTextView.setText(author);
 
         return convertView;
