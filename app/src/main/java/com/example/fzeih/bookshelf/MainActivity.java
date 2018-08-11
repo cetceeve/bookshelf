@@ -42,13 +42,13 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private FirebaseAuth mFirebaseAuth;
 
-    private DatabaseReference mListnamesDatabaseReference;
+    private DatabaseReference mListNamesDatabaseReference;
 
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private ChildEventListener mChildEventListener;
 
     private ListView mListListView;
-    private ArrayList<BookListInformation> mBookListInformations;
+    private ArrayList<BookListInformation> mBookListInformationArray;
     private ArrayAdapter<BookListInformation> mBookListInformationAdapter;
 
     @Override
@@ -162,8 +162,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAdapter() {
-        mBookListInformations = new ArrayList<>();
-        mBookListInformationAdapter = new BookListInformationAdapter(this, android.R.layout.simple_list_item_1, mBookListInformations);
+        mBookListInformationArray = new ArrayList<>();
+        mBookListInformationAdapter = new BookListInformationAdapter(this, android.R.layout.simple_list_item_1, mBookListInformationArray);
         mListListView = (ListView) findViewById(R.id.listview_listlist);
         mListListView.setAdapter(mBookListInformationAdapter);
     }
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getDatabaseReference(@NonNull FirebaseUser user) {
-        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
+        mListNamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
     }
 
     private void attachDatabaseReadListener() {
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    for (BookListInformation bookListInformation: mBookListInformations) {
+                    for (BookListInformation bookListInformation: mBookListInformationArray) {
                         if (bookListInformation.getBookListKey().equals(dataSnapshot.getKey())) {
                             bookListInformation.setBookListName((String) dataSnapshot.getValue());
                             mBookListInformationAdapter.notifyDataSetChanged();
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    for (BookListInformation bookListInformation: mBookListInformations) {
+                    for (BookListInformation bookListInformation: mBookListInformationArray) {
                         if (bookListInformation.getBookListKey().equals(dataSnapshot.getKey())) {
                             mBookListInformationAdapter.remove(bookListInformation);
                         }
@@ -263,27 +263,27 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             };
-            mListnamesDatabaseReference.addChildEventListener(mChildEventListener);
+            mListNamesDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
     private void detachDatabaseReadListener() {
         if (mChildEventListener != null) {
-            mListnamesDatabaseReference.removeEventListener(mChildEventListener);
+            mListNamesDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
     }
 
     private String pushListNameToDatabase(String listName) {
-        DatabaseReference newBookListReference = mListnamesDatabaseReference.push();
+        DatabaseReference newBookListReference = mListNamesDatabaseReference.push();
         newBookListReference.setValue(listName);
         return newBookListReference.getKey();
     }
 
     private void startBookListActivity(int position) {
         Intent bookListIntent = new Intent(MainActivity.this, BookListActivity.class);
-        bookListIntent.putExtra(Constants.key_intent_booklistname, mBookListInformations.get(position).getBookListName());
-        bookListIntent.putExtra(Constants.key_intent_booklistkey, mBookListInformations.get(position).getBookListKey());
+        bookListIntent.putExtra(Constants.key_intent_booklistname, mBookListInformationArray.get(position).getBookListName());
+        bookListIntent.putExtra(Constants.key_intent_booklistkey, mBookListInformationArray.get(position).getBookListKey());
         startActivity(bookListIntent);
     }
 

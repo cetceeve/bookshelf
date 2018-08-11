@@ -216,30 +216,6 @@ public class DisplayBookActivity extends AppCompatActivity {
     }
 
     private void showDeleteConfirmationSnackbar() {
-        /*
-        TODO: cleanup on consensus with team
-        AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(DisplayBookActivity.this);
-        deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
-                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        detachBookDatabaseReadListener();
-                        detachNumOfReadBooksDatabaseReadListener();
-                        mBookDatabaseReference.removeValue();
-                        if (mBook.getRead()) {
-                            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
-                        }
-                        Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        deleteConfirmationDialog.show();
-        */
         detachBookDatabaseReadListener();
         detachNumOfReadBooksDatabaseReadListener();
 
