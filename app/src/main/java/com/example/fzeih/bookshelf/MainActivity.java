@@ -34,7 +34,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,9 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private ChildEventListener mChildEventListener;
 
     private ListView mListListView;
-    private ArrayList<String> mListNames;
-    private HashMap<String, String> mFirebaseKeyMap;
-    private ArrayAdapter<String> mListAdapter;
+    private ArrayList<BookListInformation> mBookListInformations;
+    private ArrayAdapter<BookListInformation> mBookListInformationAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,8 +141,7 @@ public class MainActivity extends AppCompatActivity {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
         detachDatabaseReadListener();
-        mListAdapter.clear();
-        mFirebaseKeyMap.clear();
+        mBookListInformationAdapter.clear();
     }
 
     @Override
@@ -165,11 +162,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAdapter() {
-        mListNames = new ArrayList<>();
-        mFirebaseKeyMap = new HashMap<>();
-        mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mListNames);
+        mBookListInformations = new ArrayList<>();
+        mBookListInformationAdapter = new BookListInformationAdapter(this, android.R.layout.simple_list_item_1, mBookListInformations);
         mListListView = (ListView) findViewById(R.id.listview_listlist);
-        mListListView.setAdapter(mListAdapter);
+        mListListView.setAdapter(mBookListInformationAdapter);
     }
 
     private void attachAuthStateChangedListener() {
@@ -195,8 +191,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onSignedOutCleanup() {
-        mListAdapter.clear();
-        mFirebaseKeyMap.clear();
+        mBookListInformationAdapter.clear();
         detachDatabaseReadListener();
     }
 
@@ -234,21 +229,28 @@ public class MainActivity extends AppCompatActivity {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String listName = (String) dataSnapshot.getValue();
-                    mListAdapter.add(listName);
-                    mFirebaseKeyMap.put(listName, dataSnapshot.getKey());
+                    BookListInformation bookListInformation = new BookListInformation(dataSnapshot.getKey(), (String) dataSnapshot.getValue());
+                    mBookListInformationAdapter.add(bookListInformation);
                 }
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                    for (BookListInformation bookListInformation: mBookListInformations) {
+                        if (bookListInformation.getBookListKey().equals(dataSnapshot.getKey())) {
+                            bookListInformation.setBookListName((String) dataSnapshot.getValue());
+                            mBookListInformationAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
                 }
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    String listName = (String) dataSnapshot.getValue();
-                    mListAdapter.remove(listName);
-                    mFirebaseKeyMap.remove(listName);
+                    for (BookListInformation bookListInformation: mBookListInformations) {
+                        if (bookListInformation.getBookListKey().equals(dataSnapshot.getKey())) {
+                            mBookListInformationAdapter.remove(bookListInformation);
+                        }
+                    }
                 }
 
                 @Override
@@ -280,8 +282,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void startBookListActivity(int position) {
         Intent bookListIntent = new Intent(MainActivity.this, BookListActivity.class);
-        bookListIntent.putExtra(Constants.key_intent_booklistname, mListNames.get(position));
-        bookListIntent.putExtra(Constants.key_intent_booklistkey, mFirebaseKeyMap.get(mListNames.get(position)));
+        bookListIntent.putExtra(Constants.key_intent_booklistname, mBookListInformations.get(position).getBookListName());
+        bookListIntent.putExtra(Constants.key_intent_booklistkey, mBookListInformations.get(position).getBookListKey());
         startActivity(bookListIntent);
     }
 
@@ -333,5 +335,4 @@ public class MainActivity extends AppCompatActivity {
                 });
         internetInformationDialog.show();
     }
-
 }

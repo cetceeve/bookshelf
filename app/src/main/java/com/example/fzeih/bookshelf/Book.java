@@ -31,10 +31,6 @@ public class Book implements Parcelable {
         this.read = read;
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     public void setRead(boolean read) {
         this.read = read;
     }
