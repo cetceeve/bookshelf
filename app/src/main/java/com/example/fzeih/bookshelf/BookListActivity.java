@@ -34,11 +34,12 @@ import java.util.List;
 public class BookListActivity extends AppCompatActivity implements BookDeletionListener {
 
     private DatabaseReference mBookListDatabaseReference;
-    private DatabaseReference mListnamesDatabaseReference;
+    private DatabaseReference mListnameDatabaseReference;
     private DatabaseReference mNumOfReadBooksDatabaseReference;
 
     private ChildEventListener mBookListChildEventListener;
     private ValueEventListener mNumOfReadBooksValueEventListener;
+    private ValueEventListener mListnameValueEventListener;
 
     private String mBookListKey;
     private String mBookListName;
@@ -113,16 +114,18 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
     @Override
     protected void onPause() {
         super.onPause();
-        detachBookDatabaseReadListener();
+        detachBookListDatabaseReadListener();
         detachNumOfReadBooksDatabaseReadListener();
+        detachListnameDatabaseReadListener();
         mBookAdapter.clear();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachBookDatabaseReadListener();
+        attachBookListDatabaseReadListener();
         attachNumOfReadBooksDatabaseReadListener();
+        attachListnameDatabaseReadListener();
     }
 
     private void readIntent() {
@@ -138,7 +141,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
-            mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
+            mListnameDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames).child(mBookListKey);
             mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(BookListActivity.this, "ERROR: User is not signed in", Toast.LENGTH_SHORT).show();
@@ -153,7 +156,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         mBookListView.setAdapter(mBookAdapter);
     }
 
-    private void attachBookDatabaseReadListener() {
+    private void attachBookListDatabaseReadListener() {
         if (mBookListChildEventListener == null) {
             mBookListChildEventListener = new ChildEventListener() {
                 @Override
@@ -215,7 +218,21 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
     }
 
-    private void detachBookDatabaseReadListener() {
+    private void attachListnameDatabaseReadListener() {
+        mListnameValueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                updateBookListName((String) dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+        mListnameDatabaseReference.addValueEventListener(mListnameValueEventListener);
+    }
+
+    private void detachBookListDatabaseReadListener() {
         if (mBookListChildEventListener != null) {
             mBookListDatabaseReference.removeEventListener(mBookListChildEventListener);
             mBookListChildEventListener = null;
@@ -229,12 +246,19 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         }
     }
 
+    private void detachListnameDatabaseReadListener() {
+        if (mListnameValueEventListener != null) {
+            mListnameDatabaseReference.removeEventListener(mListnameValueEventListener);
+            mListnameValueEventListener = null;
+        }
+    }
+
     private void deleteBookList() {
-        detachBookDatabaseReadListener();
+        detachBookListDatabaseReadListener();
         detachNumOfReadBooksDatabaseReadListener();
 
         // remove data
-        mListnamesDatabaseReference.child(mBookListKey).removeValue();
+        mListnameDatabaseReference.removeValue();
         mBookListDatabaseReference.removeValue();
 
         // update number of read books
@@ -249,9 +273,14 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         closeActivity();
     }
 
+    private void uploadBookListName(String updatedBookListName) {
+        if (updatedBookListName != null) {
+            mListnameDatabaseReference.setValue(updatedBookListName);
+        }
+    }
+
     private void updateBookListName(String updatedBookListName) {
-        if (updatedBookListName.length() != 0) {
-            mListnamesDatabaseReference.child(mBookListKey).setValue(updatedBookListName);
+        if (updatedBookListName != null) {
             mBookListName = updatedBookListName;
             getSupportActionBar().setTitle(mBookListName);
         }
@@ -275,6 +304,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         renameBookListDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                uploadBookListName(input.getText().toString());
                 updateBookListName(input.getText().toString());
             }
         });
