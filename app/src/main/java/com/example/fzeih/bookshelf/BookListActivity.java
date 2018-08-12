@@ -305,7 +305,6 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 uploadBookListName(input.getText().toString());
-                updateBookListName(input.getText().toString());
             }
         });
         renameBookListDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
