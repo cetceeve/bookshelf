@@ -30,6 +30,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.yavski.fabspeeddial.FabSpeedDial;
+import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
+
 public class BookListActivity extends AppCompatActivity {
 
     private DatabaseReference mBookListDatabaseReference;
@@ -65,11 +68,12 @@ public class BookListActivity extends AppCompatActivity {
         setBookAdapter();
 
         // Listeners
-        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+        FabSpeedDial fabSpeedDial = (FabSpeedDial) findViewById(R.id.fab_speeddial);
+        fabSpeedDial.setMenuListener(new SimpleMenuListenerAdapter(){
             @Override
-            public void onClick(View view) {
-                showOptionsToAddBookDialog();
+            public boolean onMenuItemSelected(MenuItem menuItem){
+                onMenuItemClicked(menuItem.getItemId());
+                return false;
             }
         });
         mBookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -78,6 +82,32 @@ public class BookListActivity extends AppCompatActivity {
                 startDisplayBookActivity(position);
             }
         });
+    }
+
+    private void onMenuItemClicked(int itemId) {
+        switch (itemId){
+            case R.id.fab_action_manually:
+                // start AddBookActivity
+                Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
+                addManuallyIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
+                startActivity(addManuallyIntent);
+                break;
+            case R.id.fab_action_isbn:
+                // start IsbnSearchActivity
+                Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
+                addByIsbnIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
+                startActivity(addByIsbnIntent);
+                break;
+            case R.id.fab_action_barcodescanner:
+                // start Barcode Scanner
+                Intent addByBarcodeIntent = new Intent(BookListActivity.this, BarcodeScannerActivity.class);
+                addByBarcodeIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
+                startActivity(addByBarcodeIntent);
+                break;
+            default:
+                break;
+
+        }
     }
 
     @Override
@@ -293,44 +323,4 @@ public class BookListActivity extends AppCompatActivity {
         deleteConfirmationDialog.show();
     }
 
-    private void showOptionsToAddBookDialog() {
-        String[] optionsToAddBook = {getString(R.string.dialog_option_add_book_manually), getString(R.string.dialog_option_isbn_search), getString(R.string.dialog_option_barcode_scanner)};
-        AlertDialog.Builder addBookDialog = new AlertDialog.Builder(BookListActivity.this);
-        addBookDialog.setItems(optionsToAddBook, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        // start AddBookActivity
-                        Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
-                        addManuallyIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
-                        startActivity(addManuallyIntent);
-                        break;
-                    case 1:
-                        // start IsbnSearchActivity
-                        Intent addByIsbnIntent = new Intent(BookListActivity.this, IsbnSearchActivity.class);
-                        addByIsbnIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
-                        startActivity(addByIsbnIntent);
-                        break;
-                    case 2:
-                        // start Barcode Scanner
-                        Intent addByBarcodeIntent = new Intent(BookListActivity.this, BarcodeScannerActivity.class);
-                        addByBarcodeIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
-                        startActivity(addByBarcodeIntent);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        addBookDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        addBookDialog.show();
-    }
 }

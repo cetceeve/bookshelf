@@ -22,12 +22,16 @@
 
     <include layout="@layout/content_book_list" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+    <io.github.yavski.fabspeeddial.FabSpeedDial
+        android:id="@+id/fab_speeddial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_add_white_24dp" />
+        app:fabGravity="bottom_end"
+        app:fabMenu="@menu/menu_fab_speed_dial"
+        app:miniFabBackgroundTint="@android:color/white"
+        app:miniFabDrawableTint="?attr/colorPrimary"
+        app:miniFabTitleTextColor="?attr/colorPrimaryDark"
+        />
 
 </android.support.design.widget.CoordinatorLayout>
