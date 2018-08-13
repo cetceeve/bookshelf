@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/background_light"
+    android:clipToPadding="false"
     tools:context=".ProfileActivity">
 
     <View
@@ -11,6 +13,8 @@
         android:layout_width="wrap_content"
         android:layout_height="697dp"
         android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:outlineProvider="paddedBounds"
         app:layout_constraintBottom_toTopOf="@+id/profile_divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -23,17 +27,19 @@
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:background="?android:attr/listDivider"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.04000002" />
+        app:layout_constraintVertical_bias="0.100000024" />
 
     <ImageView
         android:id="@+id/image_view_profile_user_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/nav_header_desc"
+        android:elevation="8dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         app:layout_constraintBottom_toBottomOf="@+id/profile_divider"
         app:layout_constraintEnd_toEndOf="parent"
@@ -84,5 +90,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/image_view_profile_user_photo" />
+
+    <TextView
+        android:id="@+id/text_view_profile_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:elevation="8dp"
+        android:text="User Name"
+        android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"
+        app:layout_constraintBottom_toTopOf="@+id/image_view_profile_user_photo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
