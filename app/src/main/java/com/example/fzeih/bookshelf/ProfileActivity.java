@@ -35,7 +35,7 @@ public class ProfileActivity extends AppCompatActivity {
         mUser = FirebaseAuth.getInstance().getCurrentUser();
 
         initViews();
-        setuserName();
+        setUserName();
         setUserPhoto();
 
         setAdapter();
@@ -47,7 +47,7 @@ public class ProfileActivity extends AppCompatActivity {
         return true;
     }
 
-    private void setuserName() {
+    private void setUserName() {
         if (mUser != null) {
             mUserNameTextView.setText(mUser.getDisplayName());
         } else {
