@@ -104,7 +104,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_settings:
+            case R.id.action_profile:
+                // start ProfileActivity
+                Intent profileIntent = new Intent(this, ProfileActivity.class);
+                startActivity(profileIntent);
                 return true;
             case R.id.action_sign_out:
                 // sign out
@@ -112,8 +115,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
             case R.id.action_wish_list:
                 // start WishListActivity
-                Intent intent = new Intent(this, WishGalleryActivity.class);
-                startActivity(intent);
+                Intent wishGalleryIntent = new Intent(this, WishGalleryActivity.class);
+                startActivity(wishGalleryIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

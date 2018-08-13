@@ -5,10 +5,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
 public class ProfileActivity extends AppCompatActivity {
+    private FirebaseUser mUser;
+
     private ArrayList<Achievement> achievements;
     private AchievementAdapter achievementAdapter;
 
@@ -22,9 +28,13 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("User Name");
+
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
+        setTitleBar();
 
         initViews();
+        setUserPhoto();
+
         setAdapter();
     }
 
@@ -32,6 +42,24 @@ public class ProfileActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    private void setTitleBar() {
+        if (mUser != null) {
+            getSupportActionBar().setTitle(mUser.getDisplayName());
+        } else {
+            Toast.makeText(ProfileActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    private void setUserPhoto() {
+        if (mUser != null) {
+            mUserPhotoImageView.setImageURI(mUser.getPhotoUrl());
+        } else {
+            Toast.makeText(ProfileActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     private void initViews() {
