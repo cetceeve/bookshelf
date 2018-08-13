@@ -52,6 +52,7 @@
         </provider>
 
         <activity android:name=".BarcodeScannerActivity" />
+        <activity android:name=".ProfileActivity"></activity>
     </application>
 
 </manifest>
