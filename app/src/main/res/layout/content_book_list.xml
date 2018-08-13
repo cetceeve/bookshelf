@@ -6,10 +6,12 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".BookListActivity"
-    tools:showIn="@layout/activity_book_list">
+    tools:showIn="@layout/activity_book_list"
+    android:padding="15dp">
 
     <ListView
         android:id="@+id/listview_booklist"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        style="@style/ListView"/>
 </android.support.constraint.ConstraintLayout>

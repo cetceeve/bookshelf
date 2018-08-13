@@ -9,8 +9,18 @@
 
         <!--<item name="colorBackground">#ffffff</item>-->
         <item name="colorButtonNormal">#ff6659</item>
+
         <!--<item name="text"-->
 
+
+    </style>
+    
+    <style name="ListView" parent="@android:style/Widget.ListView">
+
+        <!--<item name="android:background">#82e9de</item>-->
+        <item name="android:divider">@android:color/transparent</item>
+        <item name="android:dividerHeight">0dp</item>
+        <item name="android:padding">8dp</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
