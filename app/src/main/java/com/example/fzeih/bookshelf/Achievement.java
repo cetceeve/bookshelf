@@ -1,19 +1,28 @@
 package com.example.fzeih.bookshelf;
 
-public class Achievement {
-    private String mAchievementText;
-    private int mDrawableResource;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
 
-    public Achievement (String achievementText, int drawableResource) {
-        mAchievementText = achievementText;
-        mDrawableResource = drawableResource;
+public class Achievement {
+    private int mLevel;
+    private String mAchievementText;
+    private Drawable mDrawableResource;
+
+    public Achievement (Context context, int level, int achievementStringResource, int drawableResource) {
+        mLevel = level;
+        mAchievementText = context.getString(achievementStringResource);
+        mDrawableResource = context.getDrawable(drawableResource);
+    }
+
+    public int getLevel() {
+        return mLevel;
     }
 
     public String getAchievementText() {
         return mAchievementText;
     }
 
-    public int getDrawableResource() {
+    public Drawable getDrawableResource() {
         return mDrawableResource;
     }
 }

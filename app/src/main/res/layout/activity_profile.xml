@@ -30,7 +30,7 @@
         app:layout_constraintVertical_bias="0.04000002" />
 
     <ImageView
-        android:id="@+id/profile_image"
+        android:id="@+id/image_view_profile_user_photo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/nav_header_desc"
@@ -54,8 +54,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:text="@string/text_view_profile_amount_books"
-        app:layout_constraintBottom_toBottomOf="@+id/profile_image"
-        app:layout_constraintEnd_toStartOf="@+id/profile_image"
+        app:layout_constraintBottom_toBottomOf="@+id/image_view_profile_user_photo"
+        app:layout_constraintEnd_toStartOf="@+id/image_view_profile_user_photo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_background_color_view" />
 
@@ -70,9 +70,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="@string/text_view_profile_read_books"
-        app:layout_constraintBottom_toBottomOf="@+id/profile_image"
+        app:layout_constraintBottom_toBottomOf="@+id/image_view_profile_user_photo"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_image"
+        app:layout_constraintStart_toEndOf="@+id/image_view_profile_user_photo"
         app:layout_constraintTop_toBottomOf="@+id/profile_background_color_view" />
 
     <ListView
@@ -83,6 +83,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+        app:layout_constraintTop_toBottomOf="@+id/image_view_profile_user_photo" />
 
 </android.support.constraint.ConstraintLayout>
