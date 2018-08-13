@@ -34,7 +34,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,15 +42,14 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private FirebaseAuth mFirebaseAuth;
 
-    private DatabaseReference mListnamesDatabaseReference;
+    private DatabaseReference mListNamesDatabaseReference;
 
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private ChildEventListener mChildEventListener;
 
     private ListView mListListView;
-    private ArrayList<String> mListNames;
-    private HashMap<String, String> mFirebaseKeyMap;
-    private ArrayAdapter<String> mListAdapter;
+    private ArrayList<BookListInformation> mBookListInformationArray;
+    private ArrayAdapter<BookListInformation> mBookListInformationAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,8 +141,7 @@ public class MainActivity extends AppCompatActivity {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
         detachDatabaseReadListener();
-        mListAdapter.clear();
-        mFirebaseKeyMap.clear();
+        mBookListInformationAdapter.clear();
     }
 
     @Override
@@ -165,11 +162,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAdapter() {
-        mListNames = new ArrayList<>();
-        mFirebaseKeyMap = new HashMap<>();
-        mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mListNames);
+        mBookListInformationArray = new ArrayList<>();
+        mBookListInformationAdapter = new BookListInformationAdapter(this, android.R.layout.simple_list_item_1, mBookListInformationArray);
         mListListView = (ListView) findViewById(R.id.listview_listlist);
-        mListListView.setAdapter(mListAdapter);
+        mListListView.setAdapter(mBookListInformationAdapter);
     }
 
     private void attachAuthStateChangedListener() {
@@ -195,8 +191,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onSignedOutCleanup() {
-        mListAdapter.clear();
-        mFirebaseKeyMap.clear();
+        mBookListInformationAdapter.clear();
         detachDatabaseReadListener();
     }
 
@@ -226,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getDatabaseReference(@NonNull FirebaseUser user) {
-        mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
+        mListNamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
     }
 
     private void attachDatabaseReadListener() {
@@ -234,21 +229,28 @@ public class MainActivity extends AppCompatActivity {
             mChildEventListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String listName = (String) dataSnapshot.getValue();
-                    mListAdapter.add(listName);
-                    mFirebaseKeyMap.put(listName, dataSnapshot.getKey());
+                    BookListInformation bookListInformation = new BookListInformation(dataSnapshot.getKey(), (String) dataSnapshot.getValue());
+                    mBookListInformationAdapter.add(bookListInformation);
                 }
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                    for (BookListInformation bookListInformation: mBookListInformationArray) {
+                        if (bookListInformation.getBookListKey().equals(dataSnapshot.getKey())) {
+                            bookListInformation.setBookListName((String) dataSnapshot.getValue());
+                            mBookListInformationAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
                 }
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    String listName = (String) dataSnapshot.getValue();
-                    mListAdapter.remove(listName);
-                    mFirebaseKeyMap.remove(listName);
+                    for (BookListInformation bookListInformation: mBookListInformationArray) {
+                        if (bookListInformation.getBookListKey().equals(dataSnapshot.getKey())) {
+                            mBookListInformationAdapter.remove(bookListInformation);
+                        }
+                    }
                 }
 
                 @Override
@@ -261,27 +263,27 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             };
-            mListnamesDatabaseReference.addChildEventListener(mChildEventListener);
+            mListNamesDatabaseReference.addChildEventListener(mChildEventListener);
         }
     }
 
     private void detachDatabaseReadListener() {
         if (mChildEventListener != null) {
-            mListnamesDatabaseReference.removeEventListener(mChildEventListener);
+            mListNamesDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
     }
 
     private String pushListNameToDatabase(String listName) {
-        DatabaseReference newBookListReference = mListnamesDatabaseReference.push();
+        DatabaseReference newBookListReference = mListNamesDatabaseReference.push();
         newBookListReference.setValue(listName);
         return newBookListReference.getKey();
     }
 
     private void startBookListActivity(int position) {
         Intent bookListIntent = new Intent(MainActivity.this, BookListActivity.class);
-        bookListIntent.putExtra(Constants.key_intent_booklistname, mListNames.get(position));
-        bookListIntent.putExtra(Constants.key_intent_booklistkey, mFirebaseKeyMap.get(mListNames.get(position)));
+        bookListIntent.putExtra(Constants.key_intent_booklistname, mBookListInformationArray.get(position).getBookListName());
+        bookListIntent.putExtra(Constants.key_intent_booklistkey, mBookListInformationArray.get(position).getBookListKey());
         startActivity(bookListIntent);
     }
 
@@ -333,5 +335,4 @@ public class MainActivity extends AppCompatActivity {
                 });
         internetInformationDialog.show();
     }
-
 }

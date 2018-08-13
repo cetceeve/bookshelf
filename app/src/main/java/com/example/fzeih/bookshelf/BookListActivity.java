@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -33,14 +33,15 @@ import java.util.List;
 import io.github.yavski.fabspeeddial.FabSpeedDial;
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
 
-public class BookListActivity extends AppCompatActivity {
+public class BookListActivity extends AppCompatActivity implements BookDeletionListener {
 
     private DatabaseReference mBookListDatabaseReference;
-    private DatabaseReference mListnamesDatabaseReference;
+    private DatabaseReference mListNameDatabaseReference;
     private DatabaseReference mNumOfReadBooksDatabaseReference;
 
     private ChildEventListener mBookListChildEventListener;
     private ValueEventListener mNumOfReadBooksValueEventListener;
+    private ValueEventListener mListNameValueEventListener;
 
     private String mBookListKey;
     private String mBookListName;
@@ -82,6 +83,9 @@ public class BookListActivity extends AppCompatActivity {
                 startDisplayBookActivity(position);
             }
         });
+
+        // register as listener
+        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     private void onMenuItemClicked(int itemId) {
@@ -139,16 +143,18 @@ public class BookListActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        detachBookDatabaseReadListener();
+        detachBookListDatabaseReadListener();
         detachNumOfReadBooksDatabaseReadListener();
+        detachListNameDatabaseReadListener();
         mBookAdapter.clear();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachBookDatabaseReadListener();
+        attachBookListDatabaseReadListener();
         attachNumOfReadBooksDatabaseReadListener();
+        attachListNameDatabaseReadListener();
     }
 
     private void readIntent() {
@@ -164,11 +170,11 @@ public class BookListActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
-            mListnamesDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames);
+            mListNameDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames).child(mBookListKey);
             mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(BookListActivity.this, "ERROR: User is not signed in", Toast.LENGTH_SHORT).show();
-            finish();
+            closeActivity();
         }
     }
 
@@ -179,7 +185,7 @@ public class BookListActivity extends AppCompatActivity {
         mBookListView.setAdapter(mBookAdapter);
     }
 
-    private void attachBookDatabaseReadListener() {
+    private void attachBookListDatabaseReadListener() {
         if (mBookListChildEventListener == null) {
             mBookListChildEventListener = new ChildEventListener() {
                 @Override
@@ -203,8 +209,15 @@ public class BookListActivity extends AppCompatActivity {
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    Book book = dataSnapshot.getValue(Book.class);
-                    mBookAdapter.remove(book);
+                    // delete book by id, ensures correct deletion if triggered from another device
+                    String bookId = dataSnapshot.getKey();
+                    for (Book book : mBooks) {
+                        if (book.getKey().equals(bookId)) {
+                            mBooks.remove(book);
+                            mBookAdapter.notifyDataSetChanged();
+                            break;
+                        }
+                    }
                 }
 
                 @Override
@@ -234,7 +247,21 @@ public class BookListActivity extends AppCompatActivity {
         mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
     }
 
-    private void detachBookDatabaseReadListener() {
+    private void attachListNameDatabaseReadListener() {
+        mListNameValueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                updateBookListName((String) dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        };
+        mListNameDatabaseReference.addValueEventListener(mListNameValueEventListener);
+    }
+
+    private void detachBookListDatabaseReadListener() {
         if (mBookListChildEventListener != null) {
             mBookListDatabaseReference.removeEventListener(mBookListChildEventListener);
             mBookListChildEventListener = null;
@@ -248,29 +275,41 @@ public class BookListActivity extends AppCompatActivity {
         }
     }
 
+    private void detachListNameDatabaseReadListener() {
+        if (mListNameValueEventListener != null) {
+            mListNameDatabaseReference.removeEventListener(mListNameValueEventListener);
+            mListNameValueEventListener = null;
+        }
+    }
+
     private void deleteBookList() {
-        detachBookDatabaseReadListener();
+        detachBookListDatabaseReadListener();
         detachNumOfReadBooksDatabaseReadListener();
 
         // remove data
-        mListnamesDatabaseReference.child(mBookListKey).removeValue();
+        mListNameDatabaseReference.removeValue();
         mBookListDatabaseReference.removeValue();
 
         // update number of read books
         Long numOfRemovedReadBooks = 0L;
-        for (Book book: mBooks) {
+        for (Book book : mBooks) {
             if (book.getRead()) {
                 numOfRemovedReadBooks++;
             }
         }
         mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - numOfRemovedReadBooks);
 
-        finish();
+        closeActivity();
+    }
+
+    private void uploadBookListName(String updatedBookListName) {
+        if (updatedBookListName != null) {
+            mListNameDatabaseReference.setValue(updatedBookListName);
+        }
     }
 
     private void updateBookListName(String updatedBookListName) {
-        if (updatedBookListName.length() != 0) {
-            mListnamesDatabaseReference.child(mBookListKey).setValue(updatedBookListName);
+        if (updatedBookListName != null) {
             mBookListName = updatedBookListName;
             getSupportActionBar().setTitle(mBookListName);
         }
@@ -294,7 +333,7 @@ public class BookListActivity extends AppCompatActivity {
         renameBookListDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                updateBookListName(input.getText().toString());
+                uploadBookListName(input.getText().toString());
             }
         });
         renameBookListDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
@@ -323,4 +362,34 @@ public class BookListActivity extends AppCompatActivity {
         deleteConfirmationDialog.show();
     }
 
+    @Override
+    public void bookDeleted(DatabaseReference deletedBookDatabaseReference, Book deletedBook) {
+        Snackbar.make(mBookListView, "Book deleted!", Snackbar.LENGTH_LONG)
+                .setAction("Undo", new UndoBookDeletionListener(deletedBookDatabaseReference, deletedBook)).show();
+    }
+
+    private class UndoBookDeletionListener implements View.OnClickListener {
+        private Book deletedBook;
+        private DatabaseReference deletedBookDatabaseReference;
+
+        private UndoBookDeletionListener(DatabaseReference deletedBookDatabaseReference, Book deletedBook) {
+            this.deletedBook = deletedBook;
+            this.deletedBookDatabaseReference = deletedBookDatabaseReference;
+        }
+
+        @Override
+        public void onClick(View v) {
+            // undo book deletion
+            deletedBookDatabaseReference.setValue(deletedBook);
+            if (deletedBook.getRead()) {
+                mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+            }
+        }
+
+    }
+
+    private void closeActivity() {
+        ListenerAdministrator.getInstance().removeListener(this);
+        finish();
+    }
 }

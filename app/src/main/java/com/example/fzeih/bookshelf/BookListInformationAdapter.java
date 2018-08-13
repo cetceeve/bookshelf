@@ -11,10 +11,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class BookAdapter extends ArrayAdapter<Book> {
+public class BookListInformationAdapter extends ArrayAdapter<BookListInformation> {
     private int mResource;
 
-    public BookAdapter(@NonNull Context context, int resource, @NonNull List<Book> objects) {
+    public BookListInformationAdapter(@NonNull Context context, int resource, @NonNull List<BookListInformation> objects) {
         super(context, resource, objects);
         mResource = resource;
     }
@@ -26,13 +26,11 @@ public class BookAdapter extends ArrayAdapter<Book> {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(mResource, parent, false);
         }
 
-        TextView titleTextView = convertView.findViewById(R.id.textview_book_title);
-        TextView authorTextView = convertView.findViewById(R.id.textview_book_author);
+        TextView textView = convertView.findViewById(android.R.id.text1);
 
-        Book mBook = getItem(position);
-        if (mBook != null) {
-            titleTextView.setText(mBook.getTitle());
-            authorTextView.setText(mBook.getAuthorName());
+        BookListInformation bookListInformation = getItem(position);
+        if (bookListInformation != null) {
+            textView.setText(bookListInformation.getBookListName());
         }
         return convertView;
     }

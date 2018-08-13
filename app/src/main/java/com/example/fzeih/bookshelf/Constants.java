@@ -10,4 +10,5 @@ public class Constants {
     public static final String key_intent_booklistkey = "booklistkey";
     public static final String key_intent_book = "book";
     public static final String key_intent_isbn = "isbn";
+    public static final String key_intent_bookdeletionlistener = "bookdeletionlistener";
 }

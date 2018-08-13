@@ -1,11 +1,9 @@
 package com.example.fzeih.bookshelf;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +21,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class DisplayBookActivity extends AppCompatActivity {
-
     private DatabaseReference mBookDatabaseReference;
     private DatabaseReference mNumOfReadBooksDatabaseReference;
     private ValueEventListener mBookValueEventListener;
@@ -207,7 +204,7 @@ public class DisplayBookActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                showDeleteConfirmationDialog();
+                showDeleteConfirmationSnackbar();
                 return true;
             case R.id.action_edit:
                 startEditBookActivity();
@@ -218,28 +215,21 @@ public class DisplayBookActivity extends AppCompatActivity {
         }
     }
 
-    // TODO: switch dialog to snackbar with redo action
-    private void showDeleteConfirmationDialog() {
-        AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(DisplayBookActivity.this);
-        deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
-                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        detachBookDatabaseReadListener();
-                        detachNumOfReadBooksDatabaseReadListener();
-                        mBookDatabaseReference.removeValue();
-                        if (mBook.getRead()) {
-                            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
-                        }
-                        Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        deleteConfirmationDialog.show();
+    private void showDeleteConfirmationSnackbar() {
+        detachBookDatabaseReadListener();
+        detachNumOfReadBooksDatabaseReadListener();
+
+        mBookDatabaseReference.removeValue();
+        if (mBook.getRead()) {
+            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
+        }
+
+        // inform listeners
+        Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
+        for (Object listener: bookDeletionListeners) {
+            ((BookDeletionListener) listener).bookDeleted(mBookDatabaseReference, mBook);
+        }
+
+        finish();
     }
 }
