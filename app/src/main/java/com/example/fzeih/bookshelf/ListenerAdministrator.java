@@ -5,18 +5,27 @@ import java.util.ArrayList;
 public class ListenerAdministrator {
     private static ArrayList<Object> OBSERVERS = new ArrayList<>();
 
-    public ListenerAdministrator() {
+    // Initialization-on-demand holder idiom from Wikipedia
+    private ListenerAdministrator() {
     }
 
-    public static void registerListener(Object listener) {
+    private static class LazyHolder {
+        static final ListenerAdministrator INSTANCE = new ListenerAdministrator();
+    }
+
+    public static ListenerAdministrator getInstance() {
+        return LazyHolder.INSTANCE;
+    }
+
+    public void registerListener(Object listener) {
         OBSERVERS.add(listener);
     }
 
-    public static void removeListener(Object listener) {
+    public void removeListener(Object listener) {
         OBSERVERS.remove(listener);
     }
 
-    public static Object[] getListener(Class listenerClass) {
+    public Object[] getListener(Class listenerClass) {
         ArrayList<Object> res = new ArrayList<>();
         for (Object listener: OBSERVERS) {
             if (listenerClass.isInstance(listener)) {

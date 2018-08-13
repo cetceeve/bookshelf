@@ -225,7 +225,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         }
 
         // inform listeners
-        Object[] bookDeletionListeners = ListenerAdministrator.getListener(BookDeletionListener.class);
+        Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
         for (Object listener: bookDeletionListeners) {
             ((BookDeletionListener) listener).bookDeleted(mBookDatabaseReference, mBook);
         }
