@@ -1,13 +1,13 @@
 package com.example.fzeih.bookshelf;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,9 +19,14 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class NetworkFragment extends Fragment {
     public static final String TAG = "NetworkFragment";
+    private static final String URL_KEY = "UrlKey";
 
     private DownloadCallback mCallback;
     private DownloadTask mDownloadTask;
+
+    private String mUrlString;
+
+    private boolean initComplete = false;
 
     /**
      * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
@@ -41,22 +46,26 @@ public class NetworkFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        // Host Activity will handle callbacks from task.
+        System.out.println("onAttach: " + mUrlString);
+        mCallback = (DownloadCallback) context;
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Retain this Fragment across configuration changes in the host Activity.
         setRetainInstance(true);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        // Host Activity will handle callbacks from task.
-        mCallback = (DownloadCallback) context;
+        // report ready status
+        initComplete = true;
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        initComplete = false;
         // Clear reference to host Activity to avoid memory leak.
         mCallback = null;
     }
@@ -68,14 +77,18 @@ public class NetworkFragment extends Fragment {
         super.onDestroy();
     }
 
+    public boolean prepareDownload(String urlString) {
+        mUrlString = urlString;
+        return initComplete && (mUrlString != null);
+    }
+
     /**
      * Start non-blocking execution of DownloadTask.
      */
-    public void startDownload(String urlString) {
+    public void startDownload() {
         cancelDownload();
-        String url = urlString;
         mDownloadTask = new DownloadTask(mCallback);
-        mDownloadTask.execute(url);
+        mDownloadTask.execute(mUrlString);
     }
 
     /**

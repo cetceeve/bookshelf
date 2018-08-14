@@ -48,10 +48,9 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private boolean mBookWasRead = false;
 
     private NetworkFragment mNetworkFragment;
+    private boolean mDownloading = false;
 
     private String mIsbnQueryInput;
-    private String mRequestUrl;
-    private boolean mDownloading = false;
 
     // Results of ISBN-Search
     private String mTitle;
@@ -72,22 +71,16 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
         // Data
         getDatabaseReference();
+        mNetworkFragment = NetworkFragment.getInstance(getSupportFragmentManager());
 
         // Views
         initViews();
-
-        // Downloader
-        mNetworkFragment = NetworkFragment.getInstance(getFragmentManager());
 
         // Listeners
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mDownloading) {
-                    getQuery();
-                    startDownload();
-                }
-
+                startDownload();
             }
         });
         mAddResultButton.setOnClickListener(new View.OnClickListener() {
@@ -124,7 +117,6 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
         // if called with input, search immediately
         if (mIsbn != null) {
-            getQuery();
             startDownload();
         }
     }
@@ -188,20 +180,24 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mAddResultButton.setVisibility(View.INVISIBLE);
     }
 
-    private void getQuery() {
-        mIsbnQueryInput = mIsbnEditText.getText().toString();
-        mRequestUrl = BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
-    }
-
     private void startDownload() {
         if (!mDownloading && mNetworkFragment != null) {
-            // Execute the async download.
-            mNetworkFragment.startDownload(mRequestUrl);
-            mDownloading = true;
+            if (mNetworkFragment.prepareDownload(getQuery())) {
+                // Execute the async download.
+                mNetworkFragment.startDownload();
+                mDownloading = true;
+            } else {
+                Toast.makeText(IsbnSearchActivity.this, "ERROR: download preparation failed!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
+    private String getQuery() {
+        mIsbnQueryInput = mIsbnEditText.getText().toString();
+        return BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
+    }
     ///////////////////////////////////////// download in progress or finished
+
     @Override
     public NetworkInfo getActiveNetworkInfo() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
