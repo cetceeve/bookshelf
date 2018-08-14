@@ -328,6 +328,11 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         final EditText input = new EditText(BookListActivity.this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         input.setLayoutParams(params);
+        /*int paddingDp = 16;
+        float density = this.getResources().getDisplayMetrics().density;
+        int paddingPixel = (int)(paddingDp * density);
+        input.setPadding(paddingPixel,0 ,0,0);*/
+
         renameBookListDialog.setView(input);
 
         renameBookListDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
