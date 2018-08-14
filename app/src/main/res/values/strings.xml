@@ -31,4 +31,7 @@
     <string name="edittext_hint_isbn">Enter ISBN</string>
     <string name="text_editButton">Edit</string>
     <string name="button_isbn_search">Search</string>
+    <string name="fab_menu_manually">Add manually</string>
+    <string name="fab_menu_isbn">Search by ISBN</string>
+    <string name="fab_menu_barcodescanner">Scan barcode</string>
 </resources>

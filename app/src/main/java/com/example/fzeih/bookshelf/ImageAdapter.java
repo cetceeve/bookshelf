@@ -2,11 +2,16 @@ package com.example.fzeih.bookshelf;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
@@ -26,9 +31,15 @@ public class ImageAdapter extends ArrayAdapter<Uri> {
 
         Uri uri = getItem(position);
 
-        imageView.setImageURI(uri);
+        Bitmap bitmap = BitmapFactory.decodeFile(uri.toString());
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(bitmap.getWidth(), bitmap.getHeight());
+        imageView.setLayoutParams(layoutParams);
+
+        imageView.setImageBitmap(bitmap);
 
         return convertView;
     }
+
 
 }

@@ -34,6 +34,7 @@ import java.util.Date;
 
 public class WishGalleryActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
+    private static final int PERMISSION_REQUEST_CAMERA = 2;
 
     private DatabaseReference mPhotoGalleryDatabaseReference;
     private ChildEventListener mChildEventListener;
@@ -57,6 +58,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Permissions
+        checkForCameraPermission();
         checkForExternalStoragePermission();
 
         //Data
@@ -112,6 +114,16 @@ public class WishGalleryActivity extends AppCompatActivity {
                     Toast.makeText(WishGalleryActivity.this, "External storage permission denied", Toast.LENGTH_SHORT).show();
                 }
                 break;
+            case PERMISSION_REQUEST_CAMERA:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                } else {
+                    // permission denied
+                    // TODO: handle permission denied
+                    // Wunschliste dann nicht anbieten?
+                    Toast.makeText(WishGalleryActivity.this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
     }
 
@@ -129,6 +141,13 @@ public class WishGalleryActivity extends AppCompatActivity {
             // permission is not granted
             ActivityCompat.requestPermissions(WishGalleryActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
 
+        }
+    }
+
+    private void checkForCameraPermission() {
+        if (ContextCompat.checkSelfPermission(WishGalleryActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // permission is not granted
+            ActivityCompat.requestPermissions(WishGalleryActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
         }
     }
 

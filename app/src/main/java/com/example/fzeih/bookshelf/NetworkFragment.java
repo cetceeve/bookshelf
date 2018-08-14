@@ -8,7 +8,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -227,8 +227,7 @@ public class NetworkFragment extends Fragment {
         /**
          * Converts the contents of an InputStream to a String.
          */
-        public String readStream(InputStream stream)
-                throws IOException {
+        public String readStream(InputStream stream) throws IOException {
 
             StringBuffer buffer = new StringBuffer();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
@@ -238,7 +237,6 @@ public class NetworkFragment extends Fragment {
             }
 
             return buffer.toString();
-
         }
     }
 }

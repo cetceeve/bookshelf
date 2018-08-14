@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,43 +28,42 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback {
-
-    private EditText mIsbnEditText;
-    private Button mSearchButton, mAddResultButton;
-    private TextView mResultTextView;
-    private Switch mBookReadSwitch;
-    private boolean mBookWasRead = false;
-
-    private String mBooklistKey;
-    private DatabaseReference mBooklistDatabaseReference;
-    private DatabaseReference mBooksReadDatabaseReference;
-    private ValueEventListener mValueEventListenerReadBooks;
-    private Long mNumReadBooks;
-
-    // Keep a reference to the NetworkFragment, which owns the AsyncTask object
-    // that is used to execute network ops.
-    private NetworkFragment mNetworkFragment;
-
-    // Boolean telling us whether a download is in progress, so we don't trigger overlapping
-    // downloads with consecutive button clicks.
-    private boolean mDownloading = false;
-
     //Parameter for URL
     private static final String BOOK_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
     private static final String QUERY_PARAM_ISBN = "q=isbn:";
+
+    private DatabaseReference mBookListDatabaseReference;
+    private DatabaseReference mNumOfReadBooksDatabaseReference;
+    private ValueEventListener mNumOfReadBooksValueEventListener;
+
+    private String mBookListKey;
+    private Long mNumOfReadBooks;
+
+    private EditText mIsbnEditText;
+    private Button mSearchButton;
+    private Button mAddResultButton;
+    private TextView mResultTextView;
+    private Switch mBookReadSwitch;
+
+    private boolean mBookWasRead = false;
+
+    private NetworkFragment mNetworkFragment;
+
     private String mIsbnQueryInput;
     private String mRequestUrl;
+    private boolean mDownloading = false;
 
     // Results of ISBN-Search
     private String mTitle;
     private String mAuthor;
 
+    // Input from Barcode Scanner
+    private String mIsbn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_isbn_search);
-
         getSupportActionBar().setTitle("ISBN Search");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -75,17 +76,25 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         // Views
         initViews();
 
+        // Downloader
         mNetworkFragment = NetworkFragment.getInstance(getFragmentManager());
 
         // Listeners
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mIsbnQueryInput = mIsbnEditText.getText().toString();
-                mRequestUrl = BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
+                if (!mDownloading) {
+                    getQuery();
+                    startDownload();
+                }
 
-                startDownload();
-
+            }
+        });
+        mAddResultButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadBookData();
+                finish();
             }
         });
         mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -97,47 +106,68 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
-        detachReadDatabaseListenerReadBooks();
+        detachNumOfReadBooksReadDatabaseListener();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachDatabaseReadListenerReadBooks();
+        attachNumOfReadBooksDatabaseReadListener();
+
+        // if called with input, search immediately
+        if (mIsbn != null) {
+            getQuery();
+            startDownload();
+        }
     }
 
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
+        if (extras != null) {
+            mBookListKey = extras.getString(Constants.key_intent_booklistkey);
+            mIsbn = extras.getString(Constants.key_intent_isbn);
+        }
     }
 
 
     private void getDatabaseReference() {
-        mBooklistDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey);
-        mBooksReadDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_books_read);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
+            mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
+        } else {
+            Toast.makeText(IsbnSearchActivity.this, "ERROR: User is not signed in!", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
-    private void attachDatabaseReadListenerReadBooks() {
-        mValueEventListenerReadBooks = new ValueEventListener() {
+    private void attachNumOfReadBooksDatabaseReadListener() {
+        mNumOfReadBooksValueEventListener = new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mNumReadBooks = (Long) dataSnapshot.getValue();
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mNumOfReadBooks = (Long) dataSnapshot.getValue();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         };
-        mBooksReadDatabaseReference.addValueEventListener(mValueEventListenerReadBooks);
+        mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
     }
 
-    private void detachReadDatabaseListenerReadBooks() {
-        if (mValueEventListenerReadBooks != null) {
-            mBooksReadDatabaseReference.removeEventListener(mValueEventListenerReadBooks);
-            mValueEventListenerReadBooks = null;
+    private void detachNumOfReadBooksReadDatabaseListener() {
+        if (mNumOfReadBooksValueEventListener != null) {
+            mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
+            mNumOfReadBooksValueEventListener = null;
         }
     }
 
@@ -146,68 +176,56 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mSearchButton = (Button) findViewById(R.id.button_searchByIsbn);
         mResultTextView = (TextView) findViewById(R.id.textView_result_isbnsearch);
         mAddResultButton = (Button) findViewById(R.id.button_add_isbnsearch);
-        mAddResultButton.setVisibility(View.INVISIBLE);
         mBookReadSwitch = findViewById(R.id.switch_book_read_isbn_search);
+
+        // if called with input
+        if (mIsbn != null) {
+            mIsbnEditText.setText(mIsbn);
+        }
+
+        // hide ui elements that display results
         mBookReadSwitch.setVisibility(View.INVISIBLE);
-
+        mAddResultButton.setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+    private void getQuery() {
+        mIsbnQueryInput = mIsbnEditText.getText().toString();
+        mRequestUrl = BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
     }
 
-    @Override
-    public void updateFromDownload(Object result) {
-        // Update your UI here based on result of download
-        getResults(result);
-        addNewBook();
-    }
-
-    private void getResults(Object result) {
-        // parse JSON
-        mTitle = null;
-        mAuthor = null;
-        try {
-            JSONObject jsonObject = new JSONObject((String) result);
-            JSONArray itemsArray = jsonObject.getJSONArray("items");
-            for (int i = 0; i < itemsArray.length(); i++) {
-                JSONObject book = itemsArray.getJSONObject(i);
-                JSONObject volumeInfo = book.getJSONObject("volumeInfo");
-
-                try {
-                    mTitle = volumeInfo.getString("title");
-                    mAuthor = volumeInfo.getString("authors");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if (mTitle != null && mAuthor != null) {
-                    mResultTextView.setText(mTitle + "\n" + mAuthor);
-                    mBookReadSwitch.setVisibility(View.VISIBLE);
-                    mAddResultButton.setVisibility(View.VISIBLE);
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Toast.makeText(IsbnSearchActivity.this, "Invalid ISBN! Could not find a book", Toast.LENGTH_LONG).show();
+    private void startDownload() {
+        if (!mDownloading && mNetworkFragment != null) {
+            // Execute the async download.
+            mNetworkFragment.startDownload(mRequestUrl);
+            mDownloading = true;
         }
     }
 
-    private void addNewBook() {
-        mAddResultButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                uploadBookData();
-                finish();
-            }
-        });
-    }
-
+    ///////////////////////////////////////// download in progress or finished
     @Override
     public NetworkInfo getActiveNetworkInfo() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return connectivityManager.getActiveNetworkInfo();
+    }
+
+    @Override
+    public void updateFromDownload(Object result) {
+        // Update UI based on result of download
+        if (result != null) {
+            if (result.getClass() == Exception.class) {
+                Toast.makeText(IsbnSearchActivity.this, "Error during search operation.", Toast.LENGTH_LONG).show();
+                ((Exception) result).printStackTrace();
+            } else {
+                if (getResults(result.toString())) {
+                    String tempString = mTitle + "\n" + mAuthor;
+                    mResultTextView.setText(tempString);
+                    mBookReadSwitch.setVisibility(View.VISIBLE);
+                    mAddResultButton.setVisibility(View.VISIBLE);
+                }
+            }
+        } else {
+            Toast.makeText(IsbnSearchActivity.this, "Something went wrong!", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -240,21 +258,54 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         }
     }
 
-    private void startDownload() {
-        if (!mDownloading && mNetworkFragment != null) {
-            // Execute the async download.
-            mNetworkFragment.startDownload(mRequestUrl);
-            mDownloading = true;
+    private boolean getResults(String resultString) {
+        // parse JSON
+        mTitle = null;
+        mAuthor = null;
+        try {
+            JSONObject jsonObject = new JSONObject(resultString);
+            JSONArray itemsArray = jsonObject.getJSONArray("items");
+            for (int i = 0; i < itemsArray.length(); i++) {
+                JSONObject book = itemsArray.getJSONObject(i);
+                JSONObject volumeInfo = book.getJSONObject("volumeInfo");
+
+                mTitle = volumeInfo.getString("title");
+                mAuthor = cleanAuthorString(volumeInfo.getString("authors"));
+            }
+            return true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(IsbnSearchActivity.this, "Invalid ISBN! No book found.", Toast.LENGTH_LONG).show();
+            return false;
         }
     }
 
+    private String cleanAuthorString(String string) {
+        string = string.substring(1, string.length() - 1);
+        String[] strings = string.split("\"");
+        String res = strings[0];
+        for (int i = 1; i < strings.length; i++) {
+            res += strings[i];
+        }
+        res = res.trim();
+        char[] chars = res.toCharArray();
+        res = "";
+        for (char c : chars) {
+            res += c;
+            if (c == ',') {
+                res += " ";
+            }
+        }
+        return res;
+    }
+
     private void uploadBookData() {
-        DatabaseReference nextBookDatabaseReference = mBooklistDatabaseReference.push();
+        DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
         Book bookItem = new Book(nextBookDatabaseReference.getKey(), mAuthor, mTitle, mIsbnQueryInput, mBookWasRead);
         nextBookDatabaseReference.setValue(bookItem);
-        Toast.makeText(IsbnSearchActivity.this, "Added book to list", Toast.LENGTH_SHORT).show();
+
         if (mBookWasRead) {
-            mBooksReadDatabaseReference.setValue(mNumReadBooks + 1);
+            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
         }
     }
 }

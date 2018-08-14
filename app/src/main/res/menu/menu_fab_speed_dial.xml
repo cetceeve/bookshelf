@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/fab_action_manually"
+        android:icon="@drawable/ic_add_manually"
+        android:title="@string/fab_menu_manually"
+        />
+
+    <item
+        android:id="@+id/fab_action_isbn"
+        android:icon="@drawable/ic_search_isbn"
+        android:title="@string/fab_menu_isbn"
+        />
+
+    <item
+        android:id="@+id/fab_action_barcodescanner"
+        android:icon="@drawable/ic_barcode_scan"
+        android:title="@string/fab_menu_barcodescanner"
+        />
+</menu>

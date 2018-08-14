@@ -1,10 +1,9 @@
 package com.example.fzeih.bookshelf;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,30 +21,29 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class DisplayBookActivity extends AppCompatActivity {
-
-    private Book mBook;
-    private String mBooklistKey;
     private DatabaseReference mBookDatabaseReference;
-    private DatabaseReference mBooksReadDatabaseReference;
-    private Long mNumReadBooks;
+    private DatabaseReference mNumOfReadBooksDatabaseReference;
+    private ValueEventListener mBookValueEventListener;
+    private ValueEventListener mNumOfReadBooksValueEventListener;
+
+    private String mBookListKey;
+    private Long mNumOfReadBooks;
+    private Book mBook;
 
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
     private Switch mBookReadSwitch;
-    private ValueEventListener mValueEventListenerBook;
-    private ValueEventListener mValueEventListenerReadBooks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_book);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Book Details");
 
         // Intent
         readIntent();
-        getSupportActionBar().setTitle("Book Details");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         // Views
         initViews();
@@ -66,27 +65,35 @@ public class DisplayBookActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        detachReadDatabaseListener();
-        detachReadDatabaseListenerReadBooks();
+        detachBookDatabaseReadListener();
+        detachNumOfReadBooksDatabaseReadListener();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachDatabaseReadListenerBook();
-        attachDatabaseReadListenerReadBooks();
+        attachBookDatabaseReadListener();
+        attachNumOfReadBooksDatabaseReadListener();
     }
 
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        mBook = (Book) extras.get(Constants.key_intent_book);
-        mBooklistKey = extras.getString(Constants.key_intent_booklistkey);
+        if (extras != null) {
+            mBook = (Book) extras.get(Constants.key_intent_book);
+            mBookListKey = extras.getString(Constants.key_intent_booklistkey);
+        }
     }
 
     private void getDatabaseReference() {
-        mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_booklists).child(mBooklistKey).child(mBook.getKey());
-        mBooksReadDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_books_read);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey).child(mBook.getKey());
+            mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
+        } else {
+            Toast.makeText(DisplayBookActivity.this, "ERROR: User is not signed in!", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     private void initViews() {
@@ -96,45 +103,45 @@ public class DisplayBookActivity extends AppCompatActivity {
         mBookReadSwitch = (Switch) findViewById(R.id.switch_book_read);
     }
 
+    private void setBookData() {
+        if (mBook != null) {
+            mTitleTextView.setText(mBook.getTitle());
+            mAuthorNameTextView.setText(mBook.getAuthorName());
+            mIsbnTextView.setText(mBook.getIsbn());
+            mBookReadSwitch.setChecked(mBook.getRead());
+        } else {
+            Toast.makeText(DisplayBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void setSwitchStateChangeListener() {
         mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (mNumReadBooks == null) {
-                    mNumReadBooks = 0L;
+                // only happens once when user calls this method for the very first time
+                // reason: firebase return null, because value doesn't exist yet
+                if (mNumOfReadBooks == null) {
+                    mNumOfReadBooks = 0L;
                 }
+                // standard behaviour
                 if (b) {
                     Book changedBook = new Book(mBook.getKey(), mBook.getAuthorName(), mBook.getTitle(), mBook.getIsbn(), true);
                     mBookDatabaseReference.setValue(changedBook);
-                    mBooksReadDatabaseReference.setValue(mNumReadBooks + 1);
+                    mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
                 } else {
                     Book changedBook = new Book(mBook.getKey(), mBook.getAuthorName(), mBook.getTitle(), mBook.getIsbn(), false);
                     mBookDatabaseReference.setValue(changedBook);
-                    mBooksReadDatabaseReference.setValue(mNumReadBooks - 1);
+                    mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
                 }
             }
         });
     }
 
-    private void setBookData() {
-        mTitleTextView.setText(mBook.getTitle());
-        mAuthorNameTextView.setText(mBook.getAuthorName());
-        mIsbnTextView.setText(mBook.getIsbn());
-        mBookReadSwitch.setChecked(mBook.getRead());
-    }
 
-    private void startEditBookAcitivity() {
-        Intent intent = new Intent(DisplayBookActivity.this, EditBookActivity.class);
-        intent.putExtra(Constants.key_intent_book, mBook);
-        intent.putExtra(Constants.key_intent_booklistkey, mBooklistKey);
-        startActivity(intent);
-    }
-
-
-    private void attachDatabaseReadListenerBook() {
-        mValueEventListenerBook = new ValueEventListener() {
+    private void attachBookDatabaseReadListener() {
+        mBookValueEventListener = new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mBook = dataSnapshot.getValue(Book.class);
                 if (mBook != null) {
                     setBookData();
@@ -142,45 +149,52 @@ public class DisplayBookActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         };
-        mBookDatabaseReference.addValueEventListener(mValueEventListenerBook);
+        mBookDatabaseReference.addValueEventListener(mBookValueEventListener);
     }
 
-    private void attachDatabaseReadListenerReadBooks() {
-        mValueEventListenerReadBooks = new ValueEventListener() {
+    private void attachNumOfReadBooksDatabaseReadListener() {
+        mNumOfReadBooksValueEventListener = new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mNumReadBooks = (Long) dataSnapshot.getValue();
-                Snackbar.make(mBookReadSwitch, "you've read " + mNumReadBooks + " book", Snackbar.LENGTH_LONG)
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                mNumOfReadBooks = (Long) dataSnapshot.getValue();
+                // TODO: find true place for this
+                Snackbar.make(mBookReadSwitch, "you've read " + mNumOfReadBooks + " book", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         };
-        mBooksReadDatabaseReference.addValueEventListener(mValueEventListenerReadBooks);
+        mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
     }
 
-    private void detachReadDatabaseListener() {
-        if (mValueEventListenerBook != null) {
-            mBookDatabaseReference.removeEventListener(mValueEventListenerBook);
-            mValueEventListenerBook = null;
+    private void detachBookDatabaseReadListener() {
+        if (mBookValueEventListener != null) {
+            mBookDatabaseReference.removeEventListener(mBookValueEventListener);
+            mBookValueEventListener = null;
         }
     }
 
-    private void detachReadDatabaseListenerReadBooks() {
-        if (mValueEventListenerReadBooks != null) {
-            mBooksReadDatabaseReference.removeEventListener(mValueEventListenerReadBooks);
-            mValueEventListenerReadBooks = null;
+    private void detachNumOfReadBooksDatabaseReadListener() {
+        if (mNumOfReadBooksValueEventListener != null) {
+            mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
+            mNumOfReadBooksValueEventListener = null;
         }
+    }
+
+    private void startEditBookActivity() {
+        Intent intent = new Intent(DisplayBookActivity.this, EditBookActivity.class);
+        intent.putExtra(Constants.key_intent_book, mBook);
+        intent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
+        startActivity(intent);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_display_book, menu);
         return true;
     }
@@ -190,41 +204,32 @@ public class DisplayBookActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                showDeleteConfirmationDialog();
+                showDeleteConfirmationSnackbar();
                 return true;
             case R.id.action_edit:
-                startEditBookAcitivity();
+                startEditBookActivity();
                 return true;
-
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
 
         }
     }
 
-    private void showDeleteConfirmationDialog() {
-        AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(DisplayBookActivity.this);
-        deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
-                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        detachReadDatabaseListener();
-                        detachReadDatabaseListenerReadBooks();
-                        mBookDatabaseReference.removeValue();
-                        if (mBook.getRead()) {
-                            mBooksReadDatabaseReference.setValue(mNumReadBooks - 1);
-                        }
-                        Toast.makeText(DisplayBookActivity.this, "Book removed", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        deleteConfirmationDialog.show();
+    private void showDeleteConfirmationSnackbar() {
+        detachBookDatabaseReadListener();
+        detachNumOfReadBooksDatabaseReadListener();
+
+        mBookDatabaseReference.removeValue();
+        if (mBook.getRead()) {
+            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
+        }
+
+        // inform listeners
+        Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
+        for (Object listener: bookDeletionListeners) {
+            ((BookDeletionListener) listener).bookDeleted(mBookDatabaseReference, mBook);
+        }
+
+        finish();
     }
 }
