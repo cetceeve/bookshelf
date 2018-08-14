@@ -83,8 +83,8 @@
 
     <ListView
         android:id="@+id/list_view_profile_achievements"
-        android:layout_width="395dp"
-        android:layout_height="540dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

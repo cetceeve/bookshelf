@@ -58,7 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setUserPhoto() {
         if (mUser != null) {
-            mUserPhotoImageView.setImageURI(mUser.getPhotoUrl());
+            // TODO: load photo from internet
         } else {
             Toast.makeText(ProfileActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
             finish();
