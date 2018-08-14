@@ -80,6 +80,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clearResults();
                 startDownload();
             }
         });
@@ -195,6 +196,14 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private String getQuery() {
         mIsbnQueryInput = mIsbnEditText.getText().toString();
         return BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
+    }
+
+    private void clearResults() {
+        mTitle = null;
+        mAuthor = null;
+        mResultTextView.setText(null);
+        mBookReadSwitch.setVisibility(View.INVISIBLE);
+        mAddResultButton.setVisibility(View.INVISIBLE);
     }
     ///////////////////////////////////////// download in progress or finished
 
