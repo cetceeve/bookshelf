@@ -182,7 +182,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void startDownload() {
         if (!mDownloading && mNetworkFragment != null) {
-            if (mNetworkFragment.prepareDownload(getQuery())) {
+            if (mNetworkFragment.prepareDownload(getQuery(), NetworkFragment.DOWNLOAD_RESULT_TYPE.JSON)) {
                 // Execute the async download.
                 mNetworkFragment.startDownload();
                 mDownloading = true;
@@ -271,7 +271,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             return true;
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(IsbnSearchActivity.this, "Invalid ISBN! No book found.", Toast.LENGTH_LONG).show();
+            Toast.makeText(IsbnSearchActivity.this, "No book found!", Toast.LENGTH_LONG).show();
             return false;
         }
     }
