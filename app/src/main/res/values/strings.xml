@@ -43,7 +43,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="text_view_profile_amount_books">You have 25 books.</string>
-    <string name="text_view_profile_read_books">You Read 101books.</string>
+    <string name="text_view_profile_read_books">You Read 101 books.</string>
     <!-- Achievements -->
     <string name="achievement_10">Good Job! You are now officially a Bookworm!</string>
     <string name="achievement_25">Awesome! A wild Bookworm appears!</string>

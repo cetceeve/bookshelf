@@ -138,6 +138,12 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ListenerAdministrator.getInstance().removeListener(this);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         detachBookListDatabaseReadListener();
@@ -168,7 +174,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
             mListNameDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklistnames).child(mBookListKey);
         } else {
             Toast.makeText(BookListActivity.this, "ERROR: User is not signed in", Toast.LENGTH_SHORT).show();
-            closeActivity();
+            finish();
         }
     }
 
@@ -262,7 +268,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         mListNameDatabaseReference.removeValue();
         mBookListDatabaseReference.removeValue();
 
-        closeActivity();
+        finish();
     }
 
     private void uploadBookListName(String updatedBookListName) {
@@ -345,10 +351,5 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
             // undo book deletion
             deletedBookDatabaseReference.setValue(deletedBook);
         }
-    }
-
-    private void closeActivity() {
-        ListenerAdministrator.getInstance().removeListener(this);
-        finish();
     }
 }

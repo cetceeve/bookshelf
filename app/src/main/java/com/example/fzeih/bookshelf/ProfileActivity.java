@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener{
+public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener, AchievementServiceListener{
     private FirebaseUser mUser;
 
     private ArrayList<Achievement> achievements;
@@ -45,14 +45,31 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
 
         initViews();
         setUserName();
+        setNumOfReadBooks();
+        setAchievementAdapter();
 
-        setAdapter();
+        // register as listener
+        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ListenerAdministrator.getInstance().removeListener(this);
+    }
+
+    private void initViews() {
+        mAchievementListView = findViewById(R.id.list_view_profile_achievements);
+        mUserNameTextView = findViewById(R.id.text_view_profile_user_name);
+        mNumOfBooksTextView = findViewById(R.id.text_view_profile_amount_books);
+        mNumOfReadBooksTextView = findViewById(R.id.text_view_profile_read_books);
+        mUserPhotoImageView = findViewById(R.id.image_view_profile_user_photo);
     }
 
     private void setUserName() {
@@ -64,30 +81,16 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         }
     }
 
-    private void initViews() {
-        mAchievementListView = findViewById(R.id.list_view_profile_achievements);
-        mUserNameTextView = findViewById(R.id.text_view_profile_user_name);
-        mNumOfBooksTextView = findViewById(R.id.text_view_profile_amount_books);
-        mNumOfReadBooksTextView = findViewById(R.id.text_view_profile_read_books);
-        mUserPhotoImageView = findViewById(R.id.image_view_profile_user_photo);
+    private void setNumOfReadBooks() {
+        int numOfReadBooks = new DatabaseService.AchievementService().getNumOfReadBooks();
+        String string = "You Read " + Integer.toString(numOfReadBooks) + " books.";
+        mNumOfReadBooksTextView.setText(string);
     }
 
-    private void setAdapter() {
-        createAchievements();
+    private void setAchievementAdapter() {
+        achievements = new DatabaseService.AchievementService().getAchievementList(this);
         achievementAdapter = new AchievementAdapter(this, R.layout.achievement, achievements);
         mAchievementListView.setAdapter(achievementAdapter);
-    }
-
-    private void createAchievements() {
-        achievements = new ArrayList<>();
-        achievements.add(new Achievement(this, 10, R.string.achievement_10, R.mipmap.ic_launcher_round));
-        achievements.add(new Achievement(this, 25, R.string.achievement_25, R.mipmap.ic_launcher_round));
-        achievements.add(new Achievement(this, 50, R.string.achievement_50, R.mipmap.ic_launcher_round));
-        achievements.add(new Achievement(this, 100, R.string.achievement_100, R.mipmap.ic_launcher_round));
-        achievements.add(new Achievement(this, 250, R.string.achievement_250, R.mipmap.ic_launcher_round));
-        achievements.add(new Achievement(this, 500, R.string.achievement_500, R.mipmap.ic_launcher_round));
-        achievements.add(new Achievement(this, 1000, R.string.achievement_1000, R.mipmap.ic_launcher_round));
-        achievements.add(new Achievement(this, 5000, R.string.achievement_5000, R.mipmap.ic_launcher_round));
     }
 
     @Override
@@ -159,5 +162,11 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
             mNetworkFragment.startDownload();
             mDownloading = true;
         }
+    }
+
+    @Override
+    public void onNumOfReadBooksChance(int numOfReadBooks) {
+        String string = "You Read " + Integer.toString(numOfReadBooks) + " books.";
+        mNumOfReadBooksTextView.setText(string);
     }
 }
