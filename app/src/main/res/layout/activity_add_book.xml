@@ -13,45 +13,52 @@
         android:id="@+id/switch_book_read_add_book"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:switchPadding="8dp"
         android:layout_gravity="right"
-        android:text="already read" />
+        android:switchPadding="8dp"
+        android:text="already read"
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.Switch" />
 
 
     <TextView
         android:id="@+id/textView_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/text_title"/>
+        android:text="@string/text_title"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
 
     <EditText
         android:id="@+id/editText_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="text"
         android:layout_marginBottom="16dp"/>
 
     <TextView
         android:id="@+id/textView_authorName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/text_author_name"/>
+        android:text="@string/text_author_name"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
 
     <EditText
         android:id="@+id/editText_authorName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="text"
         android:layout_marginBottom="16dp"/>
 
     <TextView
         android:id="@+id/textView_isbn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/text_isbn"/>
+        android:text="@string/text_isbn"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
 
     <EditText
         android:id="@+id/editText_isbn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:inputType="number"
         android:layout_marginBottom="16dp"/>
 
     <Button
