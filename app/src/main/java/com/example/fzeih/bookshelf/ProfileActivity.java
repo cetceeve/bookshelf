@@ -20,8 +20,8 @@ import java.util.ArrayList;
 public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener, AchievementServiceListener{
     private FirebaseUser mUser;
 
-    private ArrayList<Achievement> achievements;
-    private AchievementAdapter achievementAdapter;
+    private ArrayList<Achievement> mAchievements;
+    private AchievementAdapter mAchievementAdapter;
 
     private NetworkFragment mNetworkFragment;
     private boolean mDownloading = false;
@@ -88,9 +88,9 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     }
 
     private void setAchievementAdapter() {
-        achievements = DatabaseService.getInstance().getAchievementService().getAchievementList(this);
-        achievementAdapter = new AchievementAdapter(this, R.layout.achievement, achievements);
-        mAchievementListView.setAdapter(achievementAdapter);
+        mAchievements = DatabaseService.getInstance().getAchievementService().getAchievementList(this);
+        mAchievementAdapter = new AchievementAdapter(this, R.layout.achievement, mAchievements);
+        mAchievementListView.setAdapter(mAchievementAdapter);
     }
 
     @Override
@@ -168,5 +168,10 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     public void onNumOfReadBooksChance(int numOfReadBooks) {
         String string = "You Read " + Integer.toString(numOfReadBooks) + " books.";
         mNumOfReadBooksTextView.setText(string);
+    }
+
+    @Override
+    public void onAchievementChanged() {
+        mAchievementAdapter.notifyDataSetChanged();
     }
 }

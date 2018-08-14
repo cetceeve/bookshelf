@@ -26,8 +26,20 @@ public class Achievement {
         return mLevel;
     }
 
-    public void toggleColored() {
-        mColored = !mColored;
+    public boolean setColored() {
+        if (!mColored) {
+            mColored = true;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeColored() {
+        if (mColored) {
+            mColored = false;
+            return true;
+        }
+        return false;
     }
 
     public String getAchievementText() {

@@ -32,9 +32,11 @@ class DatabaseService {
     static class AchievementService {
         private DatabaseReference mNumOfReadBooksDatabaseReference;
         private ValueEventListener mNumOfReadBooksValueEventListener;
+        private ArrayList<Achievement> mAchievements;
         private Long mNumOfReadBooks;
 
         private AchievementService() {
+            mAchievements = new ArrayList<>();
             getDatabaseReference();
             attachNumOfReadBooksDatabaseReadListener();
         }
@@ -53,6 +55,9 @@ class DatabaseService {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     mNumOfReadBooks = (Long) dataSnapshot.getValue();
+
+                    checkForAchievementChange();
+
                     Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceListener.class);
                     for (Object listener : listeners) {
                         ((AchievementServiceListener) listener).onNumOfReadBooksChance(mNumOfReadBooks.intValue());
@@ -64,6 +69,28 @@ class DatabaseService {
                 }
             };
             mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
+        }
+
+        private void checkForAchievementChange() {
+            boolean achievementChanged = false;
+            if (mAchievements != null) {
+                for (Achievement achievement : mAchievements) {
+                    if (achievement.getLevel() <= mNumOfReadBooks.intValue()) {
+                        boolean didChange = achievement.setColored();
+                        achievementChanged = achievementChanged || didChange;
+                    } else {
+                        boolean didChange = achievement.removeColored();
+                        achievementChanged = achievementChanged || didChange;
+                    }
+                }
+            }
+
+            if (achievementChanged) {
+                Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceListener.class);
+                for (Object listener : listeners) {
+                    ((AchievementServiceListener) listener).onAchievementChanged();
+                }
+            }
         }
 
         public int getNumOfReadBooks() {
@@ -88,10 +115,11 @@ class DatabaseService {
             if (mNumOfReadBooks != null) {
                 for (Achievement achievement : achievements) {
                     if (achievement.getLevel() <= mNumOfReadBooks.intValue()) {
-                        achievement.toggleColored();
+                        achievement.setColored();
                     }
                 }
             }
+            mAchievements = achievements;
             return achievements;
         }
 
