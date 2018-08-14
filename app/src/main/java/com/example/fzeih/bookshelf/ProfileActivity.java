@@ -1,5 +1,9 @@
 package com.example.fzeih.bookshelf;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
@@ -12,11 +16,14 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity implements DownloadCallback{
     private FirebaseUser mUser;
 
     private ArrayList<Achievement> achievements;
     private AchievementAdapter achievementAdapter;
+
+    private NetworkFragment mNetworkFragment;
+    private boolean mDownloading = false;
 
     private ListView mAchievementListView;
     private TextView mNumOfBooksTextView;
@@ -33,6 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
         getSupportActionBar().setElevation(0);
 
         mUser = FirebaseAuth.getInstance().getCurrentUser();
+        mNetworkFragment = NetworkFragment.getInstance(getSupportFragmentManager());
 
         initViews();
         setUserName();
@@ -58,10 +66,25 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setUserPhoto() {
         if (mUser != null) {
-            // TODO: load photo from internet
+            Uri userPhotoUrl = mUser.getPhotoUrl();
+            if (userPhotoUrl != null) {
+                startDownload(userPhotoUrl.toString());
+            }
         } else {
             Toast.makeText(ProfileActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
             finish();
+        }
+    }
+
+    private void startDownload(String url) {
+        if (!mDownloading && mNetworkFragment != null) {
+            if (mNetworkFragment.prepareDownload(url, NetworkFragment.DOWNLOAD_RESULT_TYPE.BITMAP)) {
+                // Execute the async download.
+                mNetworkFragment.startDownload();
+                mDownloading = true;
+            } else {
+                Toast.makeText(ProfileActivity.this, "ERROR: download preparation failed!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -89,5 +112,50 @@ public class ProfileActivity extends AppCompatActivity {
         achievements.add(new Achievement(this, 500, R.string.achievement_500, R.mipmap.ic_launcher_round));
         achievements.add(new Achievement(this, 1000, R.string.achievement_1000, R.mipmap.ic_launcher_round));
         achievements.add(new Achievement(this, 5000, R.string.achievement_5000, R.mipmap.ic_launcher_round));
+    }
+
+    @Override
+    public void updateFromDownload(Object result) {
+        if (result instanceof Exception) {
+            Toast.makeText(ProfileActivity.this, result.toString(), Toast.LENGTH_LONG).show();
+        } else {
+            // TODO: Update UI based on result of download
+        }
+    }
+
+    @Override
+    public NetworkInfo getActiveNetworkInfo() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return connectivityManager.getActiveNetworkInfo();
+    }
+
+    @Override
+    public void onProgressUpdate(int progressCode, int percentComplete) {
+        switch (progressCode) {
+            // You can add UI behavior for progress updates here.
+            case Progress.ERROR:
+                // ...
+                break;
+            case Progress.CONNECT_SUCCESS:
+                // ...
+                break;
+            case Progress.GET_INPUT_STREAM_SUCCESS:
+                // ...
+                break;
+            case Progress.PROCESS_INPUT_STREAM_IN_PROGRESS:
+                // ...
+                break;
+            case Progress.PROCESS_INPUT_STREAM_SUCCESS:
+                // ...
+                break;
+        }
+    }
+
+    @Override
+    public void finishDownloading() {
+        mDownloading = false;
+        if (mNetworkFragment != null) {
+            mNetworkFragment.cancelDownload();
+        }
     }
 }

@@ -206,21 +206,16 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     @Override
     public void updateFromDownload(Object result) {
-        // Update UI based on result of download
-        if (result != null) {
-            if (result.getClass() == Exception.class) {
-                Toast.makeText(IsbnSearchActivity.this, "Error during search operation.", Toast.LENGTH_LONG).show();
-                ((Exception) result).printStackTrace();
-            } else {
-                if (getResults(result.toString())) {
-                    String tempString = mTitle + "\n" + mAuthor;
-                    mResultTextView.setText(tempString);
-                    mBookReadSwitch.setVisibility(View.VISIBLE);
-                    mAddResultButton.setVisibility(View.VISIBLE);
-                }
-            }
+        if (result instanceof Exception) {
+            Toast.makeText(IsbnSearchActivity.this, result.toString(), Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(IsbnSearchActivity.this, "Something went wrong!", Toast.LENGTH_LONG).show();
+            // Update UI based on result of download
+            if (getResults(result.toString())) {
+                String tempString = mTitle + "\n" + mAuthor;
+                mResultTextView.setText(tempString);
+                mBookReadSwitch.setVisibility(View.VISIBLE);
+                mAddResultButton.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -271,7 +266,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             return true;
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(IsbnSearchActivity.this, "No book found!", Toast.LENGTH_LONG).show();
+            // Result was Exception
+            Toast.makeText(IsbnSearchActivity.this, "No Book found!", Toast.LENGTH_LONG).show();
             return false;
         }
     }

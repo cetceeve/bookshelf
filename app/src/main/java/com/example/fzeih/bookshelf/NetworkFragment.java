@@ -109,9 +109,9 @@ public class NetworkFragment extends Fragment {
 
     private class DownloadTask extends AsyncTask<String, Integer, DownloadTask.Result> {
 
-        private DownloadCallback<String> mCallback;
+        private DownloadCallback mCallback;
 
-        DownloadTask(DownloadCallback<String> callback) {
+        DownloadTask(DownloadCallback callback) {
             mCallback = callback;
         }
 
@@ -189,10 +189,11 @@ public class NetworkFragment extends Fragment {
         protected void onPostExecute(Result result) {
             if (result != null && mCallback != null) {
                 if (result.mException != null) {
-                    mCallback.updateFromDownload(result.mException.getMessage());
+                    mCallback.updateFromDownload(result.mException);
                 } else if (result.mResultString != null) {
                     mCallback.updateFromDownload(result.mResultString);
-
+                } else if (result.mResultBitmap != null) {
+                    mCallback.updateFromDownload(result.mResultBitmap);
                 }
                 mCallback.finishDownloading();
             }
@@ -271,7 +272,7 @@ public class NetworkFragment extends Fragment {
         }
 
         /**
-         * Converts the contents of an InputStream to a Image.
+         * Converts the contents of an InputStream to a Bitmap.
          */
         public Bitmap readStreamForBitmap(InputStream stream) {
              return BitmapFactory.decodeStream(stream);
