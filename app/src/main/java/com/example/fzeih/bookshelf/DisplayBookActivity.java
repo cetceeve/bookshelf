@@ -54,9 +54,6 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         // Data
         setBookData();
         getDatabaseReference();
-
-        // Listeners
-        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     @Override
@@ -66,17 +63,12 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ListenerAdministrator.getInstance().removeListener(this);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         detachBookDatabaseReadListener();
         detachNumOfReadBooksDatabaseReadListener();
         detachSwitchStateChangeListener();
+        ListenerAdministrator.getInstance().removeListener(this);
     }
 
     @Override
@@ -85,6 +77,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         attachBookDatabaseReadListener();
         attachNumOfReadBooksDatabaseReadListener();
         attachSwitchStateChangeListener();
+        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     private void readIntent() {
