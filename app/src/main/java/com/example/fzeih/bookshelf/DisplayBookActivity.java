@@ -34,7 +34,9 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
+
     private Switch mBookReadSwitch;
+    private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +56,6 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         getDatabaseReference();
 
         // Listeners
-        setSwitchStateChangeListener();
         ListenerAdministrator.getInstance().registerListener(this);
     }
 
@@ -75,6 +76,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         super.onPause();
         detachBookDatabaseReadListener();
         detachNumOfReadBooksDatabaseReadListener();
+        detachSwitchStateChangeListener();
     }
 
     @Override
@@ -82,6 +84,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         super.onPostResume();
         attachBookDatabaseReadListener();
         attachNumOfReadBooksDatabaseReadListener();
+        attachSwitchStateChangeListener();
     }
 
     private void readIntent() {
@@ -116,15 +119,16 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             mTitleTextView.setText(mBook.getTitle());
             mAuthorNameTextView.setText(mBook.getAuthorName());
             mIsbnTextView.setText(mBook.getIsbn());
+            detachSwitchStateChangeListener();
             mBookReadSwitch.setChecked(mBook.getRead());
-            mBookReadSwitch.toggle();
+            attachSwitchStateChangeListener();
         } else {
             Toast.makeText(DisplayBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void setSwitchStateChangeListener() {
-        mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    private void attachSwitchStateChangeListener() {
+        mOnCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 // only happens once when user calls this method for the very first time
@@ -143,7 +147,15 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
                     mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
                 }
             }
-        });
+        };
+        mBookReadSwitch.setOnCheckedChangeListener(mOnCheckedChangeListener);
+    }
+
+    private void detachSwitchStateChangeListener() {
+        if (mOnCheckedChangeListener != null) {
+            mBookReadSwitch.setOnCheckedChangeListener(null);
+            mOnCheckedChangeListener = null;
+        }
     }
 
 
@@ -255,8 +267,6 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
 
         @Override
         public void onClick(View v) {
-            detachNumOfReadBooksDatabaseReadListener();
-            detachBookDatabaseReadListener();
             Intent intent = new Intent(DisplayBookActivity.this, ProfileActivity.class);
             startActivity(intent);
         }
