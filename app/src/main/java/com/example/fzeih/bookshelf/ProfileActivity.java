@@ -1,6 +1,7 @@
 package com.example.fzeih.bookshelf;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -16,7 +17,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DownloadCallback{
+public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener{
     private FirebaseUser mUser;
 
     private ArrayList<Achievement> achievements;
@@ -44,7 +45,6 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
 
         initViews();
         setUserName();
-        setUserPhoto();
 
         setAdapter();
     }
@@ -78,13 +78,10 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
 
     private void startDownload(String url) {
         if (!mDownloading && mNetworkFragment != null) {
-            if (mNetworkFragment.prepareDownload(url, NetworkFragment.DOWNLOAD_RESULT_TYPE.BITMAP)) {
-                // Execute the async download.
-                mNetworkFragment.startDownload();
-                mDownloading = true;
-            } else {
-                Toast.makeText(ProfileActivity.this, "ERROR: download preparation failed!", Toast.LENGTH_SHORT).show();
-            }
+            mNetworkFragment.prepareDownload(url, NetworkFragment.DOWNLOAD_RESULT_TYPE.BITMAP);
+            // Execute the async download.
+            mNetworkFragment.startDownload();
+            mDownloading = true;
         }
     }
 
@@ -119,7 +116,7 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         if (result instanceof Exception) {
             Toast.makeText(ProfileActivity.this, result.toString(), Toast.LENGTH_LONG).show();
         } else {
-            // TODO: Update UI based on result of download
+            mUserPhotoImageView.setImageBitmap((Bitmap) result);
         }
     }
 
@@ -157,5 +154,10 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         if (mNetworkFragment != null) {
             mNetworkFragment.cancelDownload();
         }
+    }
+
+    @Override
+    public void onNetworkFragmentInitComplete() {
+        setUserPhoto();
     }
 }

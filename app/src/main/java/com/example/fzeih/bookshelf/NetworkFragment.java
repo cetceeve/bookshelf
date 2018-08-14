@@ -32,8 +32,6 @@ public class NetworkFragment extends Fragment {
 
     private String mUrlString;
 
-    private boolean initComplete = false;
-
     /**
      * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
      * from.
@@ -52,26 +50,30 @@ public class NetworkFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        // Host Activity will handle callbacks from task.
-        System.out.println("onAttach: " + mUrlString);
-        mCallback = (DownloadCallback) context;
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Retain this Fragment across configuration changes in the host Activity.
         setRetainInstance(true);
-        // report ready status
-        initComplete = true;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        // Host Activity will handle callbacks from task.
+        mCallback = (DownloadCallback) context;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getContext() != null) {
+            ((NetworkFragmentListener) getContext()).onNetworkFragmentInitComplete();
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        initComplete = false;
         // Clear reference to host Activity to avoid memory leak.
         mCallback = null;
     }
@@ -83,10 +85,9 @@ public class NetworkFragment extends Fragment {
         super.onDestroy();
     }
 
-    public boolean prepareDownload(String urlString, DOWNLOAD_RESULT_TYPE downloadResultType) {
+    public void prepareDownload(String urlString, DOWNLOAD_RESULT_TYPE downloadResultType) {
         mUrlString = urlString;
         mDownloadResultType = downloadResultType;
-        return initComplete && (mUrlString != null);
     }
 
     /**

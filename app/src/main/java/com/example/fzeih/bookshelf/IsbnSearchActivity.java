@@ -27,7 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback {
+public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener {
     //Parameter for URL
     private static final String BOOK_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
     private static final String QUERY_PARAM_ISBN = "q=isbn:";
@@ -183,13 +183,10 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void startDownload() {
         if (!mDownloading && mNetworkFragment != null) {
-            if (mNetworkFragment.prepareDownload(getQuery(), NetworkFragment.DOWNLOAD_RESULT_TYPE.JSON)) {
-                // Execute the async download.
-                mNetworkFragment.startDownload();
-                mDownloading = true;
-            } else {
-                Toast.makeText(IsbnSearchActivity.this, "ERROR: download preparation failed!", Toast.LENGTH_SHORT).show();
-            }
+            mNetworkFragment.prepareDownload(getQuery(), NetworkFragment.DOWNLOAD_RESULT_TYPE.JSON);
+            // Execute the async download.
+            mNetworkFragment.startDownload();
+            mDownloading = true;
         }
     }
 
@@ -308,5 +305,10 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         if (mBookWasRead) {
             mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
         }
+    }
+
+    @Override
+    public void onNetworkFragmentInitComplete() {
+
     }
 }
