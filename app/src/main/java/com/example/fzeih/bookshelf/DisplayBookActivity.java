@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -20,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class DisplayBookActivity extends AppCompatActivity {
+public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceListener{
     private DatabaseReference mBookDatabaseReference;
     private DatabaseReference mNumOfReadBooksDatabaseReference;
     private ValueEventListener mBookValueEventListener;
@@ -54,12 +55,19 @@ public class DisplayBookActivity extends AppCompatActivity {
 
         // Listeners
         setSwitchStateChangeListener();
+        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ListenerAdministrator.getInstance().removeListener(this);
     }
 
     @Override
@@ -160,9 +168,6 @@ public class DisplayBookActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mNumOfReadBooks = (Long) dataSnapshot.getValue();
-                // TODO: find true place for this
-                Snackbar.make(mBookReadSwitch, "you've read " + mNumOfReadBooks + " book", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
 
             @Override
@@ -222,11 +227,35 @@ public class DisplayBookActivity extends AppCompatActivity {
 
         // inform listeners
         Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
+        detachNumOfReadBooksDatabaseReadListener();
         for (Object listener: bookDeletionListeners) {
             ((BookDeletionListener) listener).bookDeleted(mBookDatabaseReference, mBook);
         }
 
-        detachNumOfReadBooksDatabaseReadListener();
         finish();
+    }
+
+    @Override
+    public void onNumOfReadBooksChance(Long numOfReadBooks) {
+        // done in activity for security reasons
+    }
+
+    @Override
+    public void onAchievementChanged(Achievement highestAchievement) {
+        Snackbar.make(mBookReadSwitch, highestAchievement.getAchievementText(), Snackbar.LENGTH_LONG)
+                .setAction("Show Profile", new ShowProfileListener()).show();
+    }
+
+    private class ShowProfileListener implements View.OnClickListener{
+
+        private ShowProfileListener() {
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(DisplayBookActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        }
     }
 }

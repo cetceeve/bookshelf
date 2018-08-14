@@ -60,7 +60,7 @@ class DatabaseService {
 
                     Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceListener.class);
                     for (Object listener : listeners) {
-                        ((AchievementServiceListener) listener).onNumOfReadBooksChance(mNumOfReadBooks.intValue());
+                        ((AchievementServiceListener) listener).onNumOfReadBooksChance(mNumOfReadBooks);
                     }
                 }
 
@@ -73,11 +73,13 @@ class DatabaseService {
 
         private void checkForAchievementChange() {
             boolean achievementChanged = false;
+            Achievement highestAchievement = null;
             if (mAchievements != null) {
                 for (Achievement achievement : mAchievements) {
                     if (achievement.getLevel() <= mNumOfReadBooks.intValue()) {
                         boolean didChange = achievement.setColored();
                         achievementChanged = achievementChanged || didChange;
+                        highestAchievement = achievement;
                     } else {
                         boolean didChange = achievement.removeColored();
                         achievementChanged = achievementChanged || didChange;
@@ -88,16 +90,16 @@ class DatabaseService {
             if (achievementChanged) {
                 Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceListener.class);
                 for (Object listener : listeners) {
-                    ((AchievementServiceListener) listener).onAchievementChanged();
+                    ((AchievementServiceListener) listener).onAchievementChanged(highestAchievement);
                 }
             }
         }
 
-        public int getNumOfReadBooks() {
+        public Long getNumOfReadBooks() {
             if (mNumOfReadBooks != null) {
-                return mNumOfReadBooks.intValue();
+                return mNumOfReadBooks;
             }
-            return -1;
+            return null;
         }
 
         public ArrayList<Achievement> getAchievementList(Context context) {

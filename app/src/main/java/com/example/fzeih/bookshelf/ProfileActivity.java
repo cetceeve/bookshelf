@@ -17,10 +17,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener, AchievementServiceListener{
+public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener, AchievementServiceListener {
     private FirebaseUser mUser;
 
-    private ArrayList<Achievement> mAchievements;
     private AchievementAdapter mAchievementAdapter;
 
     private NetworkFragment mNetworkFragment;
@@ -82,14 +81,16 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     }
 
     private void setNumOfReadBooks() {
-        int numOfReadBooks = DatabaseService.getInstance().getAchievementService().getNumOfReadBooks();
-        String string = "You Read " + Integer.toString(numOfReadBooks) + " books.";
-        mNumOfReadBooksTextView.setText(string);
+        Long numOfReadBooks = DatabaseService.getInstance().getAchievementService().getNumOfReadBooks();
+        if (numOfReadBooks != null) {
+            String string = "You Read " + Long.toString(numOfReadBooks) + " books.";
+            mNumOfReadBooksTextView.setText(string);
+        }
     }
 
     private void setAchievementAdapter() {
-        mAchievements = DatabaseService.getInstance().getAchievementService().getAchievementList(this);
-        mAchievementAdapter = new AchievementAdapter(this, R.layout.achievement, mAchievements);
+        ArrayList<Achievement> achievements = DatabaseService.getInstance().getAchievementService().getAchievementList(this);
+        mAchievementAdapter = new AchievementAdapter(this, R.layout.achievement, achievements);
         mAchievementListView.setAdapter(mAchievementAdapter);
     }
 
@@ -165,13 +166,13 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     }
 
     @Override
-    public void onNumOfReadBooksChance(int numOfReadBooks) {
-        String string = "You Read " + Integer.toString(numOfReadBooks) + " books.";
+    public void onNumOfReadBooksChance(Long numOfReadBooks) {
+        String string = "You Read " + Long.toString(numOfReadBooks) + " books.";
         mNumOfReadBooksTextView.setText(string);
     }
 
     @Override
-    public void onAchievementChanged() {
+    public void onAchievementChanged(Achievement highestAchievement) {
         mAchievementAdapter.notifyDataSetChanged();
     }
 }
