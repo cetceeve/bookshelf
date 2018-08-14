@@ -12,8 +12,7 @@
         android:id="@+id/listview_booklist"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="#FFCC00"
+        android:divider="#e0e0e0"
         android:dividerHeight="4px"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"/>
+        />
 </android.support.constraint.ConstraintLayout>

@@ -8,7 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <!--<item name="colorBackground">#ffffff</item>-->
-        <item name="colorButtonNormal">#ff6659</item>
+        <item name="colorButtonNormal">@color/colorAccentLight</item>
 
         <!--<item name="text"-->
 
