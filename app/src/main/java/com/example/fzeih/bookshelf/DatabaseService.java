@@ -25,6 +25,10 @@ class DatabaseService {
         achievementService = new AchievementService();
     }
 
+    public void startServices(Context context) {
+        achievementService.getAchievementList(context);
+    }
+
     public AchievementService getAchievementService() {
         return achievementService;
     }

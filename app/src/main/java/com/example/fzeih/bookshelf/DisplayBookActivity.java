@@ -117,6 +117,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             mAuthorNameTextView.setText(mBook.getAuthorName());
             mIsbnTextView.setText(mBook.getIsbn());
             mBookReadSwitch.setChecked(mBook.getRead());
+            mBookReadSwitch.toggle();
         } else {
             Toast.makeText(DisplayBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
         }
@@ -254,6 +255,8 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
 
         @Override
         public void onClick(View v) {
+            detachNumOfReadBooksDatabaseReadListener();
+            detachBookDatabaseReadListener();
             Intent intent = new Intent(DisplayBookActivity.this, ProfileActivity.class);
             startActivity(intent);
         }

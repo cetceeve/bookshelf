@@ -229,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void onSignedInInitialize(FirebaseUser user) {
         getDatabaseReference(user);
         attachDatabaseReadListener();
+        DatabaseService.getInstance().startServices(this);
     }
 
     private void onSignedOutCleanup() {
