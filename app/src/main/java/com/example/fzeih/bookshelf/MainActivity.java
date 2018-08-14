@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
     private void setAdapter() {
         mListNames = new ArrayList<>();
         mFirebaseKeyMap = new HashMap<>();
-        mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mListNames);
+        mListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_expandable_list_item_1, mListNames);
         mListListView = (ListView) findViewById(R.id.listview_listlist);
         mListListView.setAdapter(mListAdapter);
     }
