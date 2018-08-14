@@ -82,13 +82,13 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     }
 
     private void setNumOfReadBooks() {
-        int numOfReadBooks = new DatabaseService.AchievementService().getNumOfReadBooks();
+        int numOfReadBooks = DatabaseService.getInstance().getAchievementService().getNumOfReadBooks();
         String string = "You Read " + Integer.toString(numOfReadBooks) + " books.";
         mNumOfReadBooksTextView.setText(string);
     }
 
     private void setAchievementAdapter() {
-        achievements = new DatabaseService.AchievementService().getAchievementList(this);
+        achievements = DatabaseService.getInstance().getAchievementService().getAchievementList(this);
         achievementAdapter = new AchievementAdapter(this, R.layout.achievement, achievements);
         mAchievementListView.setAdapter(achievementAdapter);
     }

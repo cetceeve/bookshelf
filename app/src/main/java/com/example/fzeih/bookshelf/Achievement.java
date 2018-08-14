@@ -6,16 +6,28 @@ import android.graphics.drawable.Drawable;
 public class Achievement {
     private int mLevel;
     private String mAchievementText;
-    private Drawable mDrawableResource;
+    private Drawable mDrawableResourceColor;
+    private Drawable mDrawableResourceGrey;
+    private boolean mColored;
 
-    public Achievement (Context context, int level, int achievementStringResource, int drawableResource) {
+    public Achievement (Context context, int level, int achievementStringResource, int drawableResourceColor, int drawableResourceGrey, boolean colored) {
         mLevel = level;
         mAchievementText = context.getString(achievementStringResource);
-        mDrawableResource = context.getDrawable(drawableResource);
+        mDrawableResourceColor = context.getDrawable(drawableResourceColor);
+        mDrawableResourceGrey = context.getDrawable(drawableResourceGrey);
+        mColored = colored;
+    }
+
+    public Achievement (Context context, int level, int achievementStringResource, int drawableResourceColor, int drawableResourceGrey) {
+        this(context, level, achievementStringResource, drawableResourceColor, drawableResourceGrey, false);
     }
 
     public int getLevel() {
         return mLevel;
+    }
+
+    public void toggleColored() {
+        mColored = !mColored;
     }
 
     public String getAchievementText() {
@@ -23,6 +35,10 @@ public class Achievement {
     }
 
     public Drawable getDrawableResource() {
-        return mDrawableResource;
+        if (mColored) {
+            return mDrawableResourceColor;
+        } else {
+            return mDrawableResourceGrey;
+        }
     }
 }
