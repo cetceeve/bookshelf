@@ -217,12 +217,8 @@ public class DisplayBookActivity extends AppCompatActivity {
 
     private void showDeleteConfirmationSnackbar() {
         detachBookDatabaseReadListener();
-        detachNumOfReadBooksDatabaseReadListener();
 
         mBookDatabaseReference.removeValue();
-        if (mBook.getRead()) {
-            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
-        }
 
         // inform listeners
         Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
@@ -230,6 +226,7 @@ public class DisplayBookActivity extends AppCompatActivity {
             ((BookDeletionListener) listener).bookDeleted(mBookDatabaseReference, mBook);
         }
 
+        detachNumOfReadBooksDatabaseReadListener();
         finish();
     }
 }

@@ -64,27 +64,6 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         }
     }
 
-    private void setUserPhoto() {
-        if (mUser != null) {
-            Uri userPhotoUrl = mUser.getPhotoUrl();
-            if (userPhotoUrl != null) {
-                startDownload(userPhotoUrl.toString());
-            }
-        } else {
-            Toast.makeText(ProfileActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
-            finish();
-        }
-    }
-
-    private void startDownload(String url) {
-        if (!mDownloading && mNetworkFragment != null) {
-            mNetworkFragment.prepareDownload(url, NetworkFragment.DOWNLOAD_RESULT_TYPE.BITMAP);
-            // Execute the async download.
-            mNetworkFragment.startDownload();
-            mDownloading = true;
-        }
-    }
-
     private void initViews() {
         mAchievementListView = findViewById(R.id.list_view_profile_achievements);
         mUserNameTextView = findViewById(R.id.text_view_profile_user_name);
@@ -159,5 +138,26 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     @Override
     public void onNetworkFragmentInitComplete() {
         setUserPhoto();
+    }
+
+    private void setUserPhoto() {
+        if (mUser != null) {
+            Uri userPhotoUrl = mUser.getPhotoUrl();
+            if (userPhotoUrl != null) {
+                startDownload(userPhotoUrl.toString());
+            }
+        } else {
+            Toast.makeText(ProfileActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    private void startDownload(String url) {
+        if (!mDownloading && mNetworkFragment != null) {
+            mNetworkFragment.prepareDownload(url, NetworkFragment.DOWNLOAD_RESULT_TYPE.BITMAP);
+            // Execute the async download.
+            mNetworkFragment.startDownload();
+            mDownloading = true;
+        }
     }
 }
