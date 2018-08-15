@@ -23,12 +23,12 @@ import com.google.firebase.database.ValueEventListener;
 
 public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceListener{
     private DatabaseReference mBookDatabaseReference;
-    private DatabaseReference mNumOfReadBooksDatabaseReference;
+    // private DatabaseReference mNumOfReadBooksDatabaseReference;
     private ValueEventListener mBookValueEventListener;
-    private ValueEventListener mNumOfReadBooksValueEventListener;
+    // private ValueEventListener mNumOfReadBooksValueEventListener;
 
     private String mBookListKey;
-    private Long mNumOfReadBooks;
+    // private Long mNumOfReadBooks;
     private Book mBook;
 
     private TextView mTitleTextView;
@@ -66,7 +66,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     protected void onPause() {
         super.onPause();
         detachBookDatabaseReadListener();
-        detachNumOfReadBooksDatabaseReadListener();
+        // detachNumOfReadBooksDatabaseReadListener();
         detachSwitchStateChangeListener();
         ListenerAdministrator.getInstance().removeListener(this);
     }
@@ -74,8 +74,9 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        // mNumOfReadBooks = DatabaseService.getInstance().getAchievementService().getNumOfReadBooks();
         attachBookDatabaseReadListener();
-        attachNumOfReadBooksDatabaseReadListener();
+        // attachNumOfReadBooksDatabaseReadListener();
         attachSwitchStateChangeListener();
         ListenerAdministrator.getInstance().registerListener(this);
     }
@@ -93,7 +94,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey).child(mBook.getKey());
-            mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
+            // mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(DisplayBookActivity.this, "ERROR: User is not signed in!", Toast.LENGTH_SHORT).show();
             finish();
@@ -112,6 +113,8 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             mTitleTextView.setText(mBook.getTitle());
             mAuthorNameTextView.setText(mBook.getAuthorName());
             mIsbnTextView.setText(mBook.getIsbn());
+
+            // move switch without triggering the onSwitchStateChangeListener
             detachSwitchStateChangeListener();
             mBookReadSwitch.setChecked(mBook.getRead());
             attachSwitchStateChangeListener();
@@ -126,18 +129,22 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 // only happens once when user calls this method for the very first time
                 // reason: firebase return null, because value doesn't exist yet
+                /*
                 if (mNumOfReadBooks == null) {
                     mNumOfReadBooks = 0L;
                 }
+                */
                 // standard behaviour
                 if (b) {
                     Book changedBook = new Book(mBook.getKey(), mBook.getAuthorName(), mBook.getTitle(), mBook.getIsbn(), true);
                     mBookDatabaseReference.setValue(changedBook);
-                    mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+                    // mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+                    DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
                 } else {
                     Book changedBook = new Book(mBook.getKey(), mBook.getAuthorName(), mBook.getTitle(), mBook.getIsbn(), false);
                     mBookDatabaseReference.setValue(changedBook);
-                    mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
+                    // mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
+                    DatabaseService.getInstance().getAchievementService().decrementNumOfReadBooks();
                 }
             }
         };
@@ -169,6 +176,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         mBookDatabaseReference.addValueEventListener(mBookValueEventListener);
     }
 
+    /*
     private void attachNumOfReadBooksDatabaseReadListener() {
         mNumOfReadBooksValueEventListener = new ValueEventListener() {
             @Override
@@ -182,6 +190,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         };
         mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
     }
+    */
 
     private void detachBookDatabaseReadListener() {
         if (mBookValueEventListener != null) {
@@ -190,12 +199,14 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         }
     }
 
+    /*
     private void detachNumOfReadBooksDatabaseReadListener() {
         if (mNumOfReadBooksValueEventListener != null) {
             mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
             mNumOfReadBooksValueEventListener = null;
         }
     }
+    */
 
     private void startEditBookActivity() {
         Intent intent = new Intent(DisplayBookActivity.this, EditBookActivity.class);
@@ -233,21 +244,22 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
 
         // inform listeners
         Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
-        detachNumOfReadBooksDatabaseReadListener();
         for (Object listener: bookDeletionListeners) {
             ((BookDeletionListener) listener).bookDeleted(mBookDatabaseReference, mBook);
         }
 
+        // detachNumOfReadBooksDatabaseReadListener();
         finish();
     }
 
     @Override
-    public void onNumOfReadBooksChance(Long numOfReadBooks) {
+    public void onNumOfReadBooksChance(@NonNull Long numOfReadBooks) {
         // done in activity for security reasons
+        // mNumOfReadBooks = numOfReadBooks;
     }
 
     @Override
-    public void onAchievementChanged(Achievement highestAchievement) {
+    public void onAchievementChanged(@NonNull Achievement highestAchievement) {
         Snackbar.make(mBookReadSwitch, highestAchievement.getAchievementText(), Snackbar.LENGTH_LONG)
                 .setAction("Show Profile", new ShowProfileListener()).show();
     }

@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -166,13 +167,13 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     }
 
     @Override
-    public void onNumOfReadBooksChance(Long numOfReadBooks) {
+    public void onNumOfReadBooksChance(@NonNull Long numOfReadBooks) {
         String string = "You Read " + Long.toString(numOfReadBooks) + " books.";
         mNumOfReadBooksTextView.setText(string);
     }
 
     @Override
-    public void onAchievementChanged(Achievement highestAchievement) {
+    public void onAchievementChanged(@NonNull Achievement highestAchievement) {
         mAchievementAdapter.notifyDataSetChanged();
     }
 }

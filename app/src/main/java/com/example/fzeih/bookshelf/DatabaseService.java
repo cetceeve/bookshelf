@@ -58,6 +58,9 @@ class DatabaseService {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     mNumOfReadBooks = (Long) dataSnapshot.getValue();
+                    if (mNumOfReadBooks == null) {
+                        mNumOfReadBooks = 0L;
+                    }
 
                     checkForAchievementChange();
 
@@ -77,7 +80,7 @@ class DatabaseService {
         private void checkForAchievementChange() {
             boolean achievementChanged = false;
             Achievement highestAchievement = null;
-            if (mAchievements != null) {
+            if (mAchievements != null && mNumOfReadBooks != null) {
                 for (Achievement achievement : mAchievements) {
                     if (achievement.getLevel() <= mNumOfReadBooks.intValue()) {
                         boolean didChange = achievement.setColored();
@@ -90,7 +93,7 @@ class DatabaseService {
                 }
             }
 
-            if (achievementChanged) {
+            if (achievementChanged && highestAchievement != null) {
                 Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceListener.class);
                 for (Object listener : listeners) {
                     ((AchievementServiceListener) listener).onAchievementChanged(highestAchievement);
@@ -98,11 +101,14 @@ class DatabaseService {
             }
         }
 
+        //////////////////////////////////////////////////////////////////
+        // Services
+
         public Long getNumOfReadBooks() {
             if (mNumOfReadBooks != null) {
                 return mNumOfReadBooks;
             }
-            return null;
+            return 0L;
         }
 
         public ArrayList<Achievement> getAchievementList(Context context) {
@@ -129,5 +135,12 @@ class DatabaseService {
             return mAchievements;
         }
 
+        public void incrementNumOfReadBooks() {
+            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+        }
+
+        public void decrementNumOfReadBooks() {
+            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
+        }
     }
 }
