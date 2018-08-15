@@ -29,11 +29,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private static final String QUERY_PARAM_ISBN = "q=isbn:";
 
     private DatabaseReference mBookListDatabaseReference;
-    // private DatabaseReference mNumOfReadBooksDatabaseReference;
-    // private ValueEventListener mNumOfReadBooksValueEventListener;
 
     private String mBookListKey;
-    // private Long mNumOfReadBooks;
 
     private EditText mIsbnEditText;
     private Button mSearchButton;
@@ -102,15 +99,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        // detachNumOfReadBooksReadDatabaseListener();
-    }
-
-    @Override
     protected void onPostResume() {
         super.onPostResume();
-        // attachNumOfReadBooksDatabaseReadListener();
 
         // if called with input, search immediately
         if (mIsbn != null) {
@@ -132,35 +122,11 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
-            // mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(IsbnSearchActivity.this, "ERROR: User is not signed in!", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
-
-    /*
-    private void attachNumOfReadBooksDatabaseReadListener() {
-        mNumOfReadBooksValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mNumOfReadBooks = (Long) dataSnapshot.getValue();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-        mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
-    }
-
-    private void detachNumOfReadBooksReadDatabaseListener() {
-        if (mNumOfReadBooksValueEventListener != null) {
-            mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
-            mNumOfReadBooksValueEventListener = null;
-        }
-    }
-    */
 
     private void initViews() {
         mIsbnEditText = (EditText) findViewById(R.id.edittext_isbn);
@@ -301,7 +267,6 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         nextBookDatabaseReference.setValue(bookItem);
 
         if (mBookWasRead) {
-            // mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
             DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
         }
     }

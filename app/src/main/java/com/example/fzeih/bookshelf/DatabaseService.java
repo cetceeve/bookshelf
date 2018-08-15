@@ -93,6 +93,7 @@ class DatabaseService {
                 }
             }
 
+            // TODO: only send achievements if positive
             if (achievementChanged && highestAchievement != null) {
                 Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceListener.class);
                 for (Object listener : listeners) {

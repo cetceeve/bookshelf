@@ -14,16 +14,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class AddBookActivity extends AppCompatActivity {
 
     private DatabaseReference mBookListDatabaseReference;
-    // private DatabaseReference mNumOfReadBooksDatabaseReference;
-    private ValueEventListener mNumOfReadBooksValueEventListener;
 
     private String mBookListKey;
-    // private Long mNumOfReadBooks;
 
     private EditText mTitleEditText;
     private EditText mAuthorNameEditText;
@@ -71,18 +67,6 @@ public class AddBookActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // detachNumOfReadBooksReadDatabaseListener();
-    }
-
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        // attachNumOfReadBooksDatabaseReadListener();
-    }
-
     private void readIntent() {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -95,35 +79,11 @@ public class AddBookActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
-            // mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(AddBookActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
-
-    /*
-    private void attachNumOfReadBooksDatabaseReadListener() {
-        mNumOfReadBooksValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mNumOfReadBooks = (Long) dataSnapshot.getValue();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-        mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
-    }
-
-    private void detachNumOfReadBooksReadDatabaseListener() {
-        if (mNumOfReadBooksValueEventListener != null) {
-            mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
-            mNumOfReadBooksValueEventListener = null;
-        }
-    }
-    */
 
     private void initViews() {
         mTitleEditText = (EditText) findViewById(R.id.editText_title);
@@ -143,7 +103,6 @@ public class AddBookActivity extends AppCompatActivity {
         Book nextBook = new Book(nextBookDatabaseReference.getKey(), nameText, titleText, isbnText, mBookWasRead);
         nextBookDatabaseReference.setValue(nextBook);
         if (mBookWasRead) {
-            // mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
             DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
         }
     }
