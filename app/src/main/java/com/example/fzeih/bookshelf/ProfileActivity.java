@@ -103,13 +103,13 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     @Override
     public void onTotalNumOfBooksChanged(@NonNull Long totalNumOfBooks) {
         String string = "You have " + Long.toString(totalNumOfBooks) + " books.";
-        mNumOfReadBooksTextView.setText(string);
+        mTotalNumOfBooksTextView.setText(string);
     }
 
     @Override
     public void onNumOfReadBooksChanged(@NonNull Long numOfReadBooks) {
         String string = "You read " + Long.toString(numOfReadBooks) + " books.";
-        mTotalNumOfBooksTextView.setText(string);
+        mNumOfReadBooksTextView.setText(string);
     }
 
     @Override
