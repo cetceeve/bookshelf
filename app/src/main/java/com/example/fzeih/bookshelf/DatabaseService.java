@@ -17,6 +17,7 @@ class DatabaseService {
     private static final DatabaseService ourInstance = new DatabaseService();
     private static boolean isStarted = false;
     private static AchievementService achievementService;
+    private static BookService bookService;
 
     static DatabaseService getInstance() {
         return ourInstance;
@@ -29,12 +30,17 @@ class DatabaseService {
         if (!isStarted) {
             achievementService = new AchievementService();
             achievementService.getAchievementList(context);
+            bookService = new BookService();
             isStarted = true;
         }
     }
 
     public AchievementService getAchievementService() {
         return achievementService;
+    }
+
+    public static BookService getBookService() {
+        return bookService;
     }
 
     static class AchievementService {
@@ -109,13 +115,6 @@ class DatabaseService {
         //////////////////////////////////////////////////////////////////
         // Services
 
-        public Long getNumOfReadBooks() {
-            if (mNumOfReadBooks != null) {
-                return mNumOfReadBooks;
-            }
-            return 0L;
-        }
-
         public ArrayList<Achievement> getAchievementList(Context context) {
             if (mAchievements == null) {
                 mAchievements = new ArrayList<>();
@@ -140,12 +139,81 @@ class DatabaseService {
             return mAchievements;
         }
 
+        @NonNull
+        public Long getNumOfReadBooks() {
+            if (mNumOfReadBooks != null) {
+                return mNumOfReadBooks;
+            }
+            return 0L;
+        }
+
         public void incrementNumOfReadBooks() {
             mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
         }
 
         public void decrementNumOfReadBooks() {
             mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
+        }
+    }
+
+
+    static class BookService {
+        private DatabaseReference mTotalNumOfBooksDatabaseReference;
+        private ValueEventListener mTotalNumOfBooksValueEventListener;
+        private Long mTotalNumOfBooks;
+
+        private BookService() {
+            getDatabaseReference();
+            attachTotalNumOfBooksDatabaseReadListener();
+        }
+
+        private void getDatabaseReference() {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                mTotalNumOfBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_total);
+            } else {
+                System.out.println("ERROR: no firebase user");
+            }
+        }
+
+        private void attachTotalNumOfBooksDatabaseReadListener() {
+            mTotalNumOfBooksValueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    mTotalNumOfBooks = (Long) dataSnapshot.getValue();
+                    if (mTotalNumOfBooks == null) {
+                        mTotalNumOfBooks = 0L;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            };
+            mTotalNumOfBooksDatabaseReference.addValueEventListener(mTotalNumOfBooksValueEventListener);
+        }
+
+        //////////////////////////////////////////////////////////////////
+        // Services
+
+        @NonNull
+        public Long getTotalNumOfBooks() {
+            if (mTotalNumOfBooks != null) {
+                return mTotalNumOfBooks;
+            }
+            return 0L;
+        }
+
+        public void incrementTotalNumOfBooks() {
+            mTotalNumOfBooksDatabaseReference.setValue(mTotalNumOfBooks + 1);
+        }
+
+        public void decrementTotalNumOfBooks() {
+            mTotalNumOfBooksDatabaseReference.setValue(mTotalNumOfBooks - 1);
+        }
+
+        public void decrementTotalNumOfBooks(int amount) {
+            mTotalNumOfBooksDatabaseReference.setValue(mTotalNumOfBooks.intValue() - amount);
         }
     }
 }

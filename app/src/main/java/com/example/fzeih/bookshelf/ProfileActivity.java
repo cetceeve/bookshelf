@@ -83,10 +83,8 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
 
     private void setNumOfReadBooks() {
         Long numOfReadBooks = DatabaseService.getInstance().getAchievementService().getNumOfReadBooks();
-        if (numOfReadBooks != null) {
-            String string = "You Read " + Long.toString(numOfReadBooks) + " books.";
-            mNumOfReadBooksTextView.setText(string);
-        }
+        String string = "You Read " + Long.toString(numOfReadBooks) + " books.";
+        mNumOfReadBooksTextView.setText(string);
     }
 
     private void setAchievementAdapter() {
