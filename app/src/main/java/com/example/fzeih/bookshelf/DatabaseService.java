@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 class DatabaseService {
     private static final DatabaseService ourInstance = new DatabaseService();
+    private static boolean isStarted = false;
     private static AchievementService achievementService;
 
     static DatabaseService getInstance() {
@@ -22,11 +23,14 @@ class DatabaseService {
     }
 
     private DatabaseService() {
-        achievementService = new AchievementService();
     }
 
     public void startServices(Context context) {
-        achievementService.getAchievementList(context);
+        if (!isStarted) {
+            achievementService = new AchievementService();
+            achievementService.getAchievementList(context);
+            isStarted = true;
+        }
     }
 
     public AchievementService getAchievementService() {
