@@ -7,6 +7,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -20,20 +21,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class DisplayBookActivity extends AppCompatActivity {
+public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceListener{
     private DatabaseReference mBookDatabaseReference;
-    private DatabaseReference mNumOfReadBooksDatabaseReference;
     private ValueEventListener mBookValueEventListener;
-    private ValueEventListener mNumOfReadBooksValueEventListener;
 
     private String mBookListKey;
-    private Long mNumOfReadBooks;
     private Book mBook;
 
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
+
     private Switch mBookReadSwitch;
+    private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +51,6 @@ public class DisplayBookActivity extends AppCompatActivity {
         // Data
         setBookData();
         getDatabaseReference();
-
-        // Listeners
-        setSwitchStateChangeListener();
     }
 
     @Override
@@ -66,14 +63,16 @@ public class DisplayBookActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         detachBookDatabaseReadListener();
-        detachNumOfReadBooksDatabaseReadListener();
+        detachSwitchStateChangeListener();
+        ListenerAdministrator.getInstance().removeListener(this);
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
         attachBookDatabaseReadListener();
-        attachNumOfReadBooksDatabaseReadListener();
+        attachSwitchStateChangeListener();
+        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     private void readIntent() {
@@ -89,7 +88,6 @@ public class DisplayBookActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey).child(mBook.getKey());
-            mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(DisplayBookActivity.this, "ERROR: User is not signed in!", Toast.LENGTH_SHORT).show();
             finish();
@@ -108,35 +106,40 @@ public class DisplayBookActivity extends AppCompatActivity {
             mTitleTextView.setText(mBook.getTitle());
             mAuthorNameTextView.setText(mBook.getAuthorName());
             mIsbnTextView.setText(mBook.getIsbn());
+
+            // move switch without triggering the onSwitchStateChangeListener
+            detachSwitchStateChangeListener();
             mBookReadSwitch.setChecked(mBook.getRead());
+            attachSwitchStateChangeListener();
         } else {
             Toast.makeText(DisplayBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void setSwitchStateChangeListener() {
-        mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    private void attachSwitchStateChangeListener() {
+        mOnCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                // only happens once when user calls this method for the very first time
-                // reason: firebase return null, because value doesn't exist yet
-                if (mNumOfReadBooks == null) {
-                    mNumOfReadBooks = 0L;
-                }
-                // standard behaviour
                 if (b) {
                     Book changedBook = new Book(mBook.getKey(), mBook.getAuthorName(), mBook.getTitle(), mBook.getIsbn(), true);
                     mBookDatabaseReference.setValue(changedBook);
-                    mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+                    DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
                 } else {
                     Book changedBook = new Book(mBook.getKey(), mBook.getAuthorName(), mBook.getTitle(), mBook.getIsbn(), false);
                     mBookDatabaseReference.setValue(changedBook);
-                    mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
+                    DatabaseService.getInstance().getAchievementService().decrementNumOfReadBooks();
                 }
             }
-        });
+        };
+        mBookReadSwitch.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
 
+    private void detachSwitchStateChangeListener() {
+        if (mOnCheckedChangeListener != null) {
+            mBookReadSwitch.setOnCheckedChangeListener(null);
+            mOnCheckedChangeListener = null;
+        }
+    }
 
     private void attachBookDatabaseReadListener() {
         mBookValueEventListener = new ValueEventListener() {
@@ -155,34 +158,10 @@ public class DisplayBookActivity extends AppCompatActivity {
         mBookDatabaseReference.addValueEventListener(mBookValueEventListener);
     }
 
-    private void attachNumOfReadBooksDatabaseReadListener() {
-        mNumOfReadBooksValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mNumOfReadBooks = (Long) dataSnapshot.getValue();
-                // TODO: find true place for this
-                Snackbar.make(mBookReadSwitch, "you've read " + mNumOfReadBooks + " book", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-        mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
-    }
-
     private void detachBookDatabaseReadListener() {
         if (mBookValueEventListener != null) {
             mBookDatabaseReference.removeEventListener(mBookValueEventListener);
             mBookValueEventListener = null;
-        }
-    }
-
-    private void detachNumOfReadBooksDatabaseReadListener() {
-        if (mNumOfReadBooksValueEventListener != null) {
-            mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
-            mNumOfReadBooksValueEventListener = null;
         }
     }
 
@@ -217,19 +196,36 @@ public class DisplayBookActivity extends AppCompatActivity {
 
     private void showDeleteConfirmationSnackbar() {
         detachBookDatabaseReadListener();
-        detachNumOfReadBooksDatabaseReadListener();
-
         mBookDatabaseReference.removeValue();
-        if (mBook.getRead()) {
-            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks - 1);
-        }
-
         // inform listeners
         Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
         for (Object listener: bookDeletionListeners) {
             ((BookDeletionListener) listener).bookDeleted(mBookDatabaseReference, mBook);
         }
-
         finish();
+    }
+
+    @Override
+    public void onNumOfReadBooksChance(@NonNull Long numOfReadBooks) {
+    }
+
+    @Override
+    public void onAchievementChanged(Achievement highestAchievement) {
+        if (highestAchievement!= null) {
+            Snackbar.make(mBookReadSwitch, highestAchievement.getAchievementText(), Snackbar.LENGTH_LONG)
+                    .setAction("Show Profile", new ShowProfileListener()).show();
+        }
+    }
+
+    private class ShowProfileListener implements View.OnClickListener{
+
+        private ShowProfileListener() {
+        }
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(DisplayBookActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        }
     }
 }

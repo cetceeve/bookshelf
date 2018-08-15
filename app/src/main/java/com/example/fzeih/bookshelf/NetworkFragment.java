@@ -1,13 +1,15 @@
 package com.example.fzeih.bookshelf;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,9 +21,16 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class NetworkFragment extends Fragment {
     public static final String TAG = "NetworkFragment";
+    public enum DOWNLOAD_RESULT_TYPE {
+        JSON,
+        BITMAP
+    }
 
+    private DOWNLOAD_RESULT_TYPE mDownloadResultType;
     private DownloadCallback mCallback;
     private DownloadTask mDownloadTask;
+
+    private String mUrlString;
 
     /**
      * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
@@ -55,6 +64,14 @@ public class NetworkFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (getContext() != null) {
+            ((NetworkFragmentListener) getContext()).onNetworkFragmentInitComplete();
+        }
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         // Clear reference to host Activity to avoid memory leak.
@@ -68,14 +85,18 @@ public class NetworkFragment extends Fragment {
         super.onDestroy();
     }
 
+    public void prepareDownload(String urlString, DOWNLOAD_RESULT_TYPE downloadResultType) {
+        mUrlString = urlString;
+        mDownloadResultType = downloadResultType;
+    }
+
     /**
      * Start non-blocking execution of DownloadTask.
      */
-    public void startDownload(String urlString) {
+    public void startDownload() {
         cancelDownload();
-        String url = urlString;
         mDownloadTask = new DownloadTask(mCallback);
-        mDownloadTask.execute(url);
+        mDownloadTask.execute(mUrlString);
     }
 
     /**
@@ -89,9 +110,9 @@ public class NetworkFragment extends Fragment {
 
     private class DownloadTask extends AsyncTask<String, Integer, DownloadTask.Result> {
 
-        private DownloadCallback<String> mCallback;
+        private DownloadCallback mCallback;
 
-        DownloadTask(DownloadCallback<String> callback) {
+        DownloadTask(DownloadCallback callback) {
             mCallback = callback;
         }
 
@@ -101,11 +122,16 @@ public class NetworkFragment extends Fragment {
          * This allows you to pass exceptions to the UI thread that were thrown during doInBackground().
          */
         class Result {
-            public String mResultValue;
+            public Bitmap mResultBitmap;
+            public String mResultString;
             public Exception mException;
 
-            public Result(String resultValue) {
-                mResultValue = resultValue;
+            public Result(Bitmap resultBitmap) {
+                mResultBitmap = resultBitmap;
+            }
+
+            public Result(String resultString) {
+                mResultString = resultString;
             }
 
             public Result(Exception exception) {
@@ -140,11 +166,15 @@ public class NetworkFragment extends Fragment {
                 String urlString = urls[0];
                 try {
                     URL url = new URL(urlString);
-                    String resultString = downloadUrl(url);
-                    if (resultString != null) {
-                        result = new Result(resultString);
+                    Object res = downloadUrl(url);
+                    if (res != null) {
+                        if (mDownloadResultType == DOWNLOAD_RESULT_TYPE.BITMAP) {
+                            result = new Result((Bitmap) res);
+                        } else {
+                            result = new Result((String) res);
+                        }
                     } else {
-                        throw new IOException("No response recieved.");
+                        throw new IOException("No response received.");
                     }
                 } catch (Exception e) {
                     result = new Result(e);
@@ -160,10 +190,11 @@ public class NetworkFragment extends Fragment {
         protected void onPostExecute(Result result) {
             if (result != null && mCallback != null) {
                 if (result.mException != null) {
-                    mCallback.updateFromDownload(result.mException.getMessage());
-                } else if (result.mResultValue != null) {
-                    mCallback.updateFromDownload(result.mResultValue);
-
+                    mCallback.updateFromDownload(result.mException);
+                } else if (result.mResultString != null) {
+                    mCallback.updateFromDownload(result.mResultString);
+                } else if (result.mResultBitmap != null) {
+                    mCallback.updateFromDownload(result.mResultBitmap);
                 }
                 mCallback.finishDownloading();
             }
@@ -182,10 +213,10 @@ public class NetworkFragment extends Fragment {
          * If the network request is successful, it returns the response body in String form. Otherwise,
          * it will throw an IOException.
          */
-        private String downloadUrl(URL url) throws IOException {
+        private Object downloadUrl(URL url) throws IOException {
             InputStream stream = null;
             HttpsURLConnection connection = null;
-            String result = null;
+            Object result = null;
             try {
                 connection = (HttpsURLConnection) url.openConnection();
                 // Timeout for reading InputStream arbitrarily set to 3000ms.
@@ -209,7 +240,11 @@ public class NetworkFragment extends Fragment {
                 publishProgress(DownloadCallback.Progress.GET_INPUT_STREAM_SUCCESS, 0);
                 if (stream != null) {
                     // Converts Stream to String
-                    result = readStream(stream);
+                    if (mDownloadResultType == DOWNLOAD_RESULT_TYPE.BITMAP) {
+                        result = readStreamForBitmap(stream);
+                    } else {
+                        result = readStreamForString(stream);
+                    }
                 }
             } finally {
                 // Close Stream and disconnect HTTPS connection.
@@ -227,16 +262,21 @@ public class NetworkFragment extends Fragment {
         /**
          * Converts the contents of an InputStream to a String.
          */
-        public String readStream(InputStream stream) throws IOException {
-
+        public String readStreamForString(InputStream stream) throws IOException {
             StringBuffer buffer = new StringBuffer();
             BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             String line;
             while ((line = reader.readLine()) != null) {
                 buffer.append(line + "\n");
             }
-
             return buffer.toString();
+        }
+
+        /**
+         * Converts the contents of an InputStream to a Bitmap.
+         */
+        public Bitmap readStreamForBitmap(InputStream stream) {
+             return BitmapFactory.decodeStream(stream);
         }
     }
 }

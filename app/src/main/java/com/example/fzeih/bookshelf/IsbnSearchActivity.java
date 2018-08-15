@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -17,27 +16,21 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback {
+public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener {
     //Parameter for URL
     private static final String BOOK_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
     private static final String QUERY_PARAM_ISBN = "q=isbn:";
 
     private DatabaseReference mBookListDatabaseReference;
-    private DatabaseReference mNumOfReadBooksDatabaseReference;
-    private ValueEventListener mNumOfReadBooksValueEventListener;
 
     private String mBookListKey;
-    private Long mNumOfReadBooks;
 
     private EditText mIsbnEditText;
     private Button mSearchButton;
@@ -48,10 +41,9 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private boolean mBookWasRead = false;
 
     private NetworkFragment mNetworkFragment;
+    private boolean mDownloading = false;
 
     private String mIsbnQueryInput;
-    private String mRequestUrl;
-    private boolean mDownloading = false;
 
     // Results of ISBN-Search
     private String mTitle;
@@ -72,22 +64,17 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
         // Data
         getDatabaseReference();
+        mNetworkFragment = NetworkFragment.getInstance(getSupportFragmentManager());
 
         // Views
         initViews();
-
-        // Downloader
-        mNetworkFragment = NetworkFragment.getInstance(getFragmentManager());
 
         // Listeners
         mSearchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mDownloading) {
-                    getQuery();
-                    startDownload();
-                }
-
+                clearResults();
+                startDownload();
             }
         });
         mAddResultButton.setOnClickListener(new View.OnClickListener() {
@@ -112,19 +99,11 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        detachNumOfReadBooksReadDatabaseListener();
-    }
-
-    @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachNumOfReadBooksDatabaseReadListener();
 
         // if called with input, search immediately
         if (mIsbn != null) {
-            getQuery();
             startDownload();
         }
     }
@@ -143,31 +122,9 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
-            mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(IsbnSearchActivity.this, "ERROR: User is not signed in!", Toast.LENGTH_SHORT).show();
             finish();
-        }
-    }
-
-    private void attachNumOfReadBooksDatabaseReadListener() {
-        mNumOfReadBooksValueEventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mNumOfReadBooks = (Long) dataSnapshot.getValue();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        };
-        mNumOfReadBooksDatabaseReference.addValueEventListener(mNumOfReadBooksValueEventListener);
-    }
-
-    private void detachNumOfReadBooksReadDatabaseListener() {
-        if (mNumOfReadBooksValueEventListener != null) {
-            mNumOfReadBooksDatabaseReference.removeEventListener(mNumOfReadBooksValueEventListener);
-            mNumOfReadBooksValueEventListener = null;
         }
     }
 
@@ -188,20 +145,29 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mAddResultButton.setVisibility(View.INVISIBLE);
     }
 
-    private void getQuery() {
-        mIsbnQueryInput = mIsbnEditText.getText().toString();
-        mRequestUrl = BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
-    }
-
     private void startDownload() {
         if (!mDownloading && mNetworkFragment != null) {
+            mNetworkFragment.prepareDownload(getQuery(), NetworkFragment.DOWNLOAD_RESULT_TYPE.JSON);
             // Execute the async download.
-            mNetworkFragment.startDownload(mRequestUrl);
+            mNetworkFragment.startDownload();
             mDownloading = true;
         }
     }
 
+    private String getQuery() {
+        mIsbnQueryInput = mIsbnEditText.getText().toString();
+        return BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
+    }
+
+    private void clearResults() {
+        mTitle = null;
+        mAuthor = null;
+        mResultTextView.setText(null);
+        mBookReadSwitch.setVisibility(View.INVISIBLE);
+        mAddResultButton.setVisibility(View.INVISIBLE);
+    }
     ///////////////////////////////////////// download in progress or finished
+
     @Override
     public NetworkInfo getActiveNetworkInfo() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -210,21 +176,16 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     @Override
     public void updateFromDownload(Object result) {
-        // Update UI based on result of download
-        if (result != null) {
-            if (result.getClass() == Exception.class) {
-                Toast.makeText(IsbnSearchActivity.this, "Error during search operation.", Toast.LENGTH_LONG).show();
-                ((Exception) result).printStackTrace();
-            } else {
-                if (getResults(result.toString())) {
-                    String tempString = mTitle + "\n" + mAuthor;
-                    mResultTextView.setText(tempString);
-                    mBookReadSwitch.setVisibility(View.VISIBLE);
-                    mAddResultButton.setVisibility(View.VISIBLE);
-                }
-            }
+        if (result instanceof Exception) {
+            Toast.makeText(IsbnSearchActivity.this, result.toString(), Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(IsbnSearchActivity.this, "Something went wrong!", Toast.LENGTH_LONG).show();
+            // Update UI based on result of download
+            if (getResults(result.toString())) {
+                String tempString = mTitle + "\n" + mAuthor;
+                mResultTextView.setText(tempString);
+                mBookReadSwitch.setVisibility(View.VISIBLE);
+                mAddResultButton.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -275,7 +236,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             return true;
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(IsbnSearchActivity.this, "Invalid ISBN! No book found.", Toast.LENGTH_LONG).show();
+            // Result was Exception
+            Toast.makeText(IsbnSearchActivity.this, "No Book found!", Toast.LENGTH_LONG).show();
             return false;
         }
     }
@@ -305,7 +267,12 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         nextBookDatabaseReference.setValue(bookItem);
 
         if (mBookWasRead) {
-            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+            DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
         }
+    }
+
+    @Override
+    public void onNetworkFragmentInitComplete() {
+
     }
 }
