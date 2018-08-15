@@ -263,10 +263,13 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
 
     private void deleteBookList() {
         detachBookListDatabaseReadListener();
+        detachListNameDatabaseReadListener();
 
         // remove data
         mListNameDatabaseReference.removeValue();
         mBookListDatabaseReference.removeValue();
+
+        DatabaseService.getInstance().getBookService().decrementTotalNumOfBooks(mBooks.size());
 
         finish();
     }
@@ -355,6 +358,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionL
         public void onClick(View v) {
             // undo book deletion
             deletedBookDatabaseReference.setValue(deletedBook);
+            DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();
         }
     }
 }

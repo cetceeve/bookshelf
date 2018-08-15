@@ -18,7 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener, AchievementServiceListener {
+public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener, AchievementServiceListener, BookServiceListener {
     private FirebaseUser mUser;
 
     private AchievementAdapter mAchievementAdapter;
@@ -27,7 +27,7 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     private boolean mDownloading = false;
 
     private ListView mAchievementListView;
-    private TextView mNumOfBooksTextView;
+    private TextView mTotalNumOfBooksTextView;
     private TextView mNumOfReadBooksTextView;
     private TextView mUserNameTextView;
     private ImageView mUserPhotoImageView;
@@ -45,6 +45,7 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
 
         initViews();
         setUserName();
+        setTotalNumOfBooks();
         setNumOfReadBooks();
         setAchievementAdapter();
 
@@ -67,7 +68,7 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     private void initViews() {
         mAchievementListView = findViewById(R.id.list_view_profile_achievements);
         mUserNameTextView = findViewById(R.id.text_view_profile_user_name);
-        mNumOfBooksTextView = findViewById(R.id.text_view_profile_amount_books);
+        mTotalNumOfBooksTextView = findViewById(R.id.text_view_profile_amount_books);
         mNumOfReadBooksTextView = findViewById(R.id.text_view_profile_read_books);
         mUserPhotoImageView = findViewById(R.id.image_view_profile_user_photo);
     }
@@ -81,9 +82,15 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         }
     }
 
+    private void setTotalNumOfBooks() {
+        Long totalNumOfReadBooks = DatabaseService.getInstance().getBookService().getTotalNumOfBooks();
+        String string = "You have " + Long.toString(totalNumOfReadBooks) + " books.";
+        mTotalNumOfBooksTextView.setText(string);
+    }
+
     private void setNumOfReadBooks() {
         Long numOfReadBooks = DatabaseService.getInstance().getAchievementService().getNumOfReadBooks();
-        String string = "You Read " + Long.toString(numOfReadBooks) + " books.";
+        String string = "You read " + Long.toString(numOfReadBooks) + " books.";
         mNumOfReadBooksTextView.setText(string);
     }
 
@@ -91,6 +98,23 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         ArrayList<Achievement> achievements = DatabaseService.getInstance().getAchievementService().getAchievementList(this);
         mAchievementAdapter = new AchievementAdapter(this, R.layout.achievement, achievements);
         mAchievementListView.setAdapter(mAchievementAdapter);
+    }
+
+    @Override
+    public void onTotalNumOfBooksChanged(@NonNull Long totalNumOfBooks) {
+        String string = "You have " + Long.toString(totalNumOfBooks) + " books.";
+        mNumOfReadBooksTextView.setText(string);
+    }
+
+    @Override
+    public void onNumOfReadBooksChanged(@NonNull Long numOfReadBooks) {
+        String string = "You read " + Long.toString(numOfReadBooks) + " books.";
+        mTotalNumOfBooksTextView.setText(string);
+    }
+
+    @Override
+    public void onAchievementChanged(Achievement highestAchievement) {
+        mAchievementAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -162,16 +186,5 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
             mNetworkFragment.startDownload();
             mDownloading = true;
         }
-    }
-
-    @Override
-    public void onNumOfReadBooksChance(@NonNull Long numOfReadBooks) {
-        String string = "You Read " + Long.toString(numOfReadBooks) + " books.";
-        mNumOfReadBooksTextView.setText(string);
-    }
-
-    @Override
-    public void onAchievementChanged(Achievement highestAchievement) {
-        mAchievementAdapter.notifyDataSetChanged();
     }
 }

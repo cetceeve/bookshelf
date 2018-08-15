@@ -39,7 +39,7 @@ class DatabaseService {
         return achievementService;
     }
 
-    public static BookService getBookService() {
+    public BookService getBookService() {
         return bookService;
     }
 
@@ -76,7 +76,7 @@ class DatabaseService {
 
                     Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceListener.class);
                     for (Object listener : listeners) {
-                        ((AchievementServiceListener) listener).onNumOfReadBooksChance(mNumOfReadBooks);
+                        ((AchievementServiceListener) listener).onNumOfReadBooksChanged(mNumOfReadBooks);
                     }
                 }
 
@@ -183,6 +183,11 @@ class DatabaseService {
                     mTotalNumOfBooks = (Long) dataSnapshot.getValue();
                     if (mTotalNumOfBooks == null) {
                         mTotalNumOfBooks = 0L;
+                    }
+
+                    Object[] listeners = ListenerAdministrator.getInstance().getListener(BookServiceListener.class);
+                    for (Object listener : listeners) {
+                        ((BookServiceListener) listener).onTotalNumOfBooksChanged(mTotalNumOfBooks);
                     }
                 }
 

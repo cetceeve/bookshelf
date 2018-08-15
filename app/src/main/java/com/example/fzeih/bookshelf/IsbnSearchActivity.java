@@ -266,6 +266,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         Book bookItem = new Book(nextBookDatabaseReference.getKey(), mAuthor, mTitle, mIsbnQueryInput, mBookWasRead);
         nextBookDatabaseReference.setValue(bookItem);
 
+        DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();
         if (mBookWasRead) {
             DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
         }
@@ -273,6 +274,5 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     @Override
     public void onNetworkFragmentInitComplete() {
-
     }
 }

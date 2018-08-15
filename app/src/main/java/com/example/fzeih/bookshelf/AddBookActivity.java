@@ -102,6 +102,8 @@ public class AddBookActivity extends AppCompatActivity {
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
         Book nextBook = new Book(nextBookDatabaseReference.getKey(), nameText, titleText, isbnText, mBookWasRead);
         nextBookDatabaseReference.setValue(nextBook);
+
+        DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();
         if (mBookWasRead) {
             DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
         }

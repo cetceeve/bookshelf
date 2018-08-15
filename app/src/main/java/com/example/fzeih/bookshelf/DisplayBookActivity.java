@@ -197,6 +197,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     private void showDeleteConfirmationSnackbar() {
         detachBookDatabaseReadListener();
         mBookDatabaseReference.removeValue();
+        DatabaseService.getInstance().getBookService().decrementTotalNumOfBooks();
         // inform listeners
         Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
         for (Object listener: bookDeletionListeners) {
@@ -206,7 +207,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     }
 
     @Override
-    public void onNumOfReadBooksChance(@NonNull Long numOfReadBooks) {
+    public void onNumOfReadBooksChanged(@NonNull Long numOfReadBooks) {
     }
 
     @Override
