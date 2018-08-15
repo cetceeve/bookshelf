@@ -259,15 +259,16 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     }
 
     @Override
-    public void onAchievementChanged(@NonNull Achievement highestAchievement) {
-        Snackbar.make(mBookReadSwitch, highestAchievement.getAchievementText(), Snackbar.LENGTH_LONG)
-                .setAction("Show Profile", new ShowProfileListener()).show();
+    public void onAchievementChanged(Achievement highestAchievement) {
+        if (highestAchievement!= null) {
+            Snackbar.make(mBookReadSwitch, highestAchievement.getAchievementText(), Snackbar.LENGTH_LONG)
+                    .setAction("Show Profile", new ShowProfileListener()).show();
+        }
     }
 
     private class ShowProfileListener implements View.OnClickListener{
 
         private ShowProfileListener() {
-
         }
 
         @Override

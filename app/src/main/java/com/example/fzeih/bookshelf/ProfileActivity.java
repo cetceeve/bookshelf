@@ -173,7 +173,7 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     }
 
     @Override
-    public void onAchievementChanged(@NonNull Achievement highestAchievement) {
+    public void onAchievementChanged(Achievement highestAchievement) {
         mAchievementAdapter.notifyDataSetChanged();
     }
 }
