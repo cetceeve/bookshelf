@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -17,11 +16,8 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,11 +29,11 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private static final String QUERY_PARAM_ISBN = "q=isbn:";
 
     private DatabaseReference mBookListDatabaseReference;
-    private DatabaseReference mNumOfReadBooksDatabaseReference;
-    private ValueEventListener mNumOfReadBooksValueEventListener;
+    // private DatabaseReference mNumOfReadBooksDatabaseReference;
+    // private ValueEventListener mNumOfReadBooksValueEventListener;
 
     private String mBookListKey;
-    private Long mNumOfReadBooks;
+    // private Long mNumOfReadBooks;
 
     private EditText mIsbnEditText;
     private Button mSearchButton;
@@ -108,13 +104,13 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     @Override
     protected void onPause() {
         super.onPause();
-        detachNumOfReadBooksReadDatabaseListener();
+        // detachNumOfReadBooksReadDatabaseListener();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachNumOfReadBooksDatabaseReadListener();
+        // attachNumOfReadBooksDatabaseReadListener();
 
         // if called with input, search immediately
         if (mIsbn != null) {
@@ -136,13 +132,14 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
-            mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
+            // mNumOfReadBooksDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_books_read);
         } else {
             Toast.makeText(IsbnSearchActivity.this, "ERROR: User is not signed in!", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
 
+    /*
     private void attachNumOfReadBooksDatabaseReadListener() {
         mNumOfReadBooksValueEventListener = new ValueEventListener() {
             @Override
@@ -163,6 +160,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             mNumOfReadBooksValueEventListener = null;
         }
     }
+    */
 
     private void initViews() {
         mIsbnEditText = (EditText) findViewById(R.id.edittext_isbn);
@@ -303,7 +301,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         nextBookDatabaseReference.setValue(bookItem);
 
         if (mBookWasRead) {
-            mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+            // mNumOfReadBooksDatabaseReference.setValue(mNumOfReadBooks + 1);
+            DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
         }
     }
 
