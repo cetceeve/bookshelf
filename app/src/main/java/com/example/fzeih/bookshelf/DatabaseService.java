@@ -47,7 +47,7 @@ class DatabaseService {
         private DatabaseReference mNumOfReadBooksDatabaseReference;
         private ValueEventListener mNumOfReadBooksValueEventListener;
         private ArrayList<Achievement> mAchievements;
-        private Long mNumOfReadBooks;
+        private Long mNumOfReadBooks = 0L;
 
         private AchievementService() {
             getDatabaseReference();
@@ -160,7 +160,7 @@ class DatabaseService {
     static class BookService {
         private DatabaseReference mTotalNumOfBooksDatabaseReference;
         private ValueEventListener mTotalNumOfBooksValueEventListener;
-        private Long mTotalNumOfBooks;
+        private Long mTotalNumOfBooks = 0L;
 
         private BookService() {
             getDatabaseReference();
