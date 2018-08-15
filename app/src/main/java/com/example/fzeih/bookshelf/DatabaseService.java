@@ -78,23 +78,23 @@ class DatabaseService {
         }
 
         private void checkForAchievementChange() {
-            boolean achievementChanged = false;
             Achievement highestAchievement = null;
+            boolean colorAdded = false;
+            boolean colorRemoved = false;
             if (mAchievements != null && mNumOfReadBooks != null) {
                 for (Achievement achievement : mAchievements) {
                     if (achievement.getLevel() <= mNumOfReadBooks.intValue()) {
-                        boolean didChange = achievement.setColored();
-                        achievementChanged = achievementChanged || didChange;
-                        highestAchievement = achievement;
+                        colorAdded = achievement.setColored();
+                        if (colorAdded) {
+                            highestAchievement = achievement;
+                        }
                     } else {
-                        boolean didChange = achievement.removeColored();
-                        achievementChanged = achievementChanged || didChange;
+                        colorRemoved = achievement.removeColored();
                     }
                 }
             }
 
-            // TODO: only send achievements if positive
-            if (achievementChanged && highestAchievement != null) {
+            if (colorAdded || colorRemoved) {
                 Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceListener.class);
                 for (Object listener : listeners) {
                     ((AchievementServiceListener) listener).onAchievementChanged(highestAchievement);
