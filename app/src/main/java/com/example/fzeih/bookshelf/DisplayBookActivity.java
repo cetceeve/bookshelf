@@ -31,6 +31,11 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
+    private TextView mPageNumTextView;
+    private TextView mDescriptionTextView;
+    private TextView mMainCategoryTextView;
+    private TextView mPublischerAndDateTextView;
+
 
     private Switch mBookReadSwitch;
     private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener;
