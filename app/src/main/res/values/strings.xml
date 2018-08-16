@@ -28,7 +28,8 @@
     <string name="text_author_name">Author name:</string>
     <string name="text_isbn">ISBN:</string>
     <string name="text_title">Title:</string>
-    <string name="text_create_bookitem">create bookitem</string>
+    <string name="text_button_save_changes">Save Changes</string>
+    <string name="text_button_create_book">Create Book</string>
     <string name="edittext_hint_isbn">Enter ISBN</string>
     <string name="text_editButton">Edit</string>
     <string name="button_isbn_search">Search</string>

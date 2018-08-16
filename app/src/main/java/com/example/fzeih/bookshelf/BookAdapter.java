@@ -32,7 +32,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
         Book mBook = getItem(position);
         if (mBook != null) {
             titleTextView.setText(mBook.getTitle());
-            authorTextView.setText(mBook.getAuthorName());
+            authorTextView.setText(mBook.getAuthor());
         }
         return convertView;
     }
