@@ -116,8 +116,8 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             mAuthorNameTextView.setText(mBook.getAuthorName());
             mIsbnTextView.setText("ISBN: "+mBook.getIsbn());
             mPageNumTextView.setText("page number: "+String.valueOf(mBook.getPages()));
-            mPublischerAndDateTextView.setText(mBook.getPuplisherWithPublishedDate());
-            mDescriptionTextView.setText(mBook.getBookDescription());
+            mPublischerAndDateTextView.setText("publisched:\n"+mBook.getPuplisherWithPublishedDate());
+            mDescriptionTextView.setText("description:\n"+mBook.getBookDescription());
 
             // move switch without triggering the onSwitchStateChangeListener
             detachSwitchStateChangeListener();
