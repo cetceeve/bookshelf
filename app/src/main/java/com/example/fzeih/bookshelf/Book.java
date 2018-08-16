@@ -18,14 +18,13 @@ public class Book implements Parcelable {
     private String publisher;
     private String publishedDate;
     private int pages;
-    private String mainCategory;
     private String bookDescription;
 
     public Book() {
     }
 
     public Book(String key, boolean read, String coverUrl, String title, String author, String isbn,
-                String publisher, String publishedDate, int pages, String mainCategory, String bookDescription){
+                String publisher, String publishedDate, int pages, String bookDescription){
         this.key = key;
         this.read = read;
         this.coverUrl = coverUrl;
@@ -35,7 +34,6 @@ public class Book implements Parcelable {
         this.publisher = publisher;
         this.publishedDate = publishedDate;
         this.pages = pages;
-        this.mainCategory = mainCategory;
         this.bookDescription = bookDescription;
     }
 
@@ -112,14 +110,6 @@ public class Book implements Parcelable {
         this.pages = pages;
     }
 
-    public String getMainCategory() {
-        return mainCategory;
-    }
-
-    public void setMainCategory(String mainCategory) {
-        this.mainCategory = mainCategory;
-    }
-
     public String getBookDescription() {
         return bookDescription;
     }
@@ -146,7 +136,6 @@ public class Book implements Parcelable {
         dest.writeString(this.publisher);
         dest.writeString(this.publishedDate);
         dest.writeInt(this.pages);
-        dest.writeString(this.mainCategory);
         dest.writeString(this.bookDescription);
     }
 
@@ -160,7 +149,6 @@ public class Book implements Parcelable {
         this.publisher = in.readString();
         this.publishedDate = in.readString();
         this.pages = in.readInt();
-        this.mainCategory = in.readString();
         this.bookDescription = in.readString();
     }
 

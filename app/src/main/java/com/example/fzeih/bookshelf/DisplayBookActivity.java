@@ -133,11 +133,11 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    Book changedBook = new Book(mBook.getKey(), true, null, mBook.getTitle(), mBook.getAuthorName(), mBook.getIsbn(), null, null, 0, null, null);
+                    Book changedBook = new Book(mBook.getKey(), true, null, mBook.getTitle(), mBook.getAuthorName(), mBook.getIsbn(), null, null, 0, null);
                     mBookDatabaseReference.setValue(changedBook);
                     DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
                 } else {
-                    Book changedBook = new Book(mBook.getKey(), false, null, mBook.getTitle(), mBook.getAuthorName(), mBook.getIsbn(), null, null, 0, null, null);
+                    Book changedBook = new Book(mBook.getKey(), false, null, mBook.getTitle(), mBook.getAuthorName(), mBook.getIsbn(), null, null, 0, null);
                     mBookDatabaseReference.setValue(changedBook);
                     DatabaseService.getInstance().getAchievementService().decrementNumOfReadBooks();
                 }
