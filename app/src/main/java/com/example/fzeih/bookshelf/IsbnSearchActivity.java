@@ -163,6 +163,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private String getQuery() {
         mIsbnQueryInput = mIsbnEditText.getText().toString();
+        mIsbn = mIsbnQueryInput;
         return BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
     }
 
