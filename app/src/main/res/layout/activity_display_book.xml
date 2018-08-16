@@ -1,85 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".DisplayBookActivity"
-    android:orientation="vertical"
-    android:padding="16dp"
-    >
+    android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        tools:context=".DisplayBookActivity">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
+            android:orientation="horizontal">
 
-            app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@android:drawable/ic_input_get" />
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
 
-        <Switch
-            android:id="@+id/switch_book_read"
-            android:layout_width="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:srcCompat="@android:drawable/ic_input_get" />
+
+            <Switch
+                android:id="@+id/switch_book_read"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:switchTextAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:text="read"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </android.support.constraint.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/textView_title_book"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:switchTextAppearance="@style/TextAppearance.AppCompat.Caption"
-            android:text="read"
-            app:layout_constraintEnd_toEndOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+            android:paddingTop="24dp"
+            android:textSize="20dp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/textView_title_book"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="24dp"
-        android:textStyle="bold"
-        android:textSize="20dp"/>
+        <TextView
+            android:id="@+id/textView_authorName_book"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:textSize="18dp" />
 
-    <TextView
-        android:id="@+id/textView_authorName_book"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:textSize="18dp"/>
+        <TextView
+            android:id="@+id/textView_isbn_book"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:textSize="18dp" />
 
-    <TextView
-        android:id="@+id/textView_isbn_book"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:textSize="18dp"/>
+        <TextView
+            android:id="@+id/textView_publischer_and_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:textSize="18dp" />
 
-    <TextView
-        android:id="@+id/textView_publischer_and_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:textSize="18dp"/>
+        <TextView
+            android:id="@+id/textView_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:textSize="18dp" />
 
-    <TextView
-        android:id="@+id/textView_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:textSize="18dp"/>
-
-    <TextView
-        android:id="@+id/textView_num_pages"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="16dp"
-        android:textSize="18dp"/>
+        <TextView
+            android:id="@+id/textView_num_pages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:textSize="18dp" />
 
 
-
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>
