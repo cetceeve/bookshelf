@@ -98,7 +98,7 @@ public class Book implements Parcelable {
     }
 
     @Exclude
-    public String getPuplisherWithPublishedYear() {
+    public String getPublisherWithPublishedYear() {
         if (publisher.length() == 0) {
             return publishedYear;
         } else if (publishedYear.length() == 0) {
