@@ -21,8 +21,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceListener{
     private DatabaseReference mBookDatabaseReference;
     private ValueEventListener mBookValueEventListener;
@@ -115,7 +113,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             mTitleTextView.setText(mBook.getTitle());
             mIsbnTextView.setText("ISBN: "+mBook.getIsbn());
             mPageNumTextView.setText("page number: "+String.valueOf(mBook.getPages()));
-            mPublischerAndDateTextView.setText("publisched:\n"+mBook.getPuplisherWithPublishedDate());
+            mPublischerAndDateTextView.setText("publisched:\n"+mBook.getPublisherWithPublishedDate());
             mDescriptionTextView.setText("description:\n"+mBook.getBookDescription());
             mAuthorNameTextView.setText(mBook.getAuthor());
             ;

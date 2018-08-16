@@ -111,7 +111,7 @@
         android:id="@+id/text_view_add_edit_published_year"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Published Date"
+        android:text="Published Year:"
         android:textAppearance="@style/TextAppearance.AppCompat"
         />
 

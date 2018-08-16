@@ -115,8 +115,13 @@ public class EditBookActivity extends AppCompatActivity {
         mBook.setIsbn(mIsbnEditText.getText().toString());
         mBook.setPublisher(mPublisherEditText.getText().toString());
         mBook.setPublishedYear(mPublishedYearEditText.getText().toString());
-        mBook.setPages(Integer.parseInt(mPagesEditText.getText().toString()));
         mBook.setBookDescription(mDescriptionEditText.getText().toString());
+
+        int pages = 0;
+        if (mPagesEditText.getText().toString().length() != 0) {
+            pages = Integer.parseInt(mPagesEditText.getText().toString());
+        }
+        mBook.setPages(pages);
 
         // upload data
         mBookDatabaseReference.setValue(mBook);

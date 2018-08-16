@@ -112,9 +112,12 @@ public class AddBookActivity extends AppCompatActivity {
         String isbn = mIsbnEditText.getText().toString();
         String publisher = mPublisherEditText.getText().toString();
         String publishedYear = mPublishedYearEditText.getText().toString();
-        int pages = Integer.parseInt(mPagesEditText.getText().toString());
         String description = mDescriptionEditText.getText().toString();
 
+        int pages = 0;
+        if (mPagesEditText.getText().toString().length() != 0) {
+            pages = Integer.parseInt(mPagesEditText.getText().toString());
+        }
 
         // upload data
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
