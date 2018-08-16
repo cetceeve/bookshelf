@@ -278,7 +278,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void uploadBookData() {
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
-        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mAuthor, mTitle, mIsbnQueryInput, mBookWasRead);
+        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, null, mTitle, mAuthor, mIsbn, null, null, 0, null);
         nextBookDatabaseReference.setValue(bookItem);
 
         DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();
