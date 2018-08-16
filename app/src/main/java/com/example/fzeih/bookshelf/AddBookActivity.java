@@ -100,7 +100,7 @@ public class AddBookActivity extends AppCompatActivity {
 
         // upload data
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
-        Book nextBook = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, null, titleText, nameText, isbnText, null, null, 0, null, null);
+        Book nextBook = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, null, titleText, nameText, isbnText, null, null, 0, null);
         nextBookDatabaseReference.setValue(nextBook);
 
         DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();
