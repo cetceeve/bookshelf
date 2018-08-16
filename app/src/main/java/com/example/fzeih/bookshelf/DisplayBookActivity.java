@@ -21,6 +21,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.w3c.dom.Text;
+
 public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceListener{
     private DatabaseReference mBookDatabaseReference;
     private ValueEventListener mBookValueEventListener;
@@ -33,7 +35,6 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     private TextView mIsbnTextView;
     private TextView mPageNumTextView;
     private TextView mDescriptionTextView;
-    private TextView mMainCategoryTextView;
     private TextView mPublischerAndDateTextView;
 
 
@@ -103,6 +104,9 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         mTitleTextView = (TextView) findViewById(R.id.textView_title_book);
         mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
         mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
+        mPageNumTextView = (TextView) findViewById(R.id.textView_num_pages);
+        mPublischerAndDateTextView = (TextView)findViewById(R.id.textView_publischer_and_date);
+        mDescriptionTextView = (TextView) findViewById(R.id.textView_description);
         mBookReadSwitch = (Switch) findViewById(R.id.switch_book_read);
     }
 
@@ -111,6 +115,9 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             mTitleTextView.setText(mBook.getTitle());
             mAuthorNameTextView.setText(mBook.getAuthorName());
             mIsbnTextView.setText(mBook.getIsbn());
+            mPageNumTextView.setText(mBook.getPages());
+            mPublischerAndDateTextView.setText(mBook.getPuplisherWithPublishedDate());
+            mDescriptionTextView.setText(mBook.getBookDescription());
 
             // move switch without triggering the onSwitchStateChangeListener
             detachSwitchStateChangeListener();
