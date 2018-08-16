@@ -6,7 +6,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -51,7 +50,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private String mTitle;
     private String mAuthor;
     private String mPublisher;
-    private String mPublishedDate;
+    private String mPublishedYear;
     private int mPages;
     private String mDescription;
     private String mCoverUrl;
@@ -243,11 +242,36 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
                 mTitle = volumeInfo.getString("title");
                 mAuthor = cleanAuthorString(volumeInfo.getString("authors"));
 
-                mPublisher = volumeInfo.getString("publisher");
-                mPublishedDate = volumeInfo.getString("publishedDate");
-                mPages = volumeInfo.getInt("pageCount");
-                mDescription = volumeInfo.getString("description");
-                mCoverUrl = jsonImage.getString("smallThumbnail");
+                try {
+                    mPublisher = volumeInfo.getString("publisher");
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    mPublisher = "";
+                }
+                try {
+                    mPublishedYear = volumeInfo.getString("publishedDate").substring(0, 4);
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    mPublishedYear = "";
+                }
+                try {
+                    mPages = volumeInfo.getInt("pageCount");
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    mPages = 0;
+                }
+                try {
+                    mDescription = volumeInfo.getString("description");
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    mDescription = "";
+                }
+                try {
+                    mCoverUrl = jsonImage.getString("smallThumbnail");
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    mCoverUrl = "";
+                }
             }
             return true;
         } catch (JSONException e) {
@@ -279,7 +303,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void uploadBookData() {
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
-        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, mCoverUrl, mTitle, mAuthor, mIsbn, mPublisher, mPublishedDate, mPages, mDescription);
+        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, mCoverUrl, mTitle, mAuthor, mIsbn, mPublisher, mPublishedYear, mPages, mDescription);
         nextBookDatabaseReference.setValue(bookItem);
 
         DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();
