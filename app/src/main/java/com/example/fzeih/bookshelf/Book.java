@@ -24,7 +24,7 @@ public class Book implements Parcelable {
     }
 
     public Book(String key, boolean read, String coverUrl, String title, String author, String isbn,
-                String publisher, String publishedYear, int pages, String bookDescription){
+                String publisher, String publishedYear, int pages, String bookDescription) {
         this.key = key;
         this.read = read;
         this.coverUrl = coverUrl;
@@ -98,8 +98,14 @@ public class Book implements Parcelable {
     }
 
     @Exclude
-    public String getPublisherWithPublishedDate() {
-        return publisher + ", " + publishedYear;
+    public String getPuplisherWithPublishedYear() {
+        if (publisher.length() == 0) {
+            return publishedYear;
+        } else if (publishedYear.length() == 0) {
+            return publisher;
+        } else {
+            return publisher + ", " + publishedYear;
+        }
     }
 
     public int getPages() {
