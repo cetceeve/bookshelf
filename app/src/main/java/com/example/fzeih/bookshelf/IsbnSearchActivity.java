@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -43,11 +44,17 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private NetworkFragment mNetworkFragment;
     private boolean mDownloading = false;
 
+    // Input from User
     private String mIsbnQueryInput;
 
     // Results of ISBN-Search
     private String mTitle;
     private String mAuthor;
+    private String mPublisher;
+    private String mPublishedDate;
+    private int mPages;
+    private String mDescription;
+    private String mCoverUrl;
 
     // Input from Barcode Scanner
     private String mIsbn;
@@ -156,6 +163,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private String getQuery() {
         mIsbnQueryInput = mIsbnEditText.getText().toString();
+        mIsbn = mIsbnQueryInput;
         return BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
     }
 
@@ -226,12 +234,20 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         try {
             JSONObject jsonObject = new JSONObject(resultString);
             JSONArray itemsArray = jsonObject.getJSONArray("items");
+
             for (int i = 0; i < itemsArray.length(); i++) {
                 JSONObject book = itemsArray.getJSONObject(i);
                 JSONObject volumeInfo = book.getJSONObject("volumeInfo");
+                JSONObject jsonImage = volumeInfo.getJSONObject("imageLinks");
 
                 mTitle = volumeInfo.getString("title");
                 mAuthor = cleanAuthorString(volumeInfo.getString("authors"));
+
+                mPublisher = volumeInfo.getString("publisher");
+                mPublishedDate = volumeInfo.getString("publishedDate");
+                mPages = volumeInfo.getInt("pageCount");
+                mDescription = volumeInfo.getString("description");
+                mCoverUrl = jsonImage.getString("smallThumbnail");
             }
             return true;
         } catch (JSONException e) {
@@ -263,7 +279,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void uploadBookData() {
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
-        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, null, mTitle, mAuthor, mIsbn, null, null, 0, null);
+        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, mCoverUrl, mTitle, mAuthor, mIsbn, mPublisher, mPublishedDate, mPages, mDescription);
         nextBookDatabaseReference.setValue(bookItem);
 
         DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();
