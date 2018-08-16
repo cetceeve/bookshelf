@@ -2,6 +2,7 @@ package com.example.fzeih.bookshelf;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -20,14 +21,17 @@ public class EditBookActivity extends AppCompatActivity {
     private String mBookListKey;
 
     private EditText mTitleEditText;
-    private EditText mAuthorNameEditText;
+    private EditText mAuthorEditText;
     private EditText mIsbnEditText;
-    private Button mEditButton;
+    private EditText mPublisherEditText;
+    private EditText mPublishedYearEditText;
+    private EditText mPagesEditText;
+    private EditText mDescriptionEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_book);
+        setContentView(R.layout.activity_add_edit_book);
         getSupportActionBar().setTitle("Edit Book");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -42,7 +46,8 @@ public class EditBookActivity extends AppCompatActivity {
         getDatabaseReference();
 
         // Listeners
-        mEditButton.setOnClickListener(new View.OnClickListener() {
+        Button saveChangesButton = findViewById(R.id.button_add_edit_save_changes);
+        saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 uploadUserInput();
@@ -77,17 +82,27 @@ public class EditBookActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mEditButton = (Button) findViewById(R.id.button_edit_bookitem);
-        mTitleEditText = (EditText) findViewById(R.id.editText_title_edit);
-        mAuthorNameEditText = (EditText) findViewById(R.id.editText_authorName_edit);
-        mIsbnEditText = (EditText) findViewById(R.id.editText_isbn_edit);
+        ConstraintLayout cl = findViewById(R.id.view_group_add_edit_top_bar);
+        cl.setVisibility(View.GONE);
+
+        mTitleEditText = findViewById(R.id.edit_text_add_edit_title);
+        mAuthorEditText = findViewById(R.id.edit_text_add_edit_author);
+        mIsbnEditText = findViewById(R.id.edit_text_add_edit_isbn);
+        mPublisherEditText = findViewById(R.id.edit_text_add_edit_publisher);
+        mPublishedYearEditText = findViewById(R.id.edit_text_add_edit_published_year);
+        mPagesEditText = findViewById(R.id.edit_text_add_edit_pages);
+        mDescriptionEditText = findViewById(R.id.edit_text_add_edit_book_description);
     }
 
     private void setBookData() {
         if (mBook != null) {
             mTitleEditText.setText(mBook.getTitle());
-            mAuthorNameEditText.setText(mBook.getAuthorName());
+            mAuthorEditText.setText(mBook.getAuthor());
             mIsbnEditText.setText(mBook.getIsbn());
+            mPublisherEditText.setText(mBook.getPublisher());
+            mPublishedYearEditText.setText(mBook.getPublishedYear());
+            mPagesEditText.setText(Integer.toString(mBook.getPages()));
+            mDescriptionEditText.setText(mBook.getBookDescription());
         } else {
             Toast.makeText(EditBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
         }
@@ -96,8 +111,12 @@ public class EditBookActivity extends AppCompatActivity {
     private void uploadUserInput() {
         // get user input
         mBook.setTitle(mTitleEditText.getText().toString());
-        mBook.setAuthorName(mAuthorNameEditText.getText().toString());
+        mBook.setAuthor(mAuthorEditText.getText().toString());
         mBook.setIsbn(mIsbnEditText.getText().toString());
+        mBook.setPublisher(mPublisherEditText.getText().toString());
+        mBook.setPublishedYear(mPublishedYearEditText.getText().toString());
+        mBook.setPages(Integer.parseInt(mPagesEditText.getText().toString()));
+        mBook.setBookDescription(mDescriptionEditText.getText().toString());
 
         // upload data
         mBookDatabaseReference.setValue(mBook);

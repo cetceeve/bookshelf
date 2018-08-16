@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:orientation="vertical">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/view_group_add_edit_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/cover_add_edit_book"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@android:drawable/ic_input_get" />
+
+
+        <Switch
+            android:id="@+id/switch_book_read_add_edit_book"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:switchPadding="8dp"
+            android:switchTextAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:text="already read"
+            android:textAllCaps="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:layout_editor_absoluteY="3dp"
+            tools:ignore="MissingConstraints" />
+
+    </android.support.constraint.ConstraintLayout>
+
+
+    <TextView
+        android:id="@+id/text_view_add_edit_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/text_title"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+         />
+
+    <EditText
+        android:id="@+id/edit_text_add_edit_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:layout_marginBottom="16dp"
+         />
+
+    <TextView
+        android:id="@+id/text_view_add_edit_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_author_name"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    <EditText
+        android:id="@+id/edit_text_add_edit_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:layout_marginBottom="16dp"
+        />
+
+    <TextView
+        android:id="@+id/text_view_add_edit_isbn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_isbn"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        />
+
+    <EditText
+        android:id="@+id/edit_text_add_edit_isbn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:layout_marginBottom="16dp"
+        />
+
+    <!--************************************* TODO: remove hardcoded strings *****************************************-->
+    <TextView
+        android:id="@+id/text_view_add_edit_publisher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Publisher:"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        />
+
+    <EditText
+        android:id="@+id/edit_text_add_edit_publisher"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:layout_marginBottom="16dp"
+        />
+
+    <TextView
+        android:id="@+id/text_view_add_edit_published_year"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Published Date"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        />
+
+    <EditText
+        android:id="@+id/edit_text_add_edit_published_year"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:layout_marginBottom="16dp"
+        />
+
+    <TextView
+        android:id="@+id/text_view_add_edit_pages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pages:"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        />
+
+    <EditText
+        android:id="@+id/edit_text_add_edit_pages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:layout_marginBottom="16dp"
+        />
+
+    <TextView
+        android:id="@+id/text_view_add_edit_book_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        />
+
+    <EditText
+        android:id="@+id/edit_text_add_edit_book_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:layout_marginBottom="16dp"
+        />
+
+    <Button
+        android:id="@+id/button_add_edit_save_changes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_button_save_changes"
+        android:textColor="#ffffff"
+        android:layout_marginRight="24dp"
+        android:layout_marginLeft="24dp"
+        />
+
+</LinearLayout>
+
+</ScrollView>

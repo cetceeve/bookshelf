@@ -113,11 +113,12 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     private void setBookData() {
         if (mBook != null) {
             mTitleTextView.setText(mBook.getTitle());
-            mAuthorNameTextView.setText(mBook.getAuthorName());
             mIsbnTextView.setText("ISBN: "+mBook.getIsbn());
             mPageNumTextView.setText("page number: "+String.valueOf(mBook.getPages()));
             mPublischerAndDateTextView.setText("publisched:\n"+mBook.getPuplisherWithPublishedDate());
             mDescriptionTextView.setText("description:\n"+mBook.getBookDescription());
+            mAuthorNameTextView.setText(mBook.getAuthor());
+            ;
 
             // move switch without triggering the onSwitchStateChangeListener
             detachSwitchStateChangeListener();
@@ -133,11 +134,11 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    Book changedBook = new Book(mBook.getKey(), true, null, mBook.getTitle(), mBook.getAuthorName(), mBook.getIsbn(), null, null, 0, null);
+                    Book changedBook = new Book(mBook.getKey(), true, null, mBook.getTitle(), mBook.getAuthor(), mBook.getIsbn(), null, null, 0, null);
                     mBookDatabaseReference.setValue(changedBook);
                     DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
                 } else {
-                    Book changedBook = new Book(mBook.getKey(), false, null, mBook.getTitle(), mBook.getAuthorName(), mBook.getIsbn(), null, null, 0, null);
+                    Book changedBook = new Book(mBook.getKey(), false, null, mBook.getTitle(), mBook.getAuthor(), mBook.getIsbn(), null, null, 0, null);
                     mBookDatabaseReference.setValue(changedBook);
                     DatabaseService.getInstance().getAchievementService().decrementNumOfReadBooks();
                 }

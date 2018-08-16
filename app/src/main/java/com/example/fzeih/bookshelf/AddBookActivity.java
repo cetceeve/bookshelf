@@ -21,17 +21,23 @@ public class AddBookActivity extends AppCompatActivity {
 
     private String mBookListKey;
 
-    private EditText mTitleEditText;
-    private EditText mAuthorNameEditText;
-    private EditText mIsbnEditText;
     private Switch mBookReadSwitch;
-
     private boolean mBookWasRead = false;
+
+    private EditText mTitleEditText;
+    private EditText mAuthorEditText;
+    private EditText mIsbnEditText;
+    private EditText mPublisherEditText;
+    private EditText mPublishedYearEditText;
+    private EditText mPagesEditText;
+    private EditText mDescriptionEditText;
+    private Button mCreateButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_book);
+        setContentView(R.layout.activity_add_edit_book);
         getSupportActionBar().setTitle("Add Book");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -45,8 +51,7 @@ public class AddBookActivity extends AppCompatActivity {
         initViews();
 
         // Listeners
-        Button createButton = (Button) findViewById(R.id.button_create_bookitem);
-        createButton.setOnClickListener(new View.OnClickListener() {
+        mCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 uploadUserInput();
@@ -86,21 +91,34 @@ public class AddBookActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mTitleEditText = (EditText) findViewById(R.id.editText_title);
-        mAuthorNameEditText = (EditText) findViewById(R.id.editText_authorName);
-        mIsbnEditText = (EditText) findViewById(R.id.editText_isbn);
-        mBookReadSwitch = findViewById(R.id.switch_book_read_add_book);
+        mBookReadSwitch = findViewById(R.id.switch_book_read_add_edit_book);
+
+        mTitleEditText = findViewById(R.id.edit_text_add_edit_title);
+        mAuthorEditText = findViewById(R.id.edit_text_add_edit_author);
+        mIsbnEditText = findViewById(R.id.edit_text_add_edit_isbn);
+        mPublisherEditText = findViewById(R.id.edit_text_add_edit_publisher);
+        mPublishedYearEditText = findViewById(R.id.edit_text_add_edit_published_year);
+        mPagesEditText = findViewById(R.id.edit_text_add_edit_pages);
+        mDescriptionEditText = findViewById(R.id.edit_text_add_edit_book_description);
+
+        mCreateButton = findViewById(R.id.button_add_edit_save_changes);
+        mCreateButton.setText(R.string.text_button_create_book);
     }
 
     private void uploadUserInput() {
         // get user input
-        String nameText = mAuthorNameEditText.getText().toString();
-        String titleText = mTitleEditText.getText().toString();
-        String isbnText = mIsbnEditText.getText().toString();
+        String title = mTitleEditText.getText().toString();
+        String author = mAuthorEditText.getText().toString();
+        String isbn = mIsbnEditText.getText().toString();
+        String publisher = mPublisherEditText.getText().toString();
+        String publishedYear = mPublishedYearEditText.getText().toString();
+        int pages = Integer.parseInt(mPagesEditText.getText().toString());
+        String description = mDescriptionEditText.getText().toString();
+
 
         // upload data
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
-        Book nextBook = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, null, titleText, nameText, isbnText, null, null, 0, null);
+        Book nextBook = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, null, title, author, isbn, publisher, publishedYear, pages, description);
         nextBookDatabaseReference.setValue(nextBook);
 
         DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();

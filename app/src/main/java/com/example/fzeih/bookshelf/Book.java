@@ -13,10 +13,10 @@ public class Book implements Parcelable {
     private boolean read = false;
     private String coverUrl;
     private String title;
-    private String authorName;
+    private String author;
     private String isbn;
     private String publisher;
-    private String publishedDate;
+    private String publishedYear;
     private int pages;
     private String bookDescription;
 
@@ -24,15 +24,15 @@ public class Book implements Parcelable {
     }
 
     public Book(String key, boolean read, String coverUrl, String title, String author, String isbn,
-                String publisher, String publishedDate, int pages, String bookDescription){
+                String publisher, String publishedYear, int pages, String bookDescription){
         this.key = key;
         this.read = read;
         this.coverUrl = coverUrl;
         this.title = title;
-        this.authorName = author;
+        this.author = author;
         this.isbn = isbn;
         this.publisher = publisher;
-        this.publishedDate = publishedDate;
+        this.publishedYear = publishedYear;
         this.pages = pages;
         this.bookDescription = bookDescription;
     }
@@ -65,12 +65,12 @@ public class Book implements Parcelable {
         this.title = title;
     }
 
-    public String getAuthorName() {
-        return authorName;
+    public String getAuthor() {
+        return author;
     }
 
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
     public String getIsbn() {
@@ -89,17 +89,17 @@ public class Book implements Parcelable {
         this.publisher = publisher;
     }
 
-    public String getPublishedDate() {
-        return publishedDate;
+    public String getPublishedYear() {
+        return publishedYear;
     }
 
-    public void setPublishedDate(String publishedDate) {
-        this.publishedDate = publishedDate;
+    public void setPublishedYear(String publishedYear) {
+        this.publishedYear = publishedYear;
     }
 
     @Exclude
     public String getPuplisherWithPublishedDate() {
-        return publisher + ", " + publishedDate;
+        return publisher + ", " + publishedYear;
     }
 
     public int getPages() {
@@ -131,10 +131,10 @@ public class Book implements Parcelable {
         dest.writeByte(this.read ? (byte) 1 : (byte) 0);
         dest.writeString(this.coverUrl);
         dest.writeString(this.title);
-        dest.writeString(this.authorName);
+        dest.writeString(this.author);
         dest.writeString(this.isbn);
         dest.writeString(this.publisher);
-        dest.writeString(this.publishedDate);
+        dest.writeString(this.publishedYear);
         dest.writeInt(this.pages);
         dest.writeString(this.bookDescription);
     }
@@ -144,10 +144,10 @@ public class Book implements Parcelable {
         this.read = in.readByte() != 0;
         this.coverUrl = in.readString();
         this.title = in.readString();
-        this.authorName = in.readString();
+        this.author = in.readString();
         this.isbn = in.readString();
         this.publisher = in.readString();
-        this.publishedDate = in.readString();
+        this.publishedYear = in.readString();
         this.pages = in.readInt();
         this.bookDescription = in.readString();
     }
