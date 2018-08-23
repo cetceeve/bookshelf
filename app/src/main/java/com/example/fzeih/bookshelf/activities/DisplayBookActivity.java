@@ -128,11 +128,6 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
                 Picasso.get().load(mBook.getCoverUrl()).into(mCoverImageView);
             } else {
                 mCoverImageView.setImageResource(R.drawable.ic_book);
-
-                // TEST
-                int height = mCoverImageView.getHeight();
-                int width = mCoverImageView.getWidth();
-                Log.d("TAG_IC_HEIGHT", String.valueOf(height));
             }
             mTitleTextView.setText(mBook.getTitle());
             mIsbnTextView.setText("ISBN: "+mBook.getIsbn());
