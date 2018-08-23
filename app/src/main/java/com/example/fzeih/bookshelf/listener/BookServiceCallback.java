@@ -1,8 +1,8 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.listener;
 
 import android.support.annotation.NonNull;
 
-public interface BookServiceListener {
+public interface BookServiceCallback {
 
     void onTotalNumOfBooksChanged(@NonNull Long totalNumOfBooks);
 }

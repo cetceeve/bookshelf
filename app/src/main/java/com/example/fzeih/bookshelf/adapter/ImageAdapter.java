@@ -1,17 +1,17 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.adapter;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import com.example.fzeih.bookshelf.R;
 
 import java.util.ArrayList;
 

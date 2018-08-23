@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +18,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.fzeih.bookshelf.Constants;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
+import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.adapter.BookAdapter;
+import com.example.fzeih.bookshelf.datastructures.Book;
+import com.example.fzeih.bookshelf.listener.BookDeletionCallback;
+import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -33,7 +40,7 @@ import java.util.List;
 import io.github.yavski.fabspeeddial.FabSpeedDial;
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
 
-public class BookListActivity extends AppCompatActivity implements BookDeletionListener {
+public class BookListActivity extends AppCompatActivity implements BookDeletionCallback {
 
     private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListNameDatabaseReference;

@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +14,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.fzeih.bookshelf.Constants;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
+import com.example.fzeih.bookshelf.fragments.NetworkFragment;
+import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.datastructures.Book;
+import com.example.fzeih.bookshelf.listener.DownloadCallback;
+import com.example.fzeih.bookshelf.listener.NetworkFragmentCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -23,7 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener {
+public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback {
     //Parameter for URL
     private static final String BOOK_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
     private static final String QUERY_PARAM_ISBN = "q=isbn:";

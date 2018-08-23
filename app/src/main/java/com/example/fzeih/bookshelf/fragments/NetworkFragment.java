@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.fragments;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+
+import com.example.fzeih.bookshelf.listener.DownloadCallback;
+import com.example.fzeih.bookshelf.listener.NetworkFragmentCallback;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,7 +70,7 @@ public class NetworkFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (getContext() != null) {
-            ((NetworkFragmentListener) getContext()).onNetworkFragmentInitComplete();
+            ((NetworkFragmentCallback) getContext()).onNetworkFragmentInitComplete();
         }
     }
 

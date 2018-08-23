@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/background_light"
     android:clipToPadding="false"
-    tools:context=".ProfileActivity">
+    tools:context=".activities.ProfileActivity">
 
     <View
         android:id="@+id/profile_background_color_view"

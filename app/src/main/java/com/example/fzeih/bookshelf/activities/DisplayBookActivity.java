@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +13,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.fzeih.bookshelf.Constants;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
+import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.datastructures.Achievement;
+import com.example.fzeih.bookshelf.datastructures.Book;
+import com.example.fzeih.bookshelf.listener.AchievementServiceCallback;
+import com.example.fzeih.bookshelf.listener.BookDeletionCallback;
+import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -21,7 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceListener{
+public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceCallback {
     private DatabaseReference mBookDatabaseReference;
     private ValueEventListener mBookValueEventListener;
 
@@ -210,9 +218,9 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         mBookDatabaseReference.removeValue();
         DatabaseService.getInstance().getBookService().decrementTotalNumOfBooks();
         // inform listeners
-        Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionListener.class);
+        Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionCallback.class);
         for (Object listener: bookDeletionListeners) {
-            ((BookDeletionListener) listener).bookDeleted(mBookDatabaseReference, mBook);
+            ((BookDeletionCallback) listener).bookDeleted(mBookDatabaseReference, mBook);
         }
         finish();
     }

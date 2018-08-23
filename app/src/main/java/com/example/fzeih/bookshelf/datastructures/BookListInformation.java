@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.datastructures;
 
 public class BookListInformation {
     private String mBookListKey;

@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.activities;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,6 +27,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.fzeih.bookshelf.Constants;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
+import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.datastructures.BookListInformation;
+import com.example.fzeih.bookshelf.adapter.BookListInformationAdapter;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

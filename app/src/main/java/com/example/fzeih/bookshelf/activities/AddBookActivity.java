@@ -1,24 +1,32 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
+import com.example.fzeih.bookshelf.Constants;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
+import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.datastructures.Book;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class EditBookActivity extends AppCompatActivity {
-    private DatabaseReference mBookDatabaseReference;
+public class AddBookActivity extends AppCompatActivity {
 
-    private Book mBook;
+    private DatabaseReference mBookListDatabaseReference;
+
     private String mBookListKey;
+
+    private Switch mBookReadSwitch;
+    private boolean mBookWasRead = false;
 
     private EditText mTitleEditText;
     private EditText mAuthorEditText;
@@ -27,31 +35,37 @@ public class EditBookActivity extends AppCompatActivity {
     private EditText mPublishedYearEditText;
     private EditText mPagesEditText;
     private EditText mDescriptionEditText;
+    private Button mCreateButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_book);
-        getSupportActionBar().setTitle("Edit Book");
+        getSupportActionBar().setTitle("Add Book");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Intent
         readIntent();
 
+        // Data
+        getDatabaseReference();
+
         // Views
         initViews();
 
-        // Data
-        setBookData();
-        getDatabaseReference();
-
         // Listeners
-        Button saveChangesButton = findViewById(R.id.button_add_edit_save_changes);
-        saveChangesButton.setOnClickListener(new View.OnClickListener() {
+        mCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 uploadUserInput();
                 finish();
+            }
+        });
+        mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mBookWasRead = !mBookWasRead;
             }
         });
     }
@@ -66,7 +80,6 @@ public class EditBookActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            mBook = (Book) extras.get(Constants.key_intent_book);
             mBookListKey = extras.getString(Constants.key_intent_booklistkey);
         }
     }
@@ -74,16 +87,15 @@ public class EditBookActivity extends AppCompatActivity {
     private void getDatabaseReference() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            mBookDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey).child(mBook.getKey());
+            mBookListDatabaseReference = FirebaseDatabase.getInstance().getReference().child(user.getUid()).child(Constants.key_db_reference_booklists).child(mBookListKey);
         } else {
-            Toast.makeText(EditBookActivity.this, "ERROR: User is not signed in", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AddBookActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
 
     private void initViews() {
-        ConstraintLayout cl = findViewById(R.id.view_group_add_edit_top_bar);
-        cl.setVisibility(View.GONE);
+        mBookReadSwitch = findViewById(R.id.switch_book_read_add_edit_book);
 
         mTitleEditText = findViewById(R.id.edit_text_add_edit_title);
         mAuthorEditText = findViewById(R.id.edit_text_add_edit_author);
@@ -92,38 +104,33 @@ public class EditBookActivity extends AppCompatActivity {
         mPublishedYearEditText = findViewById(R.id.edit_text_add_edit_published_year);
         mPagesEditText = findViewById(R.id.edit_text_add_edit_pages);
         mDescriptionEditText = findViewById(R.id.edit_text_add_edit_book_description);
-    }
 
-    private void setBookData() {
-        if (mBook != null) {
-            mTitleEditText.setText(mBook.getTitle());
-            mAuthorEditText.setText(mBook.getAuthor());
-            mIsbnEditText.setText(mBook.getIsbn());
-            mPublisherEditText.setText(mBook.getPublisher());
-            mPublishedYearEditText.setText(mBook.getPublishedYear());
-            mPagesEditText.setText(Integer.toString(mBook.getPages()));
-            mDescriptionEditText.setText(mBook.getBookDescription());
-        } else {
-            Toast.makeText(EditBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
-        }
+        mCreateButton = findViewById(R.id.button_add_edit_save_changes);
+        mCreateButton.setText(R.string.text_button_create_book);
     }
 
     private void uploadUserInput() {
         // get user input
-        mBook.setTitle(mTitleEditText.getText().toString());
-        mBook.setAuthor(mAuthorEditText.getText().toString());
-        mBook.setIsbn(mIsbnEditText.getText().toString());
-        mBook.setPublisher(mPublisherEditText.getText().toString());
-        mBook.setPublishedYear(mPublishedYearEditText.getText().toString());
-        mBook.setBookDescription(mDescriptionEditText.getText().toString());
+        String title = mTitleEditText.getText().toString();
+        String author = mAuthorEditText.getText().toString();
+        String isbn = mIsbnEditText.getText().toString();
+        String publisher = mPublisherEditText.getText().toString();
+        String publishedYear = mPublishedYearEditText.getText().toString();
+        String description = mDescriptionEditText.getText().toString();
 
         int pages = 0;
         if (mPagesEditText.getText().toString().length() != 0) {
             pages = Integer.parseInt(mPagesEditText.getText().toString());
         }
-        mBook.setPages(pages);
 
         // upload data
-        mBookDatabaseReference.setValue(mBook);
+        DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
+        Book nextBook = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, null, title, author, isbn, publisher, publishedYear, pages, description);
+        nextBookDatabaseReference.setValue(nextBook);
+
+        DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();
+        if (mBookWasRead) {
+            DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
+        }
     }
 }

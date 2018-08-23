@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.datastructures;
 
 import android.os.Parcel;
 import android.os.Parcelable;

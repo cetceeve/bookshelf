@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf;
+package com.example.fzeih.bookshelf.activities;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,12 +13,22 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
+import com.example.fzeih.bookshelf.fragments.NetworkFragment;
+import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.adapter.AchievementAdapter;
+import com.example.fzeih.bookshelf.datastructures.Achievement;
+import com.example.fzeih.bookshelf.listener.AchievementServiceCallback;
+import com.example.fzeih.bookshelf.listener.BookServiceCallback;
+import com.example.fzeih.bookshelf.listener.DownloadCallback;
+import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
+import com.example.fzeih.bookshelf.listener.NetworkFragmentCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentListener, AchievementServiceListener, BookServiceListener {
+public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback, AchievementServiceCallback, BookServiceCallback {
     private FirebaseUser mUser;
 
     private AchievementAdapter mAchievementAdapter;

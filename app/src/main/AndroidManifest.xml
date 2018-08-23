@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -29,15 +29,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BookListActivity"
+            android:name=".activities.BookListActivity"
             android:label="@string/title_activity_book_list"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".AddBookActivity" />
-        <activity android:name=".DisplayBookActivity" />
-        <activity android:name=".EditBookActivity" />
-        <activity android:name=".IsbnSearchActivity" />
+        <activity android:name=".activities.AddBookActivity" />
+        <activity android:name=".activities.DisplayBookActivity" />
+        <activity android:name=".activities.EditBookActivity" />
+        <activity android:name=".activities.IsbnSearchActivity" />
         <activity
-            android:name=".WishGalleryActivity"
+            android:name=".activities.WishGalleryActivity"
             android:label="@string/title_activity_wish_gallery"
             android:theme="@style/AppTheme.NoActionBar" />
 
@@ -51,8 +51,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".BarcodeScannerActivity" />
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".activities.BarcodeScannerActivity" />
+        <activity android:name=".activities.ProfileActivity"></activity>
     </application>
 
 </manifest>
