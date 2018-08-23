@@ -2,13 +2,16 @@ package com.example.fzeih.bookshelf.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceCallback {
     private DatabaseReference mBookDatabaseReference;
@@ -36,6 +40,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     private String mBookListKey;
     private Book mBook;
 
+    private ImageView mCoverImageView;
     private TextView mTitleTextView;
     private TextView mAuthorNameTextView;
     private TextView mIsbnTextView;
@@ -107,6 +112,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     }
 
     private void initViews() {
+        mCoverImageView = (ImageView) findViewById(R.id.imageView_cover_displayBook);
         mTitleTextView = (TextView) findViewById(R.id.textView_title_book);
         mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
         mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
@@ -118,6 +124,16 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
 
     private void setBookData() {
         if (mBook != null) {
+            if (!mBook.getCoverUrl().isEmpty()){
+                Picasso.get().load(mBook.getCoverUrl()).into(mCoverImageView);
+            } else {
+                mCoverImageView.setImageResource(R.drawable.ic_book);
+
+                // TEST
+                int height = mCoverImageView.getHeight();
+                int width = mCoverImageView.getWidth();
+                Log.d("TAG_IC_HEIGHT", String.valueOf(height));
+            }
             mTitleTextView.setText(mBook.getTitle());
             mIsbnTextView.setText("ISBN: "+mBook.getIsbn());
             mPageNumTextView.setText("page number: "+String.valueOf(mBook.getPages()));
