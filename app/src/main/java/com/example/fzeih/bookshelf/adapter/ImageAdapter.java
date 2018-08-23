@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.example.fzeih.bookshelf.R;
 
@@ -27,14 +26,11 @@ public class ImageAdapter extends ArrayAdapter<Uri> {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.view_image, parent, false);
         }
 
-        ImageView imageView = convertView.findViewById(R.id.imageview_photo);
+        final ImageView imageView = convertView.findViewById(R.id.imageview_photo);
 
         Uri uri = getItem(position);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uri.toString());
-
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(bitmap.getWidth(), bitmap.getHeight());
-        imageView.setLayoutParams(layoutParams);
 
         imageView.setImageBitmap(bitmap);
 
