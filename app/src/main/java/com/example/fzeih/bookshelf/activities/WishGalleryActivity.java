@@ -37,9 +37,6 @@ public class WishGalleryActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
     private static final int PERMISSION_REQUEST_CAMERA = 2;
 
-    // private DatabaseReference mPhotoGalleryDatabaseReference;
-    // private ChildEventListener mChildEventListener;
-
     private GridView mGridviewImages;
     private ArrayList<String> mImagePaths;
     private ImageAdapter mImageAdapter;
@@ -63,7 +60,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         checkForExternalStoragePermission();
 
         //Data
-        // getDatabaseReference();
         setImageAdapter();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -92,7 +88,6 @@ public class WishGalleryActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // detachReadDatabaseListener();
         mImagePaths.clear();
     }
 
@@ -100,7 +95,6 @@ public class WishGalleryActivity extends AppCompatActivity {
     protected void onPostResume() {
         super.onPostResume();
         getImagePaths();
-        // attachDatabaseReadListener();
     }
 
     @Override
@@ -134,9 +128,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             galleryAddPic();
-            // firebaseAddPicUri();
             saveImagePath();
-            // mImageAdapter.add(mCurrentPhotoPath);
         }
     }
 
@@ -154,12 +146,6 @@ public class WishGalleryActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(WishGalleryActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
         }
     }
-
-    /*
-    private void getDatabaseReference() {
-        mPhotoGalleryDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_photogallery);
-    }
-    */
 
     private void setImageAdapter() {
         mGridviewImages = (GridView) findViewById(R.id.gridview_wishgallery);
@@ -220,55 +206,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
-    /*
-    private void firebaseAddPicUri() {
-        mPhotoGalleryDatabaseReference.push().setValue(mCurrentPhotoPath);
-    }
-
-    private void attachDatabaseReadListener() {
-        if (mChildEventListener == null) {
-            mChildEventListener = new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String photoPath = (String) dataSnapshot.getValue();
-                    File file = new File(photoPath);
-                    if (file.exists()) {
-                        mImageAdapter.add(Uri.parse(photoPath));
-                    } else {
-                        mPhotoGalleryDatabaseReference.child(dataSnapshot.getKey()).removeValue();
-                    }
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    String photoPath = (String) dataSnapshot.getValue();
-                    mImageAdapter.remove(Uri.parse(photoPath));
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                }
-            };
-        }
-        mPhotoGalleryDatabaseReference.addChildEventListener(mChildEventListener);
-    }
-
-    private void detachReadDatabaseListener() {
-        if (mChildEventListener != null) {
-            mPhotoGalleryDatabaseReference.removeEventListener(mChildEventListener);
-            mChildEventListener = null;
-        }
-    }
-    */
-
     private void saveImagePath() {
         String writablePhotoPath = mCurrentPhotoPath + ",";
         appendToFile(writablePhotoPath, this);
@@ -287,7 +224,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
 
         if (deadImagePathFlag) {
-            System.out.println("************************ DEAD IMAGE FLAG SET *****************************");
             rewriteImagePathFile();
         }
     }
@@ -319,7 +255,7 @@ public class WishGalleryActivity extends AppCompatActivity {
 
     private void appendToFile(String data, Context context) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_PRIVATE)));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_APPEND)));
             outputStreamWriter.append(data);
             outputStreamWriter.close();
         }
