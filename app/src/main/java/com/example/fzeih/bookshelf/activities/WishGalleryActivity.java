@@ -1,36 +1,34 @@
 package com.example.fzeih.bookshelf.activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.example.fzeih.bookshelf.Constants;
 import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.adapter.ImageAdapter;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,11 +37,8 @@ public class WishGalleryActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
     private static final int PERMISSION_REQUEST_CAMERA = 2;
 
-    private DatabaseReference mPhotoGalleryDatabaseReference;
-    private ChildEventListener mChildEventListener;
-
-    private GridView mGridviewPhotos;
-    private ArrayList<Uri> mPhotoUris;
+    private GridView mGridviewImages;
+    private ArrayList<String> mImagePaths;
     private ImageAdapter mImageAdapter;
 
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -65,7 +60,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         checkForExternalStoragePermission();
 
         //Data
-        getDatabaseReference();
         setImageAdapter();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -94,14 +88,13 @@ public class WishGalleryActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        detachReadDatabaseListener();
-        mPhotoUris.clear();
+        mImagePaths.clear();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachDatabaseReadListener();
+        getImagePaths();
     }
 
     @Override
@@ -135,7 +128,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             galleryAddPic();
-            firebaseAddPicUri();
+            saveImagePath();
         }
     }
 
@@ -154,15 +147,11 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
     }
 
-    private void getDatabaseReference() {
-        mPhotoGalleryDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_photogallery);
-    }
-
     private void setImageAdapter() {
-        mGridviewPhotos = (GridView) findViewById(R.id.gridview_wishgallery);
-        mPhotoUris = new ArrayList<>();
-        mImageAdapter = new ImageAdapter(this, R.layout.view_image, mPhotoUris);
-        mGridviewPhotos.setAdapter(mImageAdapter);
+        mGridviewImages = (GridView) findViewById(R.id.gridview_wishgallery);
+        mImagePaths = new ArrayList<>();
+        mImageAdapter = new ImageAdapter(this, R.layout.view_image, mImagePaths);
+        mGridviewImages.setAdapter(mImageAdapter);
     }
 
     private void dispatchTakePictureIntent() {
@@ -188,7 +177,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
 
     }
-
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -218,50 +206,91 @@ public class WishGalleryActivity extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
-    private void firebaseAddPicUri() {
-        mPhotoGalleryDatabaseReference.push().setValue(mCurrentPhotoPath);
+    private void saveImagePath() {
+        String writablePhotoPath = mCurrentPhotoPath + ",";
+        appendToFile(writablePhotoPath, this);
     }
 
-    private void attachDatabaseReadListener() {
-        if (mChildEventListener == null) {
-            mChildEventListener = new ChildEventListener() {
-                @Override
-                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    String photoPath = (String) dataSnapshot.getValue();
-                    File file = new File(photoPath);
-                    if (file.exists()) {
-                        mImageAdapter.add(Uri.parse(photoPath));
-                    } else {
-                        mPhotoGalleryDatabaseReference.child(dataSnapshot.getKey()).removeValue();
-                    }
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    String photoPath = (String) dataSnapshot.getValue();
-                    mImageAdapter.remove(Uri.parse(photoPath));
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                }
-            };
+    private void getImagePaths() {
+        boolean deadImagePathFlag = false;
+        String pathString = readFromFile(this);
+        String[] imagePaths = pathString.split(",");
+        for (String imagePath: imagePaths) {
+            if (isExistingImagePath(imagePath)) {
+                mImageAdapter.add(imagePath);
+            } else {
+                deadImagePathFlag = true;
+            }
         }
-        mPhotoGalleryDatabaseReference.addChildEventListener(mChildEventListener);
+
+        if (deadImagePathFlag) {
+            rewriteImagePathFile();
+        }
     }
 
-    private void detachReadDatabaseListener() {
-        if (mChildEventListener != null) {
-            mPhotoGalleryDatabaseReference.removeEventListener(mChildEventListener);
-            mChildEventListener = null;
+    private boolean isExistingImagePath(String imagePath) {
+        File file = new File(imagePath);
+        return file.exists();
+    }
+
+    public void rewriteImagePathFile() {
+        String pathString = "";
+        for (String imagePath: mImagePaths) {
+            pathString += imagePath + ",";
         }
+        writeToFile(pathString, this);
+    }
+
+
+    private void writeToFile(String data, Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_PRIVATE)));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    private void appendToFile(String data, Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_APPEND)));
+            outputStreamWriter.append(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File append failed: " + e.toString());
+        }
+    }
+
+    private String readFromFile(Context context) {
+
+        String res = "";
+
+        try {
+            InputStream inputStream = context.openFileInput(getString(R.string.file_name_image_paths));
+
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString;
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                res = stringBuilder.toString();
+            }
+        }
+        catch (FileNotFoundException e) {
+            Log.e("login activity", "File not found: " + e.toString());
+        } catch (IOException e) {
+            Log.e("login activity", "Can not read file: " + e.toString());
+        }
+
+        return res;
     }
 }
