@@ -130,10 +130,10 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
                 mCoverImageView.setImageResource(R.drawable.ic_book);
             }
             mTitleTextView.setText(mBook.getTitle());
-            mIsbnTextView.setText("ISBN: "+mBook.getIsbn());
-            mPageNumTextView.setText("page number: "+String.valueOf(mBook.getPages()));
-            mPublischerAndDateTextView.setText("publisched:\n"+mBook.getPublisherWithPublishedYear());
-            mDescriptionTextView.setText("description:\n"+mBook.getBookDescription());
+            mIsbnTextView.setText(mBook.getIsbn());
+            mPageNumTextView.setText(String.valueOf(mBook.getPages()));
+            mPublischerAndDateTextView.setText(mBook.getPublisherWithPublishedYear());
+            mDescriptionTextView.setText(mBook.getBookDescription());
             mAuthorNameTextView.setText(mBook.getAuthor());
             ;
 
