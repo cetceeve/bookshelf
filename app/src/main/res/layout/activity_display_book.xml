@@ -18,14 +18,13 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/imageView_cover_displayBook"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
 
-                app:layout_constraintStart_toStartOf="parent"
-                app:srcCompat="@android:drawable/ic_input_get" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <Switch
                 android:id="@+id/switch_book_read"

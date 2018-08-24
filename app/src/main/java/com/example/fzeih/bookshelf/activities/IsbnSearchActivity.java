@@ -274,7 +274,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
                     mDescription = "";
                 }
                 try {
-                    mCoverUrl = jsonImage.getString("smallThumbnail");
+                    mCoverUrl = jsonImage.getString("thumbnail");
                 } catch (JSONException e){
                     e.printStackTrace();
                     mCoverUrl = "";
