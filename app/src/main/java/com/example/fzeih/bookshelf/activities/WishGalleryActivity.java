@@ -40,8 +40,8 @@ public class WishGalleryActivity extends AppCompatActivity {
     // private DatabaseReference mPhotoGalleryDatabaseReference;
     // private ChildEventListener mChildEventListener;
 
-    private GridView mGridviewPhotos;
-    private ArrayList<Uri> mPhotoUris;
+    private GridView mGridviewImages;
+    private ArrayList<String> mImagePaths;
     private ImageAdapter mImageAdapter;
 
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -93,12 +93,13 @@ public class WishGalleryActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         // detachReadDatabaseListener();
-        mPhotoUris.clear();
+        mImagePaths.clear();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
+        getImagePaths();
         // attachDatabaseReadListener();
     }
 
@@ -134,6 +135,8 @@ public class WishGalleryActivity extends AppCompatActivity {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             galleryAddPic();
             // firebaseAddPicUri();
+            saveImagePath();
+            // mImageAdapter.add(mCurrentPhotoPath);
         }
     }
 
@@ -159,10 +162,10 @@ public class WishGalleryActivity extends AppCompatActivity {
     */
 
     private void setImageAdapter() {
-        mGridviewPhotos = (GridView) findViewById(R.id.gridview_wishgallery);
-        mPhotoUris = new ArrayList<>();
-        mImageAdapter = new ImageAdapter(this, R.layout.view_image, mPhotoUris);
-        mGridviewPhotos.setAdapter(mImageAdapter);
+        mGridviewImages = (GridView) findViewById(R.id.gridview_wishgallery);
+        mImagePaths = new ArrayList<>();
+        mImageAdapter = new ImageAdapter(this, R.layout.view_image, mImagePaths);
+        mGridviewImages.setAdapter(mImageAdapter);
     }
 
     private void dispatchTakePictureIntent() {
@@ -188,7 +191,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
 
     }
-
 
     private File createImageFile() throws IOException {
         // Create an image file name
@@ -267,14 +269,62 @@ public class WishGalleryActivity extends AppCompatActivity {
     }
     */
 
-    private void writeToFile(String data,Context context) {
+    private void saveImagePath() {
+        String writablePhotoPath = mCurrentPhotoPath + ",";
+        appendToFile(writablePhotoPath, this);
+    }
+
+    private void getImagePaths() {
+        boolean deadImagePathFlag = false;
+        String pathString = readFromFile(this);
+        String[] imagePaths = pathString.split(",");
+        for (String imagePath: imagePaths) {
+            if (isExistingImagePath(imagePath)) {
+                mImageAdapter.add(imagePath);
+            } else {
+                deadImagePathFlag = true;
+            }
+        }
+
+        if (deadImagePathFlag) {
+            System.out.println("************************ DEAD IMAGE FLAG SET *****************************");
+            rewriteImagePathFile();
+        }
+    }
+
+    private boolean isExistingImagePath(String imagePath) {
+        File file = new File(imagePath);
+        return file.exists();
+    }
+
+    public void rewriteImagePathFile() {
+        String pathString = "";
+        for (String imagePath: mImagePaths) {
+            pathString += imagePath + ",";
+        }
+        writeToFile(pathString, this);
+    }
+
+
+    private void writeToFile(String data, Context context) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_PRIVATE)));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
         }
         catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    private void appendToFile(String data, Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_PRIVATE)));
+            outputStreamWriter.append(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File append failed: " + e.toString());
         }
     }
 

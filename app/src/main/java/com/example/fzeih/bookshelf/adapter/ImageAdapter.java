@@ -14,9 +14,9 @@ import com.example.fzeih.bookshelf.R;
 
 import java.util.ArrayList;
 
-public class ImageAdapter extends ArrayAdapter<Uri> {
+public class ImageAdapter extends ArrayAdapter<String> {
 
-    public ImageAdapter(Context context, int layoutResourceId, ArrayList<Uri> data) {
+    public ImageAdapter(Context context, int layoutResourceId, ArrayList<String> data) {
         super(context, layoutResourceId, data);
     }
 
@@ -28,7 +28,7 @@ public class ImageAdapter extends ArrayAdapter<Uri> {
 
         final ImageView imageView = convertView.findViewById(R.id.imageview_photo);
 
-        Uri uri = getItem(position);
+        Uri uri = Uri.parse(getItem(position));
 
         Bitmap bitmap = BitmapFactory.decodeFile(uri.toString());
 
