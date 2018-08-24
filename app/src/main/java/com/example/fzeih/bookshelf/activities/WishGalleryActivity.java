@@ -8,8 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -21,15 +19,8 @@ import android.view.View;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.example.fzeih.bookshelf.Constants;
 import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.adapter.ImageAdapter;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,8 +37,8 @@ public class WishGalleryActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
     private static final int PERMISSION_REQUEST_CAMERA = 2;
 
-    private DatabaseReference mPhotoGalleryDatabaseReference;
-    private ChildEventListener mChildEventListener;
+    // private DatabaseReference mPhotoGalleryDatabaseReference;
+    // private ChildEventListener mChildEventListener;
 
     private GridView mGridviewPhotos;
     private ArrayList<Uri> mPhotoUris;
@@ -72,7 +63,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         checkForExternalStoragePermission();
 
         //Data
-        getDatabaseReference();
+        // getDatabaseReference();
         setImageAdapter();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -101,14 +92,14 @@ public class WishGalleryActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        detachReadDatabaseListener();
+        // detachReadDatabaseListener();
         mPhotoUris.clear();
     }
 
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        attachDatabaseReadListener();
+        // attachDatabaseReadListener();
     }
 
     @Override
@@ -142,7 +133,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             galleryAddPic();
-            firebaseAddPicUri();
+            // firebaseAddPicUri();
         }
     }
 
@@ -161,9 +152,11 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
     }
 
+    /*
     private void getDatabaseReference() {
         mPhotoGalleryDatabaseReference = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child(Constants.key_db_reference_photogallery);
     }
+    */
 
     private void setImageAdapter() {
         mGridviewPhotos = (GridView) findViewById(R.id.gridview_wishgallery);
@@ -225,6 +218,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         this.sendBroadcast(mediaScanIntent);
     }
 
+    /*
     private void firebaseAddPicUri() {
         mPhotoGalleryDatabaseReference.push().setValue(mCurrentPhotoPath);
     }
@@ -271,6 +265,7 @@ public class WishGalleryActivity extends AppCompatActivity {
             mChildEventListener = null;
         }
     }
+    */
 
     private void writeToFile(String data,Context context) {
         try {
