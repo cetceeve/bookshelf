@@ -6,10 +6,11 @@ public class Constants {
     public static final String key_db_reference_booklistnames = "booklistnames";
     public static final String key_db_reference_books_read = "books_read";
     public static final String key_db_reference_books_total = "books_total";
-    public static final String key_db_reference_photogallery = "photogallery";
+
     public static final String key_intent_booklistname = "booklistname";
     public static final String key_intent_booklistkey = "booklistkey";
     public static final String key_intent_book = "book";
     public static final String key_intent_isbn = "isbn";
-    public static final String key_intent_bookdeletionlistener = "bookdeletionlistener";
+
+    public static final String event_deleted_book = "deleted_book_event";
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,7 +20,6 @@ import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Achievement;
 import com.example.fzeih.bookshelf.datastructures.Book;
-import com.example.fzeih.bookshelf.datastructures.DeletedBookHolder;
 import com.example.fzeih.bookshelf.listener.AchievementServiceCallback;
 import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.google.firebase.auth.FirebaseAuth;
@@ -228,8 +228,9 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
 
         DatabaseService.getInstance().getBookService().decrementTotalNumOfBooks();
 
-        DeletedBookHolder.setDeletedBook(mBook);
-        DeletedBookHolder.setDeletedBookDatabaseReference(mBookDatabaseReference);
+        Intent deletedBookIntent = new Intent(Constants.event_deleted_book);
+        deletedBookIntent.putExtra(Constants.key_intent_book, mBook);
+        LocalBroadcastManager.getInstance(this).sendBroadcastSync(deletedBookIntent);
 
         finish();
     }
