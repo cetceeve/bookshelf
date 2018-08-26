@@ -3,13 +3,13 @@ package com.example.fzeih.bookshelf.database_service;
 import android.content.Context;
 
 public class DatabaseService {
-    private static final DatabaseService ourInstance = new DatabaseService();
-    private static boolean isStarted = false;
-    private static AchievementService achievementService;
-    private static BookService bookService;
+    private static final DatabaseService INSTANCE = new DatabaseService();
+    private boolean isStarted = false;
+    private AchievementService achievementService;
+    private BookService bookService;
 
     public static DatabaseService getInstance() {
-        return ourInstance;
+        return INSTANCE;
     }
 
     private DatabaseService() {
