@@ -9,7 +9,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
@@ -23,18 +22,17 @@ import com.example.fzeih.bookshelf.adapter.AchievementAdapter;
 import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Achievement;
 import com.example.fzeih.bookshelf.fragments.NetworkFragment;
-import com.example.fzeih.bookshelf.listener.AchievementServiceCallback;
 import com.example.fzeih.bookshelf.listener.DownloadCallback;
-import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.example.fzeih.bookshelf.listener.NetworkFragmentCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback, AchievementServiceCallback {
+public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback {
     private BroadcastReceiver mTotalNumOfBooksChangedBroadcastReceiver;
     private BroadcastReceiver mNumOfReadBooksChangedBroadcastReceiver;
+
     private FirebaseUser mUser;
 
     private AchievementAdapter mAchievementAdapter;
@@ -56,9 +54,11 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         getSupportActionBar().setTitle("User Profile");
         getSupportActionBar().setElevation(0);
 
+        // Broadcast Receiver
         initTotalNumOfBooksChangedBroadcastReceiver();
         initNumOfReadBooksChangedBroadcastReceiver();
 
+        // data
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         mNetworkFragment = NetworkFragment.getInstance(getSupportFragmentManager());
 
@@ -67,9 +67,6 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         setTotalNumOfBooks();
         setNumOfReadBooks();
         setAchievementAdapter();
-
-        // register as listener
-        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     @Override
@@ -83,12 +80,6 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mTotalNumOfBooksChangedBroadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mNumOfReadBooksChangedBroadcastReceiver);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        ListenerAdministrator.getInstance().removeListener(this);
     }
 
     @Override
@@ -122,6 +113,7 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
                     String string = "You read " + Long.toString(numOfReadBooks) + " books.";
                     mNumOfReadBooksTextView.setText(string);
                 }
+                mAchievementAdapter.notifyDataSetChanged();
             }
         };
     }
@@ -159,19 +151,6 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         ArrayList<Achievement> achievements = DatabaseService.getInstance().getAchievementService().getAchievementList();
         mAchievementAdapter = new AchievementAdapter(this, R.layout.achievement, achievements);
         mAchievementListView.setAdapter(mAchievementAdapter);
-    }
-
-    @Override
-    public void onNumOfReadBooksChanged(@NonNull Long numOfReadBooks) {
-        /*
-        String string = "You read " + Long.toString(numOfReadBooks) + " books.";
-        mNumOfReadBooksTextView.setText(string);
-        */
-    }
-
-    @Override
-    public void onAchievementChanged(Achievement highestAchievement) {
-        mAchievementAdapter.notifyDataSetChanged();
     }
 
     @Override
