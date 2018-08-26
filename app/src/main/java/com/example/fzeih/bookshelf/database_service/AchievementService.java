@@ -1,7 +1,9 @@
 package com.example.fzeih.bookshelf.database_service;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.example.fzeih.bookshelf.Constants;
 import com.example.fzeih.bookshelf.R;
@@ -51,10 +53,15 @@ public class AchievementService {
 
                 checkForAchievementChange();
 
+                /*
                 Object[] listeners = ListenerAdministrator.getInstance().getListener(AchievementServiceCallback.class);
                 for (Object listener : listeners) {
                     ((AchievementServiceCallback) listener).onNumOfReadBooksChanged(mNumOfReadBooks);
                 }
+                */
+                Intent numOfReadBooksIntent = new Intent(Constants.event_numOfReadBooks_changed);
+                numOfReadBooksIntent.putExtra(Constants.key_intent_numOfReadBooks, mNumOfReadBooks);
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(numOfReadBooksIntent);
             }
 
             @Override

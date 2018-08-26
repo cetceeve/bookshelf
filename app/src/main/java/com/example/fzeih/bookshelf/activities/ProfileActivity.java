@@ -34,6 +34,7 @@ import java.util.ArrayList;
 
 public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback, AchievementServiceCallback {
     private BroadcastReceiver mTotalNumOfBooksChangedBroadcastReceiver;
+    private BroadcastReceiver mNumOfReadBooksChangedBroadcastReceiver;
     private FirebaseUser mUser;
 
     private AchievementAdapter mAchievementAdapter;
@@ -55,7 +56,8 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         getSupportActionBar().setTitle("User Profile");
         getSupportActionBar().setElevation(0);
 
-        initBookDeletionBroadcastReceiver();
+        initTotalNumOfBooksChangedBroadcastReceiver();
+        initNumOfReadBooksChangedBroadcastReceiver();
 
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         mNetworkFragment = NetworkFragment.getInstance(getSupportFragmentManager());
@@ -80,6 +82,7 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mTotalNumOfBooksChangedBroadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mNumOfReadBooksChangedBroadcastReceiver);
     }
 
     @Override
@@ -92,9 +95,10 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     protected void onPostResume() {
         super.onPostResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mTotalNumOfBooksChangedBroadcastReceiver, new IntentFilter(Constants.event_totalNumOfBooks_changed));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mNumOfReadBooksChangedBroadcastReceiver, new IntentFilter(Constants.event_numOfReadBooks_changed));
     }
 
-    private void initBookDeletionBroadcastReceiver() {
+    private void initTotalNumOfBooksChangedBroadcastReceiver() {
         mTotalNumOfBooksChangedBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -103,6 +107,20 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
                     Long totalNumOfBooks = extras.getLong(Constants.key_intent_totalNumOfBooks);
                     String string = "You have " + Long.toString(totalNumOfBooks) + " books.";
                     mTotalNumOfBooksTextView.setText(string);
+                }
+            }
+        };
+    }
+
+    private void initNumOfReadBooksChangedBroadcastReceiver() {
+        mNumOfReadBooksChangedBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    Long numOfReadBooks = extras.getLong(Constants.key_intent_numOfReadBooks);
+                    String string = "You read " + Long.toString(numOfReadBooks) + " books.";
+                    mNumOfReadBooksTextView.setText(string);
                 }
             }
         };
@@ -145,8 +163,10 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
 
     @Override
     public void onNumOfReadBooksChanged(@NonNull Long numOfReadBooks) {
+        /*
         String string = "You read " + Long.toString(numOfReadBooks) + " books.";
         mNumOfReadBooksTextView.setText(string);
+        */
     }
 
     @Override

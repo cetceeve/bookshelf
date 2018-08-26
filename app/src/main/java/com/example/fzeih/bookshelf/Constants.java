@@ -12,7 +12,9 @@ public class Constants {
     public static final String key_intent_book = "book";
     public static final String key_intent_isbn = "isbn";
     public static final String key_intent_totalNumOfBooks = "total_num_of_books";
+    public static final String key_intent_numOfReadBooks = "num_of_read_books";
 
     public static final String event_book_deletion = "book_deletion";
     public static final String event_totalNumOfBooks_changed = "totalNumOfBooks_changed";
+    public static final String event_numOfReadBooks_changed = "numOfReadBooks_changed";
 }
