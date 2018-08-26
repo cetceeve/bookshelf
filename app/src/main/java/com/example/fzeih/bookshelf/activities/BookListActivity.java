@@ -19,12 +19,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.Constants;
-import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.adapter.BookAdapter;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Book;
-import com.example.fzeih.bookshelf.listener.BookDeletionCallback;
-import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
+import com.example.fzeih.bookshelf.datastructures.DeletedBookHolder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -40,7 +39,7 @@ import java.util.List;
 import io.github.yavski.fabspeeddial.FabSpeedDial;
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
 
-public class BookListActivity extends AppCompatActivity implements BookDeletionCallback {
+public class BookListActivity extends AppCompatActivity {
 
     private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListNameDatabaseReference;
@@ -74,9 +73,9 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
 
         // Listeners
         FabSpeedDial fabSpeedDial = (FabSpeedDial) findViewById(R.id.fab_speeddial);
-        fabSpeedDial.setMenuListener(new SimpleMenuListenerAdapter(){
+        fabSpeedDial.setMenuListener(new SimpleMenuListenerAdapter() {
             @Override
-            public boolean onMenuItemSelected(MenuItem menuItem){
+            public boolean onMenuItemSelected(MenuItem menuItem) {
                 onMenuItemClicked(menuItem.getItemId());
                 return false;
             }
@@ -87,13 +86,10 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
                 startDisplayBookActivity(position);
             }
         });
-
-        // register as listener
-        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     private void onMenuItemClicked(int itemId) {
-        switch (itemId){
+        switch (itemId) {
             case R.id.fab_action_manually:
                 // start AddBookActivity
                 Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
@@ -145,12 +141,6 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        ListenerAdministrator.getInstance().removeListener(this);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         detachBookListDatabaseReadListener();
@@ -163,6 +153,7 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
         super.onPostResume();
         attachBookListDatabaseReadListener();
         attachListNameDatabaseReadListener();
+        checkForDeletedBook();
     }
 
     private void readIntent() {
@@ -346,10 +337,15 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
         deleteConfirmationDialog.show();
     }
 
-    @Override
-    public void bookDeleted(DatabaseReference deletedBookDatabaseReference, Book deletedBook) {
-        Snackbar.make(mBookListView, "Book deleted!", Snackbar.LENGTH_LONG)
-                .setAction("Undo", new UndoBookDeletionListener(deletedBookDatabaseReference, deletedBook)).show();
+    private void checkForDeletedBook() {
+        Book deletedBook = DeletedBookHolder.getDeletedBook();
+        if (deletedBook != null) {
+            DatabaseReference deletedBookDatabaseReference = DeletedBookHolder.getDeletedBookDatabaseReference();
+            if (deletedBookDatabaseReference != null) {
+                Snackbar.make(mBookListView, "Book deleted!", Snackbar.LENGTH_LONG)
+                        .setAction("Undo", new UndoBookDeletionListener(deletedBookDatabaseReference, deletedBook)).show();
+            }
+        }
     }
 
     private class UndoBookDeletionListener implements View.OnClickListener {

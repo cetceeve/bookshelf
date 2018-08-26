@@ -2,11 +2,9 @@ package com.example.fzeih.bookshelf.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,12 +15,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.Constants;
-import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Achievement;
 import com.example.fzeih.bookshelf.datastructures.Book;
+import com.example.fzeih.bookshelf.datastructures.DeletedBookHolder;
 import com.example.fzeih.bookshelf.listener.AchievementServiceCallback;
-import com.example.fzeih.bookshelf.listener.BookDeletionCallback;
 import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -213,7 +211,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                showDeleteConfirmationSnackbar();
+                deleteBook();
                 return true;
             case R.id.action_edit:
                 startEditBookActivity();
@@ -224,15 +222,15 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         }
     }
 
-    private void showDeleteConfirmationSnackbar() {
+    private void deleteBook() {
         detachBookDatabaseReadListener();
         mBookDatabaseReference.removeValue();
+
         DatabaseService.getInstance().getBookService().decrementTotalNumOfBooks();
-        // inform listeners
-        Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionCallback.class);
-        for (Object listener: bookDeletionListeners) {
-            ((BookDeletionCallback) listener).bookDeleted(mBookDatabaseReference, mBook);
-        }
+
+        DeletedBookHolder.setDeletedBook(mBook);
+        DeletedBookHolder.setDeletedBookDatabaseReference(mBookDatabaseReference);
+
         finish();
     }
 
