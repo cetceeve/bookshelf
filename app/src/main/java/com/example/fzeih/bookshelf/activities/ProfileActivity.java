@@ -1,25 +1,29 @@
 package com.example.fzeih.bookshelf.activities;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.fzeih.bookshelf.database_service.DatabaseService;
-import com.example.fzeih.bookshelf.fragments.NetworkFragment;
+import com.example.fzeih.bookshelf.Constants;
 import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.adapter.AchievementAdapter;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Achievement;
+import com.example.fzeih.bookshelf.fragments.NetworkFragment;
 import com.example.fzeih.bookshelf.listener.AchievementServiceCallback;
-import com.example.fzeih.bookshelf.listener.BookServiceCallback;
 import com.example.fzeih.bookshelf.listener.DownloadCallback;
 import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.example.fzeih.bookshelf.listener.NetworkFragmentCallback;
@@ -28,7 +32,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback, AchievementServiceCallback, BookServiceCallback {
+public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback, AchievementServiceCallback {
+    private BroadcastReceiver mTotalNumOfBooksChangedBroadcastReceiver;
     private FirebaseUser mUser;
 
     private AchievementAdapter mAchievementAdapter;
@@ -50,6 +55,8 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         getSupportActionBar().setTitle("User Profile");
         getSupportActionBar().setElevation(0);
 
+        initBookDeletionBroadcastReceiver();
+
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         mNetworkFragment = NetworkFragment.getInstance(getSupportFragmentManager());
 
@@ -70,9 +77,35 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mTotalNumOfBooksChangedBroadcastReceiver);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         ListenerAdministrator.getInstance().removeListener(this);
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mTotalNumOfBooksChangedBroadcastReceiver, new IntentFilter(Constants.event_totalNumOfBooks_changed));
+    }
+
+    private void initBookDeletionBroadcastReceiver() {
+        mTotalNumOfBooksChangedBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    Long totalNumOfBooks = extras.getLong(Constants.key_intent_totalNumOfBooks);
+                    String string = "You have " + Long.toString(totalNumOfBooks) + " books.";
+                    mTotalNumOfBooksTextView.setText(string);
+                }
+            }
+        };
     }
 
     private void initViews() {
@@ -105,15 +138,9 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
     }
 
     private void setAchievementAdapter() {
-        ArrayList<Achievement> achievements = DatabaseService.getInstance().getAchievementService().getAchievementList(this);
+        ArrayList<Achievement> achievements = DatabaseService.getInstance().getAchievementService().getAchievementList();
         mAchievementAdapter = new AchievementAdapter(this, R.layout.achievement, achievements);
         mAchievementListView.setAdapter(mAchievementAdapter);
-    }
-
-    @Override
-    public void onTotalNumOfBooksChanged(@NonNull Long totalNumOfBooks) {
-        String string = "You have " + Long.toString(totalNumOfBooks) + " books.";
-        mTotalNumOfBooksTextView.setText(string);
     }
 
     @Override

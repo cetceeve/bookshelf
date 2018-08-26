@@ -1,10 +1,11 @@
 package com.example.fzeih.bookshelf.database_service;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.example.fzeih.bookshelf.Constants;
-import com.example.fzeih.bookshelf.listener.BookServiceCallback;
-import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -14,11 +15,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class BookService {
+    private Context mContext;
     private DatabaseReference mTotalNumOfBooksDatabaseReference;
     private ValueEventListener mTotalNumOfBooksValueEventListener;
     private Long mTotalNumOfBooks = 0L;
 
-    BookService() {
+    BookService(Context context) {
+        mContext = context;
         getDatabaseReference();
         attachTotalNumOfBooksDatabaseReadListener();
     }
@@ -41,10 +44,9 @@ public class BookService {
                     mTotalNumOfBooks = 0L;
                 }
 
-                Object[] listeners = ListenerAdministrator.getInstance().getListener(BookServiceCallback.class);
-                for (Object listener : listeners) {
-                    ((BookServiceCallback) listener).onTotalNumOfBooksChanged(mTotalNumOfBooks);
-                }
+                Intent totalNumOfBooksIntent = new Intent(Constants.event_totalNumOfBooks_changed);
+                totalNumOfBooksIntent.putExtra(Constants.key_intent_totalNumOfBooks, mTotalNumOfBooks);
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(totalNumOfBooksIntent);
             }
 
             @Override

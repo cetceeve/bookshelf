@@ -17,18 +17,26 @@ public class DatabaseService {
 
     public void startServices(Context context) {
         if (!isStarted) {
-            achievementService = new AchievementService();
-            achievementService.getAchievementList(context);
-            bookService = new BookService();
+            achievementService = new AchievementService(context);
+            achievementService.getAchievementList();
+            bookService = new BookService(context);
             isStarted = true;
         }
     }
 
     public AchievementService getAchievementService() {
-        return achievementService;
+        if (isStarted) {
+            return achievementService;
+        } else {
+            return null;
+        }
     }
 
     public BookService getBookService() {
-        return bookService;
+        if (isStarted) {
+            return bookService;
+        } else {
+            return null;
+        }
     }
 }
