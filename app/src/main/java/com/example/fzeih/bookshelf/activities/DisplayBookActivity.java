@@ -228,9 +228,9 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
 
         DatabaseService.getInstance().getBookService().decrementTotalNumOfBooks();
 
-        Intent deletedBookIntent = new Intent(Constants.event_deleted_book);
-        deletedBookIntent.putExtra(Constants.key_intent_book, mBook);
-        LocalBroadcastManager.getInstance(this).sendBroadcastSync(deletedBookIntent);
+        Intent bookDeletionIntent = new Intent(Constants.event_book_deletion);
+        bookDeletionIntent.putExtra(Constants.key_intent_book, mBook);
+        LocalBroadcastManager.getInstance(this).sendBroadcastSync(bookDeletionIntent);
 
         finish();
     }

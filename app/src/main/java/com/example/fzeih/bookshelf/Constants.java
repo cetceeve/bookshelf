@@ -12,5 +12,5 @@ public class Constants {
     public static final String key_intent_book = "book";
     public static final String key_intent_isbn = "isbn";
 
-    public static final String event_deleted_book = "deleted_book_event";
+    public static final String event_book_deletion = "book_deletion";
 }

@@ -43,7 +43,7 @@ import io.github.yavski.fabspeeddial.FabSpeedDial;
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
 
 public class BookListActivity extends AppCompatActivity {
-    private BroadcastReceiver mDeletedBookBroadcastReceiver;
+    private BroadcastReceiver mBookDeletionBroadcastReceiver;
 
     private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListNameDatabaseReference;
@@ -74,7 +74,7 @@ public class BookListActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(mBookListName); // from intent
 
         // Broadcast Receiver
-        initDeletedBookBroadcastReceiver();
+        initBookDeletionBroadcastReceiver();
 
         // Data
         getDatabaseReference();
@@ -160,7 +160,7 @@ public class BookListActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mDeletedBookBroadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBookDeletionBroadcastReceiver);
     }
 
     @Override
@@ -168,7 +168,7 @@ public class BookListActivity extends AppCompatActivity {
         super.onPostResume();
         attachBookListDatabaseReadListener();
         attachListNameDatabaseReadListener();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mDeletedBookBroadcastReceiver, new IntentFilter(Constants.event_deleted_book));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBookDeletionBroadcastReceiver, new IntentFilter(Constants.event_book_deletion));
         checkForDeletedBook();
     }
 
@@ -181,8 +181,8 @@ public class BookListActivity extends AppCompatActivity {
         }
     }
 
-    private void initDeletedBookBroadcastReceiver() {
-        mDeletedBookBroadcastReceiver = new BroadcastReceiver() {
+    private void initBookDeletionBroadcastReceiver() {
+        mBookDeletionBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Bundle extras = intent.getExtras();
