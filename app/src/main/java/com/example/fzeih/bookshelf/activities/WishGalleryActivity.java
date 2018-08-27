@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -128,8 +129,8 @@ public class WishGalleryActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            galleryAddPic();
             saveImagePath();
+            galleryAddPic();
         }
     }
 
@@ -295,20 +296,52 @@ public class WishGalleryActivity extends AppCompatActivity {
         return res;
     }
 
-    public void deleteImage(String deleteImagePath) {
+    public void removeImageFromGridview(String deleteImagePath) {
         mImageAdapter.remove(deleteImagePath);
+        showUndoImageDeletionSnackbar(deleteImagePath);
+    }
 
+    private void showUndoImageDeletionSnackbar(final String deletedImagePath) {
+        Snackbar.make(mGridviewImages, R.string.snackbar_wishgallery_undo_image_deletion, Snackbar.LENGTH_LONG)
+                .setAction("Undo", new WishGalleryActivity.UndoImageDeletionListener(deletedImagePath))
+                .addCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
+                            deleteImage(deletedImagePath);
+                        }
+                    }
+                }).show();
+    }
+
+    private class UndoImageDeletionListener implements View.OnClickListener {
+        String mDeletedImagePath;
+
+        private UndoImageDeletionListener(String deletedImagePath) {
+            mDeletedImagePath = deletedImagePath;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mDeletedImagePath != null) {
+                mImageAdapter.add(mDeletedImagePath);
+            }
+        }
+    }
+
+    private void deleteImage(String deleteImagePath) {
         File deleteFile = new File(deleteImagePath);
         if (deleteFile.exists()) {
             if (deleteFile.delete()) {
-                System.out.println("image deleted");
                 removeFromGallery(deleteFile);
+                rewriteImagePathFile();
             } else {
-                System.out.println("image deleted");
+                Toast.makeText(WishGalleryActivity.this, "Error: Image could not be deleted!", Toast.LENGTH_LONG).show();
+                mImageAdapter.add(deleteImagePath);
             }
+        } else {
+            Toast.makeText(WishGalleryActivity.this, "Error: No File to delete!", Toast.LENGTH_LONG).show();
         }
-
-        rewriteImagePathFile();
     }
 
     private void removeFromGallery(File deleteFile) {

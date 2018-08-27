@@ -39,9 +39,7 @@ public class ImageAdapter extends ArrayAdapter<String> {
         deleteImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("******************************* clicked on: *********************************");
-                System.out.println("*******************************" + v.toString() + "*********************************");
-                ((WishGalleryActivity) mContext).deleteImage(pathname);
+                ((WishGalleryActivity) mContext).removeImageFromGridview(pathname);
             }
         });
 

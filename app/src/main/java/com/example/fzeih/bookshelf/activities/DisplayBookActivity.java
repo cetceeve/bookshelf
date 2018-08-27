@@ -230,10 +230,8 @@ public class DisplayBookActivity extends AppCompatActivity {
         mBookValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                System.out.println("************************* got called **************************");
                 mBook = dataSnapshot.getValue(Book.class);
                 if (mBook != null) {
-                    System.out.println("************************* updating **************************");
                     setBookData(mBook);
                 }
             }
