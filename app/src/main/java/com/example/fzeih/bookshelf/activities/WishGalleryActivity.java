@@ -1,10 +1,12 @@
 package com.example.fzeih.bookshelf.activities;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaScannerConnection;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,9 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.R;
@@ -43,7 +43,6 @@ public class WishGalleryActivity extends AppCompatActivity {
     private GridView mGridviewImages;
     private ArrayList<String> mImagePaths;
     private ImageAdapter mImageAdapter;
-    private ImageButton mDeleteImageButton;
 
     static final int REQUEST_TAKE_PHOTO = 1;
 
@@ -77,18 +76,6 @@ public class WishGalleryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dispatchTakePictureIntent();
-            }
-        });
-
-        mGridviewImages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                System.out.println("******************************* clicked on: *********************************");
-                System.out.println("*******************************" + view.toString() + "*********************************");
-                if (view == mDeleteImageButton) {
-                    System.out.println("******************************* start delete: *********************************");
-                    deleteImage(mImagePaths.get(position));
-                }
             }
         });
     }
@@ -162,7 +149,6 @@ public class WishGalleryActivity extends AppCompatActivity {
     }
 
     private void setImageAdapter() {
-        mDeleteImageButton = findViewById(R.id.wish_list_delete_image);
         mGridviewImages = (GridView) findViewById(R.id.gridview_wishgallery);
         mImagePaths = new ArrayList<>();
         mImageAdapter = new ImageAdapter(this, R.layout.view_image, mImagePaths);
@@ -309,18 +295,42 @@ public class WishGalleryActivity extends AppCompatActivity {
         return res;
     }
 
-    private void deleteImage(String deleteImagePath) {
+    public void deleteImage(String deleteImagePath) {
         mImageAdapter.remove(deleteImagePath);
-        removeFromGallery(deleteImagePath);
+
+        File deleteFile = new File(deleteImagePath);
+        if (deleteFile.exists()) {
+            if (deleteFile.delete()) {
+                System.out.println("image deleted");
+                removeFromGallery(deleteFile);
+            } else {
+                System.out.println("image deleted");
+            }
+        }
+
         rewriteImagePathFile();
     }
 
-    private void removeFromGallery(String deleteImagePath) {
-        MediaScannerConnection.scanFile(this, new String[]{Environment.getExternalStorageDirectory().toString()}, null, new MediaScannerConnection.OnScanCompletedListener() {
-            public void onScanCompleted(String path, Uri uri) {
-                Log.e("ExternalStorage", "Scanned " + path + ":");
-                Log.e("ExternalStorage", "-> uri=" + uri);
-            }
-        });
+    private void removeFromGallery(File deleteFile) {
+        // Set up the projection (we only need the ID)
+        String[] projection = { MediaStore.Images.Media._ID };
+
+        // Match on the file path
+        String selection = MediaStore.Images.Media.DATA + " = ?";
+        String[] selectionArgs = new String[] { deleteFile.getAbsolutePath() };
+
+        // Query for the ID of the media matching the file path
+        Uri queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+        ContentResolver contentResolver = getContentResolver();
+        Cursor c = contentResolver.query(queryUri, projection, selection, selectionArgs, null);
+        if (c.moveToFirst()) {
+            // We found the ID. Deleting the item via the content provider will also remove the file
+            long id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+            Uri deleteUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+            contentResolver.delete(deleteUri, null, null);
+        } else {
+            // File not found in media store DB
+        }
+        c.close();
     }
 }

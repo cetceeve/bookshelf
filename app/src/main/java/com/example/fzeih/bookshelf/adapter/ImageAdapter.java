@@ -8,15 +8,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.activities.WishGalleryActivity;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
 
 public class ImageAdapter extends ArrayAdapter<String> {
+    Context mContext;
 
     public ImageAdapter(Context context, int layoutResourceId, ArrayList<String> data) {
         super(context, layoutResourceId, data);
+        mContext = context;
     }
 
     @Override
@@ -26,10 +29,22 @@ public class ImageAdapter extends ArrayAdapter<String> {
         }
 
         ImageView imageView = convertView.findViewById(R.id.imageview_photo);
-        String pathname = getItem(position);
+        ImageView deleteImageButton = convertView.findViewById(R.id.wish_list_delete_image);
+
+        final String pathname = getItem(position);
         if (pathname != null) {
             Picasso.get().load(new File(pathname)).resize(360, 480).into(imageView);
         }
+
+        deleteImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("******************************* clicked on: *********************************");
+                System.out.println("*******************************" + v.toString() + "*********************************");
+                ((WishGalleryActivity) mContext).deleteImage(pathname);
+            }
+        });
+
         return convertView;
     }
 
