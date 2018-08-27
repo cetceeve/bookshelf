@@ -26,6 +26,8 @@ public class Achievement {
         return mLevel;
     }
 
+    public boolean getColored() { return mColored; }
+
     public boolean setColored() {
         if (!mColored) {
             mColored = true;

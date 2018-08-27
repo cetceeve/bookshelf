@@ -1,9 +1,12 @@
 package com.example.fzeih.bookshelf.adapter;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -21,6 +24,8 @@ public class BookListInformationAdapter extends ArrayAdapter<BookListInformation
         mResource = resource;
     }
 
+    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -29,6 +34,7 @@ public class BookListInformationAdapter extends ArrayAdapter<BookListInformation
         }
 
         TextView textView = convertView.findViewById(android.R.id.text1);
+        textView.setTextAppearance(android.R.style.TextAppearance_Material_Medium);
 
         BookListInformation bookListInformation = getItem(position);
         if (bookListInformation != null) {
