@@ -1,8 +1,6 @@
 package com.example.fzeih.bookshelf.fragments;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -12,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
 import com.example.fzeih.bookshelf.listener.DownloadCallback;
-import com.example.fzeih.bookshelf.listener.NetworkFragmentCallback;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,12 +21,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class NetworkFragment extends Fragment {
     public static final String TAG = "NetworkFragment";
-    public enum DOWNLOAD_RESULT_TYPE {
-        JSON,
-        BITMAP
-    }
 
-    private DOWNLOAD_RESULT_TYPE mDownloadResultType;
     private DownloadCallback mCallback;
     private DownloadTask mDownloadTask;
 
@@ -67,14 +59,6 @@ public class NetworkFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        if (getContext() != null) {
-            ((NetworkFragmentCallback) getContext()).onNetworkFragmentInitComplete();
-        }
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
         // Clear reference to host Activity to avoid memory leak.
@@ -88,9 +72,8 @@ public class NetworkFragment extends Fragment {
         super.onDestroy();
     }
 
-    public void prepareDownload(String urlString, DOWNLOAD_RESULT_TYPE downloadResultType) {
+    public void prepareDownload(String urlString) {
         mUrlString = urlString;
-        mDownloadResultType = downloadResultType;
     }
 
     /**
@@ -125,13 +108,8 @@ public class NetworkFragment extends Fragment {
          * This allows you to pass exceptions to the UI thread that were thrown during doInBackground().
          */
         class Result {
-            public Bitmap mResultBitmap;
             public String mResultString;
             public Exception mException;
-
-            public Result(Bitmap resultBitmap) {
-                mResultBitmap = resultBitmap;
-            }
 
             public Result(String resultString) {
                 mResultString = resultString;
@@ -171,11 +149,7 @@ public class NetworkFragment extends Fragment {
                     URL url = new URL(urlString);
                     Object res = downloadUrl(url);
                     if (res != null) {
-                        if (mDownloadResultType == DOWNLOAD_RESULT_TYPE.BITMAP) {
-                            result = new Result((Bitmap) res);
-                        } else {
-                            result = new Result((String) res);
-                        }
+                        result = new Result((String) res);
                     } else {
                         throw new IOException("No response received.");
                     }
@@ -196,8 +170,6 @@ public class NetworkFragment extends Fragment {
                     mCallback.updateFromDownload(result.mException);
                 } else if (result.mResultString != null) {
                     mCallback.updateFromDownload(result.mResultString);
-                } else if (result.mResultBitmap != null) {
-                    mCallback.updateFromDownload(result.mResultBitmap);
                 }
                 mCallback.finishDownloading();
             }
@@ -243,11 +215,7 @@ public class NetworkFragment extends Fragment {
                 publishProgress(DownloadCallback.Progress.GET_INPUT_STREAM_SUCCESS, 0);
                 if (stream != null) {
                     // Converts Stream to String
-                    if (mDownloadResultType == DOWNLOAD_RESULT_TYPE.BITMAP) {
-                        result = readStreamForBitmap(stream);
-                    } else {
-                        result = readStreamForString(stream);
-                    }
+                    result = readStreamForString(stream);
                 }
             } finally {
                 // Close Stream and disconnect HTTPS connection.
@@ -273,13 +241,6 @@ public class NetworkFragment extends Fragment {
                 buffer.append(line + "\n");
             }
             return buffer.toString();
-        }
-
-        /**
-         * Converts the contents of an InputStream to a Bitmap.
-         */
-        public Bitmap readStreamForBitmap(InputStream stream) {
-             return BitmapFactory.decodeStream(stream);
         }
     }
 }

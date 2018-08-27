@@ -15,12 +15,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.Constants;
-import com.example.fzeih.bookshelf.database_service.DatabaseService;
-import com.example.fzeih.bookshelf.fragments.NetworkFragment;
 import com.example.fzeih.bookshelf.R;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Book;
+import com.example.fzeih.bookshelf.fragments.NetworkFragment;
 import com.example.fzeih.bookshelf.listener.DownloadCallback;
-import com.example.fzeih.bookshelf.listener.NetworkFragmentCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -30,7 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback {
+public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback {
     //Parameter for URL
     private static final String BOOK_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
     private static final String QUERY_PARAM_ISBN = "q=isbn:";
@@ -160,7 +159,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void startDownload() {
         if (!mDownloading && mNetworkFragment != null) {
-            mNetworkFragment.prepareDownload(getQuery(), NetworkFragment.DOWNLOAD_RESULT_TYPE.JSON);
+            mNetworkFragment.prepareDownload(getQuery());
             // Execute the async download.
             mNetworkFragment.startDownload();
             mDownloading = true;
@@ -321,9 +320,5 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         if (mBookWasRead) {
             DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
         }
-    }
-
-    @Override
-    public void onNetworkFragmentInitComplete() {
     }
 }

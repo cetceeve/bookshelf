@@ -4,9 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -21,24 +18,19 @@ import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.adapter.AchievementAdapter;
 import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Achievement;
-import com.example.fzeih.bookshelf.fragments.NetworkFragment;
-import com.example.fzeih.bookshelf.listener.DownloadCallback;
-import com.example.fzeih.bookshelf.listener.NetworkFragmentCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class ProfileActivity extends AppCompatActivity implements DownloadCallback, NetworkFragmentCallback {
+public class ProfileActivity extends AppCompatActivity {
     private BroadcastReceiver mTotalNumOfBooksChangedBroadcastReceiver;
     private BroadcastReceiver mNumOfReadBooksChangedBroadcastReceiver;
 
     private FirebaseUser mUser;
 
     private AchievementAdapter mAchievementAdapter;
-
-    private NetworkFragment mNetworkFragment;
-    private boolean mDownloading = false;
 
     private ListView mAchievementListView;
     private TextView mTotalNumOfBooksTextView;
@@ -60,10 +52,10 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
 
         // data
         mUser = FirebaseAuth.getInstance().getCurrentUser();
-        mNetworkFragment = NetworkFragment.getInstance(getSupportFragmentManager());
 
         initViews();
         setUserName();
+        setUserPhoto();
         setTotalNumOfBooks();
         setNumOfReadBooks();
         setAchievementAdapter();
@@ -135,6 +127,18 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         }
     }
 
+    private void setUserPhoto() {
+        if (mUser != null) {
+            Uri userPhotoUrl = mUser.getPhotoUrl();
+            if (userPhotoUrl != null) {
+                Picasso.get().load(userPhotoUrl).placeholder(R.drawable.ic_launcher_foreground).into(mUserPhotoImageView);
+            }
+        } else {
+            Toast.makeText(ProfileActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
     private void setTotalNumOfBooks() {
         Long totalNumOfReadBooks = DatabaseService.getInstance().getBookService().getTotalNumOfBooks();
         String string = "You have " + Long.toString(totalNumOfReadBooks) + " books.";
@@ -151,76 +155,5 @@ public class ProfileActivity extends AppCompatActivity implements DownloadCallba
         ArrayList<Achievement> achievements = DatabaseService.getInstance().getAchievementService().getAchievementList();
         mAchievementAdapter = new AchievementAdapter(this, R.layout.achievement, achievements);
         mAchievementListView.setAdapter(mAchievementAdapter);
-    }
-
-    @Override
-    public void updateFromDownload(Object result) {
-        if (result instanceof Exception) {
-            Toast.makeText(ProfileActivity.this, result.toString(), Toast.LENGTH_LONG).show();
-        } else {
-            mUserPhotoImageView.setImageBitmap((Bitmap) result);
-        }
-    }
-
-    @Override
-    public NetworkInfo getActiveNetworkInfo() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return connectivityManager.getActiveNetworkInfo();
-    }
-
-    @Override
-    public void onProgressUpdate(int progressCode, int percentComplete) {
-        switch (progressCode) {
-            // You can add UI behavior for progress updates here.
-            case Progress.ERROR:
-                // ...
-                break;
-            case Progress.CONNECT_SUCCESS:
-                // ...
-                break;
-            case Progress.GET_INPUT_STREAM_SUCCESS:
-                // ...
-                break;
-            case Progress.PROCESS_INPUT_STREAM_IN_PROGRESS:
-                // ...
-                break;
-            case Progress.PROCESS_INPUT_STREAM_SUCCESS:
-                // ...
-                break;
-        }
-    }
-
-    @Override
-    public void finishDownloading() {
-        mDownloading = false;
-        if (mNetworkFragment != null) {
-            mNetworkFragment.cancelDownload();
-        }
-    }
-
-    @Override
-    public void onNetworkFragmentInitComplete() {
-        setUserPhoto();
-    }
-
-    private void setUserPhoto() {
-        if (mUser != null) {
-            Uri userPhotoUrl = mUser.getPhotoUrl();
-            if (userPhotoUrl != null) {
-                startDownload(userPhotoUrl.toString());
-            }
-        } else {
-            Toast.makeText(ProfileActivity.this, "ERROR: user is not signed in", Toast.LENGTH_SHORT).show();
-            finish();
-        }
-    }
-
-    private void startDownload(String url) {
-        if (!mDownloading && mNetworkFragment != null) {
-            mNetworkFragment.prepareDownload(url, NetworkFragment.DOWNLOAD_RESULT_TYPE.BITMAP);
-            // Execute the async download.
-            mNetworkFragment.startDownload();
-            mDownloading = true;
-        }
     }
 }
