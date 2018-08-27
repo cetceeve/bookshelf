@@ -43,7 +43,6 @@ public class DisplayBookActivity extends AppCompatActivity {
     private ImageView mCoverImageView;
     private TextView mTitleTextView, mAuthorNameTextView, mIsbnTextView, mPageNumTextView, mDescriptionTextView, mPublisherAndDateTextView, mIsbnTitleTextView, mPageTitleTextView, mDescriptionTitleTextView, mPublishedTitleTextView;
 
-
     private Switch mBookReadSwitch;
     private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener;
 
@@ -57,11 +56,11 @@ public class DisplayBookActivity extends AppCompatActivity {
         // Intent
         readIntent();
 
-        // Broadcast Receiver
-        initNewAchievementBroadcastReceiver();
-
         // Views
         initViews();
+
+        // Broadcast Receiver
+        initNewAchievementBroadcastReceiver();
 
         // Data
         setBookData(mBook);

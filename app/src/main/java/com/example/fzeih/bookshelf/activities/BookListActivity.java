@@ -73,12 +73,13 @@ public class BookListActivity extends AppCompatActivity {
         readIntent();
         getSupportActionBar().setTitle(mBookListName); // from intent
 
-        // Broadcast Receiver
-        initBookDeletionBroadcastReceiver();
 
         // Data
         getDatabaseReference();
         setBookAdapter();
+
+        // Broadcast Receiver
+        initBookDeletionBroadcastReceiver();
 
         // Listeners
         FabSpeedDial fabSpeedDial = (FabSpeedDial) findViewById(R.id.fab_speeddial);
@@ -169,7 +170,7 @@ public class BookListActivity extends AppCompatActivity {
         attachBookListDatabaseReadListener();
         attachListNameDatabaseReadListener();
         LocalBroadcastManager.getInstance(this).registerReceiver(mBookDeletionBroadcastReceiver, new IntentFilter(Constants.event_book_deletion));
-        checkForDeletedBook();
+        showUndoBookDeletionSnackbar();
     }
 
     private void readIntent() {
@@ -365,7 +366,7 @@ public class BookListActivity extends AppCompatActivity {
         deleteConfirmationDialog.show();
     }
 
-    private void checkForDeletedBook() {
+    private void showUndoBookDeletionSnackbar() {
         if (mDeletedBook != null) {
             Snackbar.make(mBookListView, "Book deleted!", Snackbar.LENGTH_LONG)
                     .setAction("Undo", new UndoBookDeletionListener(mDeletedBook))
