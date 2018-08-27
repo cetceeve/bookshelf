@@ -2,6 +2,7 @@ package com.example.fzeih.bookshelf.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.TestLooperManager;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -41,12 +42,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     private Book mBook;
 
     private ImageView mCoverImageView;
-    private TextView mTitleTextView;
-    private TextView mAuthorNameTextView;
-    private TextView mIsbnTextView;
-    private TextView mPageNumTextView;
-    private TextView mDescriptionTextView;
-    private TextView mPublischerAndDateTextView;
+    private TextView mTitleTextView, mAuthorNameTextView, mIsbnTextView, mPageNumTextView, mDescriptionTextView, mPublischerAndDateTextView, mIsbnTitleTextView, mPageTitleTextView, mDescriptionTitleTextView, mPublishedTitleTextView;
 
 
     private Switch mBookReadSwitch;
@@ -120,21 +116,53 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         mPublischerAndDateTextView = (TextView)findViewById(R.id.textView_publischer_and_date);
         mDescriptionTextView = (TextView) findViewById(R.id.textView_description);
         mBookReadSwitch = (Switch) findViewById(R.id.switch_book_read);
+        mIsbnTitleTextView = (TextView) findViewById(R.id.textView_ISBN_title);
+        mDescriptionTitleTextView = (TextView) findViewById(R.id.textView_description_title);
+        mPublishedTitleTextView = (TextView) findViewById(R.id.textView_published_title);
+        mPageTitleTextView = (TextView) findViewById(R.id.textView_pages_title);
     }
 
     private void setBookData() {
         if (mBook != null) {
-            if (!mBook.getCoverUrl().isEmpty()){
+            if (mBook.getCoverUrl().length() != 0){
                 Picasso.get().load(mBook.getCoverUrl()).into(mCoverImageView);
             } else {
                 mCoverImageView.setImageResource(R.drawable.ic_book);
             }
-            mTitleTextView.setText(mBook.getTitle());
-            mIsbnTextView.setText(mBook.getIsbn());
-            mPageNumTextView.setText(String.valueOf(mBook.getPages()));
-            mPublischerAndDateTextView.setText(mBook.getPublisherWithPublishedYear());
-            mDescriptionTextView.setText(mBook.getBookDescription());
-            mAuthorNameTextView.setText(mBook.getAuthor());
+            if (mBook.getTitle().length() != 0){
+                mTitleTextView.setText(mBook.getTitle());
+            } else {
+                mTitleTextView.setVisibility(View.GONE);
+            }
+            if (mBook.getIsbn().length() != 0){
+                mIsbnTextView.setText(mBook.getIsbn());
+            } else {
+                mIsbnTitleTextView.setVisibility(View.GONE);
+                mIsbnTextView.setVisibility(View.GONE);
+            }
+            if (mBook.getPages() != 0){
+                mPageNumTextView.setText(String.valueOf(mBook.getPages()));
+            } else {
+                mPageTitleTextView.setVisibility(View.GONE);
+                mPageNumTextView.setVisibility(View.GONE);
+            }
+            if (mBook.getPublisherWithPublishedYear().length() != 0){
+                mPublischerAndDateTextView.setText(mBook.getPublisherWithPublishedYear());
+            } else {
+                mPublishedTitleTextView.setVisibility(View.GONE);
+                mPublischerAndDateTextView.setVisibility(View.GONE);
+            }
+            if (mBook.getBookDescription().length() != 0){
+                mDescriptionTextView.setText(mBook.getBookDescription());
+            } else {
+                mDescriptionTitleTextView.setVisibility(View.GONE);
+                mDescriptionTextView.setVisibility(View.GONE);
+            }
+            if (mBook.getAuthor().length() != 0){
+                mAuthorNameTextView.setText(mBook.getAuthor());
+            } else {
+                mAuthorNameTextView.setVisibility(View.GONE);
+            }
             ;
 
             // move switch without triggering the onSwitchStateChangeListener

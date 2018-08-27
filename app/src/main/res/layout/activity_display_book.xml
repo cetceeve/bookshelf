@@ -17,7 +17,6 @@
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             >
 
             <ImageView
@@ -66,7 +65,7 @@
             android:paddingTop="16dp">
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/textView_ISBN_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ISBN:"
@@ -84,7 +83,7 @@
                 android:layout_marginStart="8dp"
                 android:textSize="18dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView2"
+                app:layout_constraintStart_toEndOf="@+id/textView_ISBN_title"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Switch
@@ -101,12 +100,13 @@
         </android.support.constraint.ConstraintLayout>
 
         <TextView
+            android:id="@+id/textView_published_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
+            android:text="Published:"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="20dp"
-            android:text="Published:" />
+            android:textSize="20dp" />
 
         <TextView
             android:id="@+id/textView_publischer_and_date"
@@ -115,12 +115,13 @@
             android:textSize="18dp" />
 
         <TextView
+            android:id="@+id/textView_description_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
+            android:text="Description:"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="20dp"
-            android:text="Description:" />
+            android:textSize="20dp" />
 
         <TextView
             android:id="@+id/textView_description"
@@ -132,17 +133,18 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="16dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingTop="16dp">
 
 
             <TextView
+                android:id="@+id/textView_pages_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dp"
+                android:text="Pages:"
                 android:textColor="@color/colorPrimaryDark"
-                android:textSize="20dp"
-                android:text="Pages:" />
+                android:textSize="20dp" />
 
             <TextView
                 android:id="@+id/textView_num_pages"

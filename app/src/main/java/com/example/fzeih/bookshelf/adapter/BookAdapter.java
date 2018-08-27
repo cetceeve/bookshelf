@@ -38,7 +38,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         Book mBook = getItem(position);
         if (mBook != null) {
-            if(!mBook.getCoverUrl().isEmpty()){
+            if(mBook.getCoverUrl().length() != 0){
                 Picasso.get().load(mBook.getCoverUrl()).into(coverImageView);
             } else {
                 coverImageView.setImageResource(R.drawable.ic_book);
