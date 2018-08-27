@@ -1,4 +1,4 @@
-package com.example.fzeih.bookshelf.fragments;
+package com.example.fzeih.bookshelf.network_fragment;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-
-import com.example.fzeih.bookshelf.listener.DownloadCallback;
 
 import java.io.BufferedReader;
 import java.io.IOException;
