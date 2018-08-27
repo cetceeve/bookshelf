@@ -41,7 +41,7 @@ public class DisplayBookActivity extends AppCompatActivity {
     private Book mBook;
 
     private ImageView mCoverImageView;
-    private TextView mTitleTextView, mAuthorNameTextView, mIsbnTextView, mPageNumTextView, mDescriptionTextView, mPublischerAndDateTextView, mIsbnTitleTextView, mPageTitleTextView, mDescriptionTitleTextView, mPublishedTitleTextView;
+    private TextView mTitleTextView, mAuthorNameTextView, mIsbnTextView, mPageNumTextView, mDescriptionTextView, mPublisherAndDateTextView, mIsbnTitleTextView, mPageTitleTextView, mDescriptionTitleTextView, mPublishedTitleTextView;
 
 
     private Switch mBookReadSwitch;
@@ -64,7 +64,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         initViews();
 
         // Data
-        setBookData();
+        setBookData(mBook);
         getDatabaseReference();
     }
 
@@ -131,7 +131,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
         mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
         mPageNumTextView = (TextView) findViewById(R.id.textView_num_pages);
-        mPublischerAndDateTextView = (TextView)findViewById(R.id.textView_publischer_and_date);
+        mPublisherAndDateTextView = (TextView)findViewById(R.id.textView_publischer_and_date);
         mDescriptionTextView = (TextView) findViewById(R.id.textView_description);
         mBookReadSwitch = (Switch) findViewById(R.id.switch_book_read);
         mIsbnTitleTextView = (TextView) findViewById(R.id.textView_ISBN_title);
@@ -140,52 +140,61 @@ public class DisplayBookActivity extends AppCompatActivity {
         mPageTitleTextView = (TextView) findViewById(R.id.textView_pages_title);
     }
 
-    private void setBookData() {
-        if (mBook != null) {
-            if (mBook.getCoverUrl().length() != 0){
-                Picasso.get().load(mBook.getCoverUrl()).into(mCoverImageView);
+    private void setBookData(Book book) {
+        if (book != null) {
+            if (book.getCoverUrl().length() != 0){
+                Picasso.get().load(book.getCoverUrl()).into(mCoverImageView);
             } else {
                 mCoverImageView.setImageResource(R.drawable.ic_book);
             }
-            if (mBook.getTitle().length() != 0){
-                mTitleTextView.setText(mBook.getTitle());
+            if (book.getTitle().length() != 0){
+                mTitleTextView.setText(book.getTitle());
+                mTitleTextView.setVisibility(View.VISIBLE);
             } else {
                 mTitleTextView.setVisibility(View.GONE);
             }
-            if (mBook.getIsbn().length() != 0){
-                mIsbnTextView.setText(mBook.getIsbn());
+            if (book.getIsbn().length() != 0){
+                mIsbnTextView.setText(book.getIsbn());
+                mIsbnTitleTextView.setVisibility(View.VISIBLE);
+                mIsbnTextView.setVisibility(View.VISIBLE);
             } else {
                 mIsbnTitleTextView.setVisibility(View.GONE);
                 mIsbnTextView.setVisibility(View.GONE);
             }
-            if (mBook.getPages() != 0){
-                mPageNumTextView.setText(String.valueOf(mBook.getPages()));
+            if (book.getPages() != 0){
+                mPageNumTextView.setText(String.valueOf(book.getPages()));
+                mPageTitleTextView.setVisibility(View.VISIBLE);
+                mPageNumTextView.setVisibility(View.VISIBLE);
             } else {
                 mPageTitleTextView.setVisibility(View.GONE);
                 mPageNumTextView.setVisibility(View.GONE);
             }
-            if (mBook.getPublisherWithPublishedYear().length() != 0){
-                mPublischerAndDateTextView.setText(mBook.getPublisherWithPublishedYear());
+            if (book.getPublisherWithPublishedYear().length() != 0){
+                mPublisherAndDateTextView.setText(book.getPublisherWithPublishedYear());
+                mPublishedTitleTextView.setVisibility(View.VISIBLE);
+                mPublisherAndDateTextView.setVisibility(View.VISIBLE);
             } else {
                 mPublishedTitleTextView.setVisibility(View.GONE);
-                mPublischerAndDateTextView.setVisibility(View.GONE);
+                mPublisherAndDateTextView.setVisibility(View.GONE);
             }
-            if (mBook.getBookDescription().length() != 0){
-                mDescriptionTextView.setText(mBook.getBookDescription());
+            if (book.getBookDescription().length() != 0){
+                mDescriptionTextView.setText(book.getBookDescription());
+                mDescriptionTitleTextView.setVisibility(View.VISIBLE);
+                mDescriptionTextView.setVisibility(View.VISIBLE);
             } else {
                 mDescriptionTitleTextView.setVisibility(View.GONE);
                 mDescriptionTextView.setVisibility(View.GONE);
             }
-            if (mBook.getAuthor().length() != 0){
-                mAuthorNameTextView.setText(mBook.getAuthor());
+            if (book.getAuthor().length() != 0){
+                mAuthorNameTextView.setText(book.getAuthor());
+                mAuthorNameTextView.setVisibility(View.VISIBLE);
             } else {
                 mAuthorNameTextView.setVisibility(View.GONE);
             }
-            ;
 
             // move switch without triggering the onSwitchStateChangeListener
             detachSwitchStateChangeListener();
-            mBookReadSwitch.setChecked(mBook.getRead());
+            mBookReadSwitch.setChecked(book.getRead());
             attachSwitchStateChangeListener();
         } else {
             Toast.makeText(DisplayBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
@@ -221,9 +230,11 @@ public class DisplayBookActivity extends AppCompatActivity {
         mBookValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                System.out.println("************************* got called **************************");
                 mBook = dataSnapshot.getValue(Book.class);
                 if (mBook != null) {
-                    setBookData();
+                    System.out.println("************************* updating **************************");
+                    setBookData(mBook);
                 }
             }
 
