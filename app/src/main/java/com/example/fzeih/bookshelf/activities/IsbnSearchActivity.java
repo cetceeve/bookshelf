@@ -244,7 +244,6 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             for (int i = 0; i < itemsArray.length(); i++) {
                 JSONObject book = itemsArray.getJSONObject(i);
                 JSONObject volumeInfo = book.getJSONObject("volumeInfo");
-                JSONObject jsonImage = volumeInfo.getJSONObject("imageLinks");
 
                 mTitle = volumeInfo.getString("title");
                 mAuthor = cleanAuthorString(volumeInfo.getString("authors"));
@@ -274,6 +273,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
                     mDescription = "";
                 }
                 try {
+                    JSONObject jsonImage = volumeInfo.getJSONObject("imageLinks");
                     mCoverUrl = jsonImage.getString("thumbnail");
                 } catch (JSONException e){
                     e.printStackTrace();

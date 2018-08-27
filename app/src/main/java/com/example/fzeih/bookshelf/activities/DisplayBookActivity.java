@@ -1,13 +1,14 @@
 package com.example.fzeih.bookshelf.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.TestLooperManager;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,13 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.Constants;
-import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.R;
-import com.example.fzeih.bookshelf.datastructures.Achievement;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Book;
-import com.example.fzeih.bookshelf.listener.AchievementServiceCallback;
-import com.example.fzeih.bookshelf.listener.BookDeletionCallback;
-import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -34,7 +31,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-public class DisplayBookActivity extends AppCompatActivity implements AchievementServiceCallback {
+public class DisplayBookActivity extends AppCompatActivity {
+    private BroadcastReceiver mNewAchievementBroadcastReceiver;
+
     private DatabaseReference mBookDatabaseReference;
     private ValueEventListener mBookValueEventListener;
 
@@ -58,6 +57,9 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         // Intent
         readIntent();
 
+        // Broadcast Receiver
+        initNewAchievementBroadcastReceiver();
+
         // Views
         initViews();
 
@@ -77,7 +79,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         super.onPause();
         detachBookDatabaseReadListener();
         detachSwitchStateChangeListener();
-        ListenerAdministrator.getInstance().removeListener(this);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mNewAchievementBroadcastReceiver);
     }
 
     @Override
@@ -85,7 +87,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         super.onPostResume();
         attachBookDatabaseReadListener();
         attachSwitchStateChangeListener();
-        ListenerAdministrator.getInstance().registerListener(this);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mNewAchievementBroadcastReceiver, new IntentFilter(Constants.event_new_achievement));
     }
 
     private void readIntent() {
@@ -95,6 +97,22 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
             mBook = (Book) extras.get(Constants.key_intent_book);
             mBookListKey = extras.getString(Constants.key_intent_booklistkey);
         }
+    }
+
+    private void initNewAchievementBroadcastReceiver() {
+        mNewAchievementBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    String achievementText = extras.getString(Constants.key_intent_achievement_text);
+                    if (achievementText != null) {
+                        Snackbar.make(mBookReadSwitch, achievementText, Snackbar.LENGTH_LONG)
+                                .setAction("Show Profile", new ShowProfileListener()).show();
+                    }
+                }
+            }
+        };
     }
 
     private void getDatabaseReference() {
@@ -241,7 +259,7 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete:
-                showDeleteConfirmationSnackbar();
+                deleteBook();
                 return true;
             case R.id.action_edit:
                 startEditBookActivity();
@@ -252,28 +270,17 @@ public class DisplayBookActivity extends AppCompatActivity implements Achievemen
         }
     }
 
-    private void showDeleteConfirmationSnackbar() {
+    private void deleteBook() {
         detachBookDatabaseReadListener();
         mBookDatabaseReference.removeValue();
+
         DatabaseService.getInstance().getBookService().decrementTotalNumOfBooks();
-        // inform listeners
-        Object[] bookDeletionListeners = ListenerAdministrator.getInstance().getListener(BookDeletionCallback.class);
-        for (Object listener: bookDeletionListeners) {
-            ((BookDeletionCallback) listener).bookDeleted(mBookDatabaseReference, mBook);
-        }
+
+        Intent bookDeletionIntent = new Intent(Constants.event_book_deletion);
+        bookDeletionIntent.putExtra(Constants.key_intent_book, mBook);
+        LocalBroadcastManager.getInstance(this).sendBroadcastSync(bookDeletionIntent);
+
         finish();
-    }
-
-    @Override
-    public void onNumOfReadBooksChanged(@NonNull Long numOfReadBooks) {
-    }
-
-    @Override
-    public void onAchievementChanged(Achievement highestAchievement) {
-        if (highestAchievement!= null) {
-            Snackbar.make(mBookReadSwitch, highestAchievement.getAchievementText(), Snackbar.LENGTH_LONG)
-                    .setAction("Show Profile", new ShowProfileListener()).show();
-        }
     }
 
     private class ShowProfileListener implements View.OnClickListener{

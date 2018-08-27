@@ -1,11 +1,15 @@
 package com.example.fzeih.bookshelf.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -19,12 +23,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.Constants;
-import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.adapter.BookAdapter;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Book;
-import com.example.fzeih.bookshelf.listener.BookDeletionCallback;
-import com.example.fzeih.bookshelf.listener.ListenerAdministrator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -40,7 +42,8 @@ import java.util.List;
 import io.github.yavski.fabspeeddial.FabSpeedDial;
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
 
-public class BookListActivity extends AppCompatActivity implements BookDeletionCallback {
+public class BookListActivity extends AppCompatActivity {
+    private BroadcastReceiver mBookDeletionBroadcastReceiver;
 
     private DatabaseReference mBookListDatabaseReference;
     private DatabaseReference mListNameDatabaseReference;
@@ -55,6 +58,8 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
     private List<Book> mBooks;
     private BookAdapter mBookAdapter;
 
+    private Book mDeletedBook = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,15 +73,18 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
         readIntent();
         getSupportActionBar().setTitle(mBookListName); // from intent
 
+        // Broadcast Receiver
+        initBookDeletionBroadcastReceiver();
+
         // Data
         getDatabaseReference();
         setBookAdapter();
 
         // Listeners
         FabSpeedDial fabSpeedDial = (FabSpeedDial) findViewById(R.id.fab_speeddial);
-        fabSpeedDial.setMenuListener(new SimpleMenuListenerAdapter(){
+        fabSpeedDial.setMenuListener(new SimpleMenuListenerAdapter() {
             @Override
-            public boolean onMenuItemSelected(MenuItem menuItem){
+            public boolean onMenuItemSelected(MenuItem menuItem) {
                 onMenuItemClicked(menuItem.getItemId());
                 return false;
             }
@@ -87,13 +95,10 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
                 startDisplayBookActivity(position);
             }
         });
-
-        // register as listener
-        ListenerAdministrator.getInstance().registerListener(this);
     }
 
     private void onMenuItemClicked(int itemId) {
-        switch (itemId){
+        switch (itemId) {
             case R.id.fab_action_manually:
                 // start AddBookActivity
                 Intent addManuallyIntent = new Intent(BookListActivity.this, AddBookActivity.class);
@@ -145,12 +150,6 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        ListenerAdministrator.getInstance().removeListener(this);
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         detachBookListDatabaseReadListener();
@@ -159,10 +158,18 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBookDeletionBroadcastReceiver);
+    }
+
+    @Override
     protected void onPostResume() {
         super.onPostResume();
         attachBookListDatabaseReadListener();
         attachListNameDatabaseReadListener();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBookDeletionBroadcastReceiver, new IntentFilter(Constants.event_book_deletion));
+        checkForDeletedBook();
     }
 
     private void readIntent() {
@@ -172,6 +179,18 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
             mBookListName = extras.getString(Constants.key_intent_booklistname);
             mBookListKey = extras.getString(Constants.key_intent_booklistkey);
         }
+    }
+
+    private void initBookDeletionBroadcastReceiver() {
+        mBookDeletionBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    mDeletedBook = (Book) extras.get(Constants.key_intent_book);
+                }
+            }
+        };
     }
 
     private void getDatabaseReference() {
@@ -346,19 +365,26 @@ public class BookListActivity extends AppCompatActivity implements BookDeletionC
         deleteConfirmationDialog.show();
     }
 
-    @Override
-    public void bookDeleted(DatabaseReference deletedBookDatabaseReference, Book deletedBook) {
-        Snackbar.make(mBookListView, "Book deleted!", Snackbar.LENGTH_LONG)
-                .setAction("Undo", new UndoBookDeletionListener(deletedBookDatabaseReference, deletedBook)).show();
+    private void checkForDeletedBook() {
+        if (mDeletedBook != null) {
+            Snackbar.make(mBookListView, "Book deleted!", Snackbar.LENGTH_LONG)
+                    .setAction("Undo", new UndoBookDeletionListener(mDeletedBook))
+                    .addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onDismissed(Snackbar snackbar, int event) {
+                            mDeletedBook = null;
+                        }
+            }).show();
+        }
     }
 
     private class UndoBookDeletionListener implements View.OnClickListener {
         private Book deletedBook;
         private DatabaseReference deletedBookDatabaseReference;
 
-        private UndoBookDeletionListener(DatabaseReference deletedBookDatabaseReference, Book deletedBook) {
+        private UndoBookDeletionListener(@NonNull Book deletedBook) {
             this.deletedBook = deletedBook;
-            this.deletedBookDatabaseReference = deletedBookDatabaseReference;
+            this.deletedBookDatabaseReference = mBookListDatabaseReference.child(deletedBook.getKey());
         }
 
         @Override

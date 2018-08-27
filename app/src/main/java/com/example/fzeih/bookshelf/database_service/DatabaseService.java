@@ -3,13 +3,13 @@ package com.example.fzeih.bookshelf.database_service;
 import android.content.Context;
 
 public class DatabaseService {
-    private static final DatabaseService ourInstance = new DatabaseService();
-    private static boolean isStarted = false;
-    private static AchievementService achievementService;
-    private static BookService bookService;
+    private static final DatabaseService INSTANCE = new DatabaseService();
+    private boolean isStarted = false;
+    private AchievementService achievementService;
+    private BookService bookService;
 
     public static DatabaseService getInstance() {
-        return ourInstance;
+        return INSTANCE;
     }
 
     private DatabaseService() {
@@ -17,18 +17,26 @@ public class DatabaseService {
 
     public void startServices(Context context) {
         if (!isStarted) {
-            achievementService = new AchievementService();
-            achievementService.getAchievementList(context);
-            bookService = new BookService();
+            achievementService = new AchievementService(context);
+            achievementService.getAchievementList();
+            bookService = new BookService(context);
             isStarted = true;
         }
     }
 
     public AchievementService getAchievementService() {
-        return achievementService;
+        if (isStarted) {
+            return achievementService;
+        } else {
+            return null;
+        }
     }
 
     public BookService getBookService() {
-        return bookService;
+        if (isStarted) {
+            return bookService;
+        } else {
+            return null;
+        }
     }
 }
