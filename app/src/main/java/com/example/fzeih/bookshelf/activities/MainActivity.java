@@ -28,10 +28,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.Constants;
-import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.R;
-import com.example.fzeih.bookshelf.datastructures.BookListInformation;
 import com.example.fzeih.bookshelf.adapter.BookListInformationAdapter;
+import com.example.fzeih.bookshelf.database_service.DatabaseService;
+import com.example.fzeih.bookshelf.datastructures.BookListInformation;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -183,10 +183,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onPause() {
         super.onPause();
+        detachDatabaseReadListener();
         if (mAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         }
-        detachDatabaseReadListener();
         mBookListInformationAdapter.clear();
     }
 
@@ -201,10 +201,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initDatabase() {
-        if (mFirebaseDatabase == null) {
-            mFirebaseDatabase = FirebaseDatabase.getInstance();
-            // mFirebaseDatabase.setPersistenceEnabled(false); // causes most crash-bugs
-        }
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
     }
 
     private void setAdapter() {
@@ -282,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    for (BookListInformation bookListInformation: mBookListInformationArray) {
+                    for (BookListInformation bookListInformation : mBookListInformationArray) {
                         if (bookListInformation.getBookListKey().equals(dataSnapshot.getKey())) {
                             bookListInformation.setBookListName((String) dataSnapshot.getValue());
                             mBookListInformationAdapter.notifyDataSetChanged();
@@ -293,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                    for (BookListInformation bookListInformation: mBookListInformationArray) {
+                    for (BookListInformation bookListInformation : mBookListInformationArray) {
                         if (bookListInformation.getBookListKey().equals(dataSnapshot.getKey())) {
                             mBookListInformationAdapter.remove(bookListInformation);
                         }
