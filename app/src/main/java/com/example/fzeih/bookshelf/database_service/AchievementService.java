@@ -90,15 +90,13 @@ public class AchievementService {
     public ArrayList<Achievement> getAchievementList() {
         if (mAchievements == null) {
             mAchievements = new ArrayList<>();
-            mAchievements.add(new Achievement(mContext, 10, R.string.achievement_10, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
-            mAchievements.add(new Achievement(mContext, 25, R.string.achievement_25, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
-            mAchievements.add(new Achievement(mContext, 50, R.string.achievement_50, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
-            mAchievements.add(new Achievement(mContext, 100, R.string.achievement_100, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
-            mAchievements.add(new Achievement(mContext, 250, R.string.achievement_250, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
-            mAchievements.add(new Achievement(mContext, 500, R.string.achievement_500, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
-            mAchievements.add(new Achievement(mContext, 750, R.string.achievement_750, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
-            mAchievements.add(new Achievement(mContext, 1000, R.string.achievement_1000, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
-            mAchievements.add(new Achievement(mContext, 5000, R.string.achievement_5000, R.mipmap.ic_launcher_round, R.drawable.ic_barcode_scan));
+            mAchievements.add(new Achievement(mContext, 5, R.string.achievement_10, R.drawable.achievement_colored_5, R.drawable.achievement_grey_5));
+            mAchievements.add(new Achievement(mContext, 10, R.string.achievement_25, R.drawable.achievement_colored_10, R.drawable.achievement_grey_10));
+            mAchievements.add(new Achievement(mContext, 15, R.string.achievement_50, R.drawable.achievement_colored_15, R.drawable.achievement_grey_15));
+            mAchievements.add(new Achievement(mContext, 25, R.string.achievement_100, R.drawable.achievement_colored_25, R.drawable.achievement_grey_25));
+            mAchievements.add(new Achievement(mContext, 50, R.string.achievement_250, R.drawable.achievement_colored_50, R.drawable.achievement_grey_50));
+            mAchievements.add(new Achievement(mContext, 70, R.string.achievement_500, R.drawable.achievement_colored_70, R.drawable.achievement_grey_70));
+            mAchievements.add(new Achievement(mContext, 90, R.string.achievement_750, R.drawable.achievement_colored_90, R.drawable.achievement_grey_90));
         }
 
         if (mNumOfReadBooks != null) {
