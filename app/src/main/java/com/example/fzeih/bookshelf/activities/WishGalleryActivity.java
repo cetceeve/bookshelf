@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,7 +17,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.R;
@@ -40,6 +43,7 @@ public class WishGalleryActivity extends AppCompatActivity {
     private GridView mGridviewImages;
     private ArrayList<String> mImagePaths;
     private ImageAdapter mImageAdapter;
+    private ImageButton mDeleteImageButton;
 
     static final int REQUEST_TAKE_PHOTO = 1;
 
@@ -76,7 +80,17 @@ public class WishGalleryActivity extends AppCompatActivity {
             }
         });
 
-
+        mGridviewImages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                System.out.println("******************************* clicked on: *********************************");
+                System.out.println("*******************************" + view.toString() + "*********************************");
+                if (view == mDeleteImageButton) {
+                    System.out.println("******************************* start delete: *********************************");
+                    deleteImage(mImagePaths.get(position));
+                }
+            }
+        });
     }
 
     @Override
@@ -148,6 +162,7 @@ public class WishGalleryActivity extends AppCompatActivity {
     }
 
     private void setImageAdapter() {
+        mDeleteImageButton = findViewById(R.id.wish_list_delete_image);
         mGridviewImages = (GridView) findViewById(R.id.gridview_wishgallery);
         mImagePaths = new ArrayList<>();
         mImageAdapter = new ImageAdapter(this, R.layout.view_image, mImagePaths);
@@ -292,5 +307,20 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
 
         return res;
+    }
+
+    private void deleteImage(String deleteImagePath) {
+        mImageAdapter.remove(deleteImagePath);
+        removeFromGallery(deleteImagePath);
+        rewriteImagePathFile();
+    }
+
+    private void removeFromGallery(String deleteImagePath) {
+        MediaScannerConnection.scanFile(this, new String[]{Environment.getExternalStorageDirectory().toString()}, null, new MediaScannerConnection.OnScanCompletedListener() {
+            public void onScanCompleted(String path, Uri uri) {
+                Log.e("ExternalStorage", "Scanned " + path + ":");
+                Log.e("ExternalStorage", "-> uri=" + uri);
+            }
+        });
     }
 }
