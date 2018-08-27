@@ -190,7 +190,11 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     @Override
     public void updateFromDownload(Object result) {
-        if (result instanceof Exception) {
+        if (result == null) {
+            Toast.makeText(IsbnSearchActivity.this, "Error: Download Failed!", Toast.LENGTH_LONG).show();
+            return;
+        }
+         if (result instanceof Exception) {
             Toast.makeText(IsbnSearchActivity.this, result.toString(), Toast.LENGTH_LONG).show();
         } else {
             // Update UI based on result of download
@@ -250,32 +254,32 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
                 try {
                     mPublisher = volumeInfo.getString("publisher");
-                } catch (JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                     mPublisher = "";
                 }
                 try {
                     mPublishedYear = volumeInfo.getString("publishedDate").substring(0, 4);
-                } catch (JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                     mPublishedYear = "";
                 }
                 try {
                     mPages = volumeInfo.getInt("pageCount");
-                } catch (JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                     mPages = 0;
                 }
                 try {
                     mDescription = volumeInfo.getString("description");
-                } catch (JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                     mDescription = "";
                 }
                 try {
                     JSONObject jsonImage = volumeInfo.getJSONObject("imageLinks");
                     mCoverUrl = jsonImage.getString("thumbnail");
-                } catch (JSONException e){
+                } catch (JSONException e) {
                     e.printStackTrace();
                     mCoverUrl = "";
                 }
