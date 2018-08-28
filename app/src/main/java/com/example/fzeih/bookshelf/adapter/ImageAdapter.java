@@ -33,7 +33,7 @@ public class ImageAdapter extends ArrayAdapter<String> {
 
         final String pathname = getItem(position);
         if (pathname != null) {
-            Picasso.get().load(new File(pathname)).resize(360, 480).into(imageView);
+            Picasso.get().load(new File(pathname)).resize(480, 640).into(imageView);
         }
 
         deleteImageButton.setOnClickListener(new View.OnClickListener() {

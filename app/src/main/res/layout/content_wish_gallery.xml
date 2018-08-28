@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:layout_margin="8dp"
     tools:context=".activities.WishGalleryActivity"
     tools:showIn="@layout/activity_wish_gallery">
 
@@ -13,6 +12,7 @@
         android:id="@+id/gridview_wishgallery"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="8dp"
         android:verticalSpacing="8dp"
         android:horizontalSpacing="8dp"
         android:scrollbarStyle="outsideOverlay"

@@ -20,12 +20,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.99"
-            android:inputType="text"/>
+            android:inputType="number"/>
 
         <Button
             android:id="@+id/button_searchByIsbn"
-            android:layout_width="59dp"
-            android:layout_height="wrap_content"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_weight="0.01"
             android:background="@drawable/search_button" />
 
