@@ -41,7 +41,7 @@ public class WishGalleryActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
     private static final int PERMISSION_REQUEST_CAMERA = 2;
 
-    private GridView mGridviewImages;
+    private GridView mImageGridview;
     private ArrayList<String> mImagePaths;
     private ImageAdapter mImageAdapter;
 
@@ -60,7 +60,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Permissions
-        checkForCameraPermission();
         checkForExternalStoragePermission();
 
         //Data
@@ -76,7 +75,9 @@ public class WishGalleryActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dispatchTakePictureIntent();
+                if (checkForCameraPermission()) {
+                    dispatchTakePictureIntent();
+                }
             }
         });
     }
@@ -107,9 +108,8 @@ public class WishGalleryActivity extends AppCompatActivity {
                     // permission was granted
                 } else {
                     // permission denied
-                    // TODO: handle permission denied
-                    // Wunschliste dann nicht anbieten?
-                    Toast.makeText(WishGalleryActivity.this, "External storage permission denied", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mImageGridview, "Bookshelf needs External Storage Permission to safe your Images!", Snackbar.LENGTH_LONG)
+                            .setAction("Try Again", new WishGalleryActivity.ExternalStoragePermissionDeniedSnackbarListener()).show();
                 }
                 break;
             case PERMISSION_REQUEST_CAMERA:
@@ -117,9 +117,8 @@ public class WishGalleryActivity extends AppCompatActivity {
                     // permission was granted
                 } else {
                     // permission denied
-                    // TODO: handle permission denied
-                    // Wunschliste dann nicht anbieten?
-                    Toast.makeText(WishGalleryActivity.this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(mImageGridview, "Bookshelf needs Camera Permission to take Photos!", Snackbar.LENGTH_LONG)
+                            .setAction("Try Again", new WishGalleryActivity.CameraPermissionDeniedSnackbarListener()).show();
                 }
                 break;
         }
@@ -142,18 +141,20 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForCameraPermission() {
+    private boolean checkForCameraPermission() {
         if (ContextCompat.checkSelfPermission(WishGalleryActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // permission is not granted
             ActivityCompat.requestPermissions(WishGalleryActivity.this, new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
+            return false;
         }
+        return true;
     }
 
     private void setImageAdapter() {
-        mGridviewImages = (GridView) findViewById(R.id.gridview_wishgallery);
+        mImageGridview = (GridView) findViewById(R.id.gridview_wishgallery);
         mImagePaths = new ArrayList<>();
         mImageAdapter = new ImageAdapter(this, R.layout.view_image, mImagePaths);
-        mGridviewImages.setAdapter(mImageAdapter);
+        mImageGridview.setAdapter(mImageAdapter);
     }
 
     private void dispatchTakePictureIntent() {
@@ -302,7 +303,7 @@ public class WishGalleryActivity extends AppCompatActivity {
     }
 
     private void showUndoImageDeletionSnackbar(final String deletedImagePath) {
-        Snackbar.make(mGridviewImages, R.string.snackbar_wishgallery_undo_image_deletion, Snackbar.LENGTH_LONG)
+        Snackbar.make(mImageGridview, R.string.snackbar_wishgallery_undo_image_deletion, Snackbar.LENGTH_LONG)
                 .setAction("Undo", new WishGalleryActivity.UndoImageDeletionListener(deletedImagePath))
                 .addCallback(new Snackbar.Callback() {
                     @Override
@@ -365,5 +366,19 @@ public class WishGalleryActivity extends AppCompatActivity {
             // File not found in media store DB
         }
         c.close();
+    }
+
+    private class ExternalStoragePermissionDeniedSnackbarListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            checkForExternalStoragePermission();
+        }
+    }
+
+    private class CameraPermissionDeniedSnackbarListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            checkForCameraPermission();
+        }
     }
 }
