@@ -27,6 +27,7 @@
         android:layout_marginTop="8dp"
         android:contentDescription="@string/nav_header_desc"
         android:elevation="8dp"
+        android:outlineProvider="bounds"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
