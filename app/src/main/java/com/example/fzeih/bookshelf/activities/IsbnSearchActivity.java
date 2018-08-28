@@ -41,7 +41,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private EditText mIsbnEditText;
     private Button mSearchButton;
     private Button mAddResultButton;
-    private TextView mResultTextView;
+    private TextView mResultTitleTextView;
+    private TextView mResultAuthorTextView;
     private Switch mBookReadSwitch;
 
     private boolean mBookWasRead = false;
@@ -143,7 +144,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private void initViews() {
         mIsbnEditText = (EditText) findViewById(R.id.edittext_isbn);
         mSearchButton = (Button) findViewById(R.id.button_searchByIsbn);
-        mResultTextView = (TextView) findViewById(R.id.textView_result_isbnsearch);
+        mResultTitleTextView = (TextView) findViewById(R.id.textView_result_isbnsearch_title);
+        mResultAuthorTextView = (TextView) findViewById(R.id.textView_result_isbnsearch_author);
         mAddResultButton = (Button) findViewById(R.id.button_add_isbnsearch);
         mBookReadSwitch = findViewById(R.id.switch_book_read_isbn_search);
 
@@ -175,7 +177,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private void clearResults() {
         mTitle = null;
         mAuthor = null;
-        mResultTextView.setText(null);
+        mResultTitleTextView.setText(null);
+        mResultAuthorTextView.setText(null);
         mBookReadSwitch.setVisibility(View.INVISIBLE);
         mAddResultButton.setVisibility(View.INVISIBLE);
     }
@@ -198,8 +201,9 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         } else {
             // Update UI based on result of download
             if (getResults(result.toString())) {
-                String tempString = mTitle + "\n" + mAuthor;
-                mResultTextView.setText(tempString);
+                //String tempString = mTitle + "\n" + mAuthor;
+                mResultTitleTextView.setText(mTitle);
+                mResultAuthorTextView.setText(mAuthor);
                 mBookReadSwitch.setVisibility(View.VISIBLE);
                 mAddResultButton.setVisibility(View.VISIBLE);
             }
