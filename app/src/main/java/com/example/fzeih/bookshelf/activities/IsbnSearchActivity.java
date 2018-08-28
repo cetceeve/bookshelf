@@ -202,7 +202,13 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         } else {
             // Update UI based on result of download
             if (getResults(result.toString())) {
-                mResultTitleTextView.setText(mTitle + "\n" + mSubtitle);
+                if (mSubtitle.length() == 0) {
+                    mResultTitleTextView.setText(mTitle);
+                } else if (mTitle.length() == 0) {
+                    mResultTitleTextView.setText(mSubtitle);
+                } else {
+                    mResultTitleTextView.setText(mTitle + " - " + mSubtitle);
+                }
                 mResultAuthorTextView.setText(mAuthor);
                 mBookReadSwitch.setVisibility(View.VISIBLE);
                 mAddResultButton.setVisibility(View.VISIBLE);
