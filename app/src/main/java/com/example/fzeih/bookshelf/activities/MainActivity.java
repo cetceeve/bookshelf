@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setLogo(R.mipmap.ic_launcher_green);
+        getSupportActionBar().setLogo(R.mipmap.ic_launcher_red_round);
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Data
