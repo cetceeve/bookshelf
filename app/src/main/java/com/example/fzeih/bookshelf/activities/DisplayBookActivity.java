@@ -146,8 +146,8 @@ public class DisplayBookActivity extends AppCompatActivity {
             } else {
                 mCoverImageView.setImageResource(R.drawable.ic_book);
             }
-            if (book.getTitle().length() != 0){
-                mTitleTextView.setText(book.getTitle());
+            if (book.getTitleWithSubtitle().length() != 0){
+                mTitleTextView.setText(book.getTitleWithSubtitle());
                 mTitleTextView.setVisibility(View.VISIBLE);
             } else {
                 mTitleTextView.setVisibility(View.GONE);
@@ -205,11 +205,11 @@ public class DisplayBookActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b) {
-                    Book changedBook = new Book(mBook.getKey(), true, mBook.getCoverUrl(), mBook.getTitle(), mBook.getAuthor(), mBook.getIsbn(), mBook.getPublisher(), mBook.getPublishedYear(), mBook.getPages(), mBook.getBookDescription());
+                    Book changedBook = new Book(mBook.getKey(), true, mBook.getCoverUrl(), mBook.getTitle(), mBook.getSubtitle(), mBook.getAuthor(), mBook.getIsbn(), mBook.getPublisher(), mBook.getPublishedYear(), mBook.getPages(), mBook.getBookDescription());
                     mBookDatabaseReference.setValue(changedBook);
                     DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
                 } else {
-                    Book changedBook = new Book(mBook.getKey(), false, mBook.getCoverUrl(), mBook.getTitle(), mBook.getAuthor(), mBook.getIsbn(), mBook.getPublisher(), mBook.getPublishedYear(), mBook.getPages(), mBook.getBookDescription());
+                    Book changedBook = new Book(mBook.getKey(), false, mBook.getCoverUrl(), mBook.getTitle(), mBook.getSubtitle(), mBook.getAuthor(), mBook.getIsbn(), mBook.getPublisher(), mBook.getPublishedYear(), mBook.getPages(), mBook.getBookDescription());
                     mBookDatabaseReference.setValue(changedBook);
                     DatabaseService.getInstance().getAchievementService().decrementNumOfReadBooks();
                 }

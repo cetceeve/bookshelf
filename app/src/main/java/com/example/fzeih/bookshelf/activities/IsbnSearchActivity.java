@@ -54,6 +54,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     // Results of ISBN-Search
     private String mTitle;
+    private String mSubtitle;
     private String mAuthor;
     private String mPublisher;
     private String mPublishedYear;
@@ -252,6 +253,13 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
                 mAuthor = cleanAuthorString(volumeInfo.getString("authors"));
 
                 try {
+                    mSubtitle = volumeInfo.getString("subtitle");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    mSubtitle = "";
+                }
+
+                try {
                     mPublisher = volumeInfo.getString("publisher");
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -313,7 +321,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void uploadBookData() {
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
-        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, mCoverUrl, mTitle, mAuthor, mIsbn, mPublisher, mPublishedYear, mPages, mDescription);
+        Book bookItem = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, mCoverUrl, mTitle, mSubtitle, mAuthor, mIsbn, mPublisher, mPublishedYear, mPages, mDescription);
         nextBookDatabaseReference.setValue(bookItem);
 
         DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();

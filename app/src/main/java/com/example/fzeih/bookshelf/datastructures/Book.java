@@ -13,6 +13,7 @@ public class Book implements Parcelable {
     private boolean read = false;
     private String coverUrl;
     private String title;
+    private String subtitle;
     private String author;
     private String isbn;
     private String publisher;
@@ -23,12 +24,13 @@ public class Book implements Parcelable {
     public Book() {
     }
 
-    public Book(String key, boolean read, String coverUrl, String title, String author, String isbn,
+    public Book(String key, boolean read, String coverUrl, String title, String subtitle, String author, String isbn,
                 String publisher, String publishedYear, int pages, String bookDescription) {
         this.key = key;
         this.read = read;
         this.coverUrl = coverUrl;
         this.title = title;
+        this.subtitle = subtitle;
         this.author = author;
         this.isbn = isbn;
         this.publisher = publisher;
@@ -63,6 +65,25 @@ public class Book implements Parcelable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    @Exclude
+    public String getTitleWithSubtitle() {
+        if (subtitle.length() == 0) {
+            return title;
+        } else if (title.length() == 0) {
+            return subtitle;
+        } else {
+            return title + " - " + subtitle;
+        }
     }
 
     public String getAuthor() {
@@ -137,6 +158,7 @@ public class Book implements Parcelable {
         dest.writeByte(this.read ? (byte) 1 : (byte) 0);
         dest.writeString(this.coverUrl);
         dest.writeString(this.title);
+        dest.writeString(this.subtitle);
         dest.writeString(this.author);
         dest.writeString(this.isbn);
         dest.writeString(this.publisher);
@@ -150,6 +172,7 @@ public class Book implements Parcelable {
         this.read = in.readByte() != 0;
         this.coverUrl = in.readString();
         this.title = in.readString();
+        this.subtitle = in.readString();
         this.author = in.readString();
         this.isbn = in.readString();
         this.publisher = in.readString();

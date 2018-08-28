@@ -25,7 +25,7 @@
     <string name="dialog_title_internet_information">Information</string>
     <string name="dialog_message_internet_information">To use this App you need connection to the internet.</string>
     <!-- layouts -->
-    <string name="text_author_name">Author name:</string>
+    <string name="text_author_name">Author:</string>
     <string name="text_isbn">ISBN:</string>
     <string name="text_title">Title:</string>
     <string name="text_button_save_changes">Save Changes</string>
@@ -45,6 +45,8 @@
     <string name="action_settings">Settings</string>
     <string name="text_view_profile_amount_books">You have X books.</string>
     <string name="text_view_profile_read_books">You Read X books.</string>
+    <string name="text_subtitle">Subtitle:</string>
+
     <!-- Achievements -->
     <string name="achievement_10">Good Job! You are now officially a Bookworm!</string>
     <string name="achievement_25">Awesome! A wild Bookworm appears!</string>

@@ -43,7 +43,11 @@ public class BookAdapter extends ArrayAdapter<Book> {
             } else {
                 coverImageView.setImageResource(R.drawable.ic_book);
             }
-            titleTextView.setText(mBook.getTitle());
+            if (mBook.getSubtitle().length() != 0) {
+                titleTextView.setText(mBook.getSubtitle());
+            } else {
+                titleTextView.setText(mBook.getTitle());
+            }
             authorTextView.setText(mBook.getAuthor());
         }
         return convertView;

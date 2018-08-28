@@ -24,6 +24,7 @@ public class EditBookActivity extends AppCompatActivity {
     private String mBookListKey;
 
     private EditText mTitleEditText;
+    private EditText mSubtitleEditText;
     private EditText mAuthorEditText;
     private EditText mIsbnEditText;
     private EditText mPublisherEditText;
@@ -89,6 +90,7 @@ public class EditBookActivity extends AppCompatActivity {
         cl.setVisibility(View.GONE);
 
         mTitleEditText = findViewById(R.id.edit_text_add_edit_title);
+        mSubtitleEditText = findViewById(R.id.edit_text_add_edit_subtitle);
         mAuthorEditText = findViewById(R.id.edit_text_add_edit_author);
         mIsbnEditText = findViewById(R.id.edit_text_add_edit_isbn);
         mPublisherEditText = findViewById(R.id.edit_text_add_edit_publisher);
@@ -100,6 +102,7 @@ public class EditBookActivity extends AppCompatActivity {
     private void setBookData() {
         if (mBook != null) {
             mTitleEditText.setText(mBook.getTitle());
+            mSubtitleEditText.setText(mBook.getSubtitle());
             mAuthorEditText.setText(mBook.getAuthor());
             mIsbnEditText.setText(mBook.getIsbn());
             mPublisherEditText.setText(mBook.getPublisher());

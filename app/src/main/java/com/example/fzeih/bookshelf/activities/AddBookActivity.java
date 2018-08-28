@@ -31,6 +31,7 @@ public class AddBookActivity extends AppCompatActivity {
     private boolean mBookWasRead = false;
 
     private EditText mTitleEditText;
+    private EditText mSubtitleEditText;
     private EditText mAuthorEditText;
     private EditText mIsbnEditText;
     private EditText mPublisherEditText;
@@ -119,6 +120,7 @@ public class AddBookActivity extends AppCompatActivity {
         mBookReadSwitch = findViewById(R.id.switch_book_read_add_edit_book);
 
         mTitleEditText = findViewById(R.id.edit_text_add_edit_title);
+        mSubtitleEditText = findViewById(R.id.edit_text_add_edit_subtitle);
         mAuthorEditText = findViewById(R.id.edit_text_add_edit_author);
         mIsbnEditText = findViewById(R.id.edit_text_add_edit_isbn);
         mPublisherEditText = findViewById(R.id.edit_text_add_edit_publisher);
@@ -133,6 +135,7 @@ public class AddBookActivity extends AppCompatActivity {
     private void uploadUserInput() {
         // get user input
         String title = mTitleEditText.getText().toString();
+        String subtitle = mSubtitleEditText.getText().toString();
         String author = mAuthorEditText.getText().toString();
         String isbn = mIsbnEditText.getText().toString();
         String publisher = mPublisherEditText.getText().toString();
@@ -146,7 +149,7 @@ public class AddBookActivity extends AppCompatActivity {
 
         // upload data
         DatabaseReference nextBookDatabaseReference = mBookListDatabaseReference.push();
-        Book nextBook = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, "", title, author, isbn, publisher, publishedYear, pages, description);
+        Book nextBook = new Book(nextBookDatabaseReference.getKey(), mBookWasRead, "", title, subtitle, author, isbn, publisher, publishedYear, pages, description);
         nextBookDatabaseReference.setValue(nextBook);
 
         DatabaseService.getInstance().getBookService().incrementTotalNumOfBooks();

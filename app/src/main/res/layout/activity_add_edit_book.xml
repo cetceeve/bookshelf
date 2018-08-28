@@ -66,6 +66,23 @@
                 android:inputType="text" />
 
             <TextView
+                android:id="@+id/text_view_add_edit_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/text_subtitle"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="@dimen/textSize_editBook"/>
+
+            <EditText
+                android:id="@+id/edit_text_add_edit_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:inputType="text" />
+
+            <TextView
                 android:id="@+id/text_view_add_edit_author"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
