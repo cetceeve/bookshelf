@@ -38,16 +38,12 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         Book mBook = getItem(position);
         if (mBook != null) {
-            if(mBook.getCoverUrl().length() != 0){
+            if (mBook.getCoverUrl().length() != 0) {
                 Picasso.get().load(mBook.getCoverUrl()).into(coverImageView);
             } else {
                 coverImageView.setImageResource(R.drawable.ic_book);
             }
-            if (mBook.getSubtitle().length() != 0) {
-                titleTextView.setText(mBook.getSubtitle());
-            } else {
-                titleTextView.setText(mBook.getTitle());
-            }
+            titleTextView.setText(mBook.getTitle());
             authorTextView.setText(mBook.getAuthor());
         }
         return convertView;

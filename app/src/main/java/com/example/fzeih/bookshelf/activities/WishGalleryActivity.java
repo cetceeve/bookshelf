@@ -75,7 +75,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (checkForCameraPermission()) {
+                if (checkForCameraPermission() && checkForExternalStoragePermission()) {
                     dispatchTakePictureIntent();
                 }
             }
@@ -133,12 +133,13 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForExternalStoragePermission() {
+    private boolean checkForExternalStoragePermission() {
         if (ContextCompat.checkSelfPermission(WishGalleryActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // permission is not granted
             ActivityCompat.requestPermissions(WishGalleryActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
-
+            return false;
         }
+        return true;
     }
 
     private boolean checkForCameraPermission() {
@@ -297,14 +298,14 @@ public class WishGalleryActivity extends AppCompatActivity {
         return res;
     }
 
-    public void removeImageFromGridview(String deleteImagePath) {
+    public void removeImageFromGridview(String deleteImagePath, int position) {
         mImageAdapter.remove(deleteImagePath);
-        showUndoImageDeletionSnackbar(deleteImagePath);
+        showUndoImageDeletionSnackbar(deleteImagePath, position);
     }
 
-    private void showUndoImageDeletionSnackbar(final String deletedImagePath) {
+    private void showUndoImageDeletionSnackbar(final String deletedImagePath, int position) {
         Snackbar.make(mImageGridview, R.string.snackbar_wishgallery_undo_image_deletion, Snackbar.LENGTH_LONG)
-                .setAction("Undo", new WishGalleryActivity.UndoImageDeletionListener(deletedImagePath))
+                .setAction("Undo", new WishGalleryActivity.UndoImageDeletionListener(deletedImagePath, position))
                 .addCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
@@ -317,15 +318,18 @@ public class WishGalleryActivity extends AppCompatActivity {
 
     private class UndoImageDeletionListener implements View.OnClickListener {
         String mDeletedImagePath;
+        int mPosition;
 
-        private UndoImageDeletionListener(String deletedImagePath) {
+        private UndoImageDeletionListener(String deletedImagePath, int position) {
             mDeletedImagePath = deletedImagePath;
+            mPosition = position;
         }
 
         @Override
         public void onClick(View v) {
             if (mDeletedImagePath != null) {
-                mImageAdapter.add(mDeletedImagePath);
+                mImagePaths.add(mPosition, mDeletedImagePath);
+                mImageAdapter.notifyDataSetChanged();
             }
         }
     }
