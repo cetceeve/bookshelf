@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,8 +19,8 @@ import com.example.fzeih.bookshelf.Constants;
 import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.database_service.DatabaseService;
 import com.example.fzeih.bookshelf.datastructures.Book;
-import com.example.fzeih.bookshelf.network_fragment.NetworkFragment;
 import com.example.fzeih.bookshelf.network_fragment.DownloadCallback;
+import com.example.fzeih.bookshelf.network_fragment.NetworkFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -44,6 +45,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private TextView mResultTitleTextView;
     private TextView mResultAuthorTextView;
     private Switch mBookReadSwitch;
+    private ProgressBar mProgressBar;
 
     private boolean mBookWasRead = false;
 
@@ -149,6 +151,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mResultAuthorTextView = (TextView) findViewById(R.id.textView_result_isbnsearch_author);
         mAddResultButton = (Button) findViewById(R.id.button_add_isbnsearch);
         mBookReadSwitch = findViewById(R.id.switch_book_read_isbn_search);
+        mProgressBar = findViewById(R.id.progress_bar_isbn_search);
 
         // if called with input
         if (mIsbn != null) {
@@ -164,8 +167,9 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         if (!mDownloading && mNetworkFragment != null) {
             mNetworkFragment.prepareDownload(getQuery());
             // Execute the async download.
-            mNetworkFragment.startDownload();
             mDownloading = true;
+            mProgressBar.setVisibility(View.VISIBLE);
+            mNetworkFragment.startDownload();
         }
     }
 
@@ -194,6 +198,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     @Override
     public void updateFromDownload(Object result) {
         if (result == null) {
+            mDownloading = false;
+            mProgressBar.setVisibility(View.GONE);
             Toast.makeText(IsbnSearchActivity.this, "Error: Download Failed!", Toast.LENGTH_LONG).show();
             return;
         }
@@ -240,6 +246,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     @Override
     public void finishDownloading() {
+        mProgressBar.setVisibility(View.GONE);
         mDownloading = false;
         if (mNetworkFragment != null) {
             mNetworkFragment.cancelDownload();
