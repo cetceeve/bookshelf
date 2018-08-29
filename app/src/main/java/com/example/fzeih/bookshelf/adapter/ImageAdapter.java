@@ -23,7 +23,7 @@ public class ImageAdapter extends ArrayAdapter<String> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.view_image, parent, false);
         }
@@ -39,7 +39,7 @@ public class ImageAdapter extends ArrayAdapter<String> {
         deleteImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((WishGalleryActivity) mContext).removeImageFromGridview(pathname);
+                ((WishGalleryActivity) mContext).removeImageFromGridview(pathname, position);
             }
         });
 
