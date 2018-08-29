@@ -75,7 +75,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (checkForCameraPermission()) {
+                if (checkForCameraPermission() && checkForExternalStoragePermission()) {
                     dispatchTakePictureIntent();
                 }
             }
@@ -133,12 +133,13 @@ public class WishGalleryActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForExternalStoragePermission() {
+    private boolean checkForExternalStoragePermission() {
         if (ContextCompat.checkSelfPermission(WishGalleryActivity.this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // permission is not granted
             ActivityCompat.requestPermissions(WishGalleryActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_EXTERNAL_STORAGE);
-
+            return false;
         }
+        return true;
     }
 
     private boolean checkForCameraPermission() {
