@@ -89,12 +89,6 @@ public class WishGalleryActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        mImagePaths.clear();
-    }
-
-    @Override
     protected void onPostResume() {
         super.onPostResume();
         getImagePaths();
@@ -221,8 +215,11 @@ public class WishGalleryActivity extends AppCompatActivity {
         String[] imagePaths = pathString.split(",");
         for (String imagePath: imagePaths) {
             if (isExistingImagePath(imagePath)) {
-                mImageAdapter.add(imagePath);
+                if (!mImagePaths.contains(imagePath)) {
+                    mImageAdapter.add(imagePath);
+                }
             } else {
+                mImageAdapter.remove(imagePath);
                 deadImagePathFlag = true;
             }
         }

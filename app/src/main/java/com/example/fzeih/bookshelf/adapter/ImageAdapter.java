@@ -6,9 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.activities.WishGalleryActivity;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -28,12 +31,28 @@ public class ImageAdapter extends ArrayAdapter<String> {
             convertView = ((Activity) getContext()).getLayoutInflater().inflate(R.layout.view_image, parent, false);
         }
 
-        ImageView imageView = convertView.findViewById(R.id.imageview_photo);
-        ImageView deleteImageButton = convertView.findViewById(R.id.wish_list_delete_image);
+        final ImageView imageView = convertView.findViewById(R.id.imageview_photo);
+        final ImageView deleteImageButton = convertView.findViewById(R.id.wish_list_delete_image);
+        final ProgressBar progressBar = convertView.findViewById(R.id.progress_bar_image);
 
         final String pathname = getItem(position);
         if (pathname != null) {
-            Picasso.get().load(new File(pathname)).resize(480, 640).into(imageView);
+            Picasso.get().load(new File(pathname)).resize(480, 640).into(imageView, new Callback() {
+                @Override
+                public void onSuccess() {
+                    progressBar.setVisibility(View.GONE);
+                    imageView.setVisibility(View.VISIBLE);
+                    deleteImageButton.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    imageView.setVisibility(View.GONE);
+                    deleteImageButton.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(mContext, "Something went wrong during image load!", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         deleteImageButton.setOnClickListener(new View.OnClickListener() {

@@ -12,16 +12,15 @@
         android:id="@+id/gridview_wishgallery"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp"
-        android:verticalSpacing="8dp"
-        android:horizontalSpacing="8dp"
-        android:scrollbarStyle="outsideOverlay"
-        android:verticalScrollbarPosition="right"
-        android:scrollbars="vertical"
-        android:gravity="center"
-        android:numColumns="auto_fit"
         android:columnWidth="150dp"
+        android:gravity="center"
+        android:horizontalSpacing="8dp"
+        android:numColumns="auto_fit"
+        android:padding="8dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
         android:stretchMode="columnWidth"
-        />
+        android:verticalScrollbarPosition="right"
+        android:verticalSpacing="8dp" />
 
 </RelativeLayout>
