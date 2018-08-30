@@ -25,10 +25,6 @@ public class NetworkFragment extends Fragment {
 
     private String mUrlString;
 
-    /**
-     * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
-     * from.
-     */
     public static NetworkFragment getInstance(FragmentManager fragmentManager) {
         // Recover NetworkFragment in case we are re-creating the Activity due to a config change.
         // This is necessary because NetworkFragment might have a task that began running before
@@ -70,7 +66,7 @@ public class NetworkFragment extends Fragment {
         super.onDestroy();
     }
 
-    public void prepareDownload(String urlString) {
+    public void setDownloadUrl(String urlString) {
         mUrlString = urlString;
     }
 

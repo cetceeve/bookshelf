@@ -46,19 +46,18 @@ public class ProfileActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("User Profile");
         getSupportActionBar().setElevation(0);
 
-        // Broadcast Receiver
-        initTotalNumOfBooksChangedBroadcastReceiver();
-        initNumOfReadBooksChangedBroadcastReceiver();
-
         // data
         mUser = FirebaseAuth.getInstance().getCurrentUser();
-
         initViews();
         setUserName();
         setUserPhoto();
         setTotalNumOfBooks();
         setNumOfReadBooks();
         setAchievementAdapter();
+
+        // Broadcast Receiver
+        initTotalNumOfBooksChangedBroadcastReceiver();
+        initNumOfReadBooksChangedBroadcastReceiver();
     }
 
     @Override
@@ -105,6 +104,11 @@ public class ProfileActivity extends AppCompatActivity {
                     String string = "You read " + Long.toString(numOfReadBooks) + " books.";
                     mNumOfReadBooksTextView.setText(string);
                 }
+                /*
+                A change in numOfReadBooks could also mean that the achievements have changed.
+                If so, this was already done in the AchievementService and thanks to call by reference
+                we only need to check for a change here.
+                 */
                 mAchievementAdapter.notifyDataSetChanged();
             }
         };

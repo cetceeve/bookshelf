@@ -36,11 +36,17 @@ public class AchievementAdapter extends ArrayAdapter<Achievement> {
 
         Achievement achievement = getItem(position);
 
-        textView.setText(achievement.getAchievementText());
-        if (!achievement.getColored()) {
-            textView.setTextColor(parent.getContext().getResources().getColor(R.color.colorGrey));
+        if (achievement != null) {
+            textView.setText(achievement.getAchievementText());
+
+            if (!achievement.getColored()) {
+                textView.setTextColor(parent.getContext().getResources().getColor(R.color.colorGrey));
+            } else {
+                textView.setTextColor(parent.getContext().getResources().getColor(R.color.colorDarkGrey));
+            }
+
+            imageView.setImageDrawable(achievement.getDrawableResource());
         }
-        imageView.setImageDrawable(achievement.getDrawableResource());
 
         return convertView;
     }

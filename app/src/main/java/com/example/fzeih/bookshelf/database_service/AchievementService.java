@@ -21,7 +21,6 @@ import java.util.ArrayList;
 public class AchievementService {
     private Context mContext;
     private DatabaseReference mNumOfReadBooksDatabaseReference;
-    private ValueEventListener mNumOfReadBooksValueEventListener;
     private ArrayList<Achievement> mAchievements;
     private Long mNumOfReadBooks = 0L;
 
@@ -41,7 +40,7 @@ public class AchievementService {
     }
 
     private void attachNumOfReadBooksDatabaseReadListener() {
-        mNumOfReadBooksValueEventListener = new ValueEventListener() {
+        ValueEventListener mNumOfReadBooksValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mNumOfReadBooks = (Long) dataSnapshot.getValue();
@@ -49,11 +48,12 @@ public class AchievementService {
                     mNumOfReadBooks = 0L;
                 }
 
-                checkForAchievementChange();
-
+                // send data change via local broadcast
                 Intent numOfReadBooksIntent = new Intent(Constants.event_numOfReadBooks_changed);
                 numOfReadBooksIntent.putExtra(Constants.key_intent_numOfReadBooks, mNumOfReadBooks);
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(numOfReadBooksIntent);
+
+                checkForAchievementChange();
             }
 
             @Override
@@ -65,19 +65,28 @@ public class AchievementService {
 
     private void checkForAchievementChange() {
         Achievement highestAchievement = null;
+
         if (mAchievements != null && mNumOfReadBooks != null) {
+            // color all achieved achievements
             for (Achievement achievement : mAchievements) {
                 if (achievement.getLevel() <= mNumOfReadBooks.intValue()) {
+                    /*
+                    note that achievement.setColored() returns if the color change was
+                    actually necessary! This means only for the single achievement where a
+                    change actually occurred this will be true.
+                     */
                     if (achievement.setColored()) {
                         highestAchievement = achievement;
                     }
                 } else {
+                    // the user can also loose achievements (not by deleting books tho)
                     achievement.removeColored();
                 }
             }
         }
 
         if (highestAchievement != null) {
+            // send achievement text for snackbar via local broadcast
             Intent newAchievementIntent = new Intent(Constants.event_new_achievement);
             newAchievementIntent.putExtra(Constants.key_intent_achievement_text, highestAchievement.getAchievementText());
             LocalBroadcastManager.getInstance(mContext).sendBroadcast(newAchievementIntent);
@@ -99,6 +108,7 @@ public class AchievementService {
             mAchievements.add(new Achievement(mContext, 90, R.string.achievement_750, R.drawable.achievement_colored_90, R.drawable.achievement_grey_90));
         }
 
+        // color all achieved achievements
         if (mNumOfReadBooks != null) {
             for (Achievement achievement : mAchievements) {
                 if (achievement.getLevel() <= mNumOfReadBooks.intValue()) {
@@ -106,6 +116,7 @@ public class AchievementService {
                 }
             }
         }
+
         return mAchievements;
     }
 
