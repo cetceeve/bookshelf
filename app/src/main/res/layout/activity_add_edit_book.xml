@@ -25,14 +25,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/cover_add_edit_book"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:srcCompat="@android:drawable/ic_input_get" />
-
-
                 <Switch
                     android:id="@+id/switch_book_read_add_edit_book"
                     android:layout_width="wrap_content"

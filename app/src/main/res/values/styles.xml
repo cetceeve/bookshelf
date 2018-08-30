@@ -6,12 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
-        <!--<item name="colorBackground">#ffffff</item>-->
         <item name="colorButtonNormal">@color/colorAccentLight</item>
-        <!--<item name="text"-->
-
-
     </style>
 
     <style name="AppTheme.NoActionBar">

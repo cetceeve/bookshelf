@@ -4,7 +4,6 @@
     <string name="title_activity_wish_gallery">WishGalleryActivity</string>
     <string name="title_activity_book_list">BookListActivity</string>
     <!-- menu options -->
-    <string name="menu_action_settings">Settings</string>
     <string name="menu_action_sign_out">Sign out</string>
     <string name="menu_action_rename">Rename List</string>
     <string name="menu_action_delete">Delete List</string>
@@ -14,9 +13,6 @@
     <string name="dialog_positive">OK</string>
     <string name="dialog_message_delete_confirmation">Do you really want to delete?</string>
     <!-- add options dialog in AddBookActivity -->
-    <string name="dialog_option_add_book_manually">Add manually</string>
-    <string name="dialog_option_isbn_search">Search by ISBN</string>
-    <string name="dialog_option_barcode_scanner">Scan barcode</string>
     <!-- rename booklist dialog in AddBookActivity -->
     <string name="dialog_message_rename_booklist">New Name: </string>
     <!-- new booklist dialog in MainActivity -->
@@ -30,23 +26,15 @@
     <string name="text_title">Title:</string>
     <string name="text_button_save_changes">Save Changes</string>
     <string name="text_button_create_book">Create Book</string>
-    <string name="edittext_hint_isbn">Enter ISBN</string>
-    <string name="text_editButton">Edit</string>
-    <string name="button_isbn_search">Search</string>
     <string name="fab_menu_manually">Add manually</string>
     <string name="fab_menu_isbn">Search by ISBN</string>
     <string name="fab_menu_barcodescanner">Scan barcode</string>
-    <string name="title_activity_profile">ProfileActivity</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
     <string name="text_view_profile_amount_books">You have X books.</string>
     <string name="text_view_profile_read_books">You Read X books.</string>
     <string name="text_subtitle">Subtitle:</string>
-
     <!-- Achievements -->
     <string name="achievement_10">Good Job! You are now officially a Bookworm!</string>
     <string name="achievement_25">Awesome! A wild Bookworm appears!</string>
@@ -55,8 +43,6 @@
     <string name="achievement_250">Time to give your eyes some rest, don\'t you think!</string>
     <string name="achievement_500">Wow! I am not sure if you are legit at this point.</string>
     <string name="achievement_750">I wonder how much time of your life is spent looking at little black symbols on white canvas.</string>
-    <string name="achievement_1000">Deabak! I guess we should call you a BOOKDRAGON!</string>
-    <string name="achievement_5000">Well, i guess this is the end of our journey. Thank you for your hard work!</string>
     <string name="file_name_image_paths">image_paths.txt</string>
     <string name="snackbar_wishgallery_undo_image_deletion">Image deleted!</string>
 </resources>
