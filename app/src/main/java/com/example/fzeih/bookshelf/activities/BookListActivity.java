@@ -113,7 +113,7 @@ public class BookListActivity extends AppCompatActivity {
                 startActivity(addByIsbnIntent);
                 break;
             case R.id.fab_action_barcodescanner:
-                // start Barcode Scanner
+                // start BarcodeScannerActivity
                 Intent addByBarcodeIntent = new Intent(BookListActivity.this, BarcodeScannerActivity.class);
                 addByBarcodeIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
                 startActivity(addByBarcodeIntent);
@@ -325,22 +325,13 @@ public class BookListActivity extends AppCompatActivity {
         AlertDialog.Builder renameBookListDialog = new AlertDialog.Builder(BookListActivity.this);
         renameBookListDialog.setMessage(R.string.dialog_message_rename_booklist);
         final EditText input = new EditText(BookListActivity.this);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(params);
-        /*int paddingDp = 16;
-        float density = this.getResources().getDisplayMetrics().density;
-        int paddingPixel = (int)(paddingDp * density);
-        input.setPadding(paddingPixel,0 ,0,0);*/
-
-        renameBookListDialog.setView(input);
-
-        renameBookListDialog.setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                uploadBookListName(input.getText().toString());
-            }
-        });
-        renameBookListDialog.setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
+        renameBookListDialog.setView(input)
+                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        uploadBookListName(input.getText().toString());
+                    }
+                }).setNegativeButton(getString(R.string.dialog_negative), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -375,7 +366,7 @@ public class BookListActivity extends AppCompatActivity {
                         public void onDismissed(Snackbar snackbar, int event) {
                             mDeletedBook = null;
                         }
-            }).show();
+                    }).show();
         }
     }
 
