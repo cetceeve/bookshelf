@@ -30,14 +30,7 @@ public class AddBookActivity extends AppCompatActivity {
     private Switch mBookReadSwitch;
     private boolean mBookWasRead = false;
 
-    private EditText mTitleEditText;
-    private EditText mSubtitleEditText;
-    private EditText mAuthorEditText;
-    private EditText mIsbnEditText;
-    private EditText mPublisherEditText;
-    private EditText mPublishedYearEditText;
-    private EditText mPagesEditText;
-    private EditText mDescriptionEditText;
+    private EditText mTitleEditText, mSubtitleEditText, mAuthorEditText, mIsbnEditText, mPublisherEditText, mPublishedYearEditText, mPagesEditText, mDescriptionEditText;
     private Button mCreateButton;
 
 
@@ -65,6 +58,7 @@ public class AddBookActivity extends AppCompatActivity {
                 finish();
             }
         });
+
         mBookReadSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -78,25 +72,6 @@ public class AddBookActivity extends AppCompatActivity {
         onBackPressed();
         return true;
     }
-
-   /* @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_add_book, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_save_new_book:
-                uploadUserInput();
-                finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-
-        }
-    }*/
 
     private void readIntent() {
         Intent intent = getIntent();
