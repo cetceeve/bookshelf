@@ -87,10 +87,10 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
     @Override
     public void handleResult(Result rawResult) {
         // start IsbnSearchActivity with input
-        Intent addByIsbnIntent = new Intent(BarcodeScannerActivity.this, IsbnSearchActivity.class);
-        addByIsbnIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
-        addByIsbnIntent.putExtra(Constants.key_intent_isbn, rawResult.getText());
-        startActivity(addByIsbnIntent);
+        Intent isbnSearchIntent = new Intent(BarcodeScannerActivity.this, IsbnSearchActivity.class);
+        isbnSearchIntent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
+        isbnSearchIntent.putExtra(Constants.key_intent_isbn, rawResult.getText());
+        startActivity(isbnSearchIntent);
         finish();
     }
 
