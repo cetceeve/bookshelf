@@ -165,7 +165,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private void startDownload() {
         if (!mDownloading && mNetworkFragment != null) {
-            mNetworkFragment.prepareDownload(getQuery());
+            mNetworkFragment.setDownloadUrl(getQuery());
             // Execute the async download.
             mDownloading = true;
             mProgressBar.setVisibility(View.VISIBLE);
