@@ -41,6 +41,8 @@ public class AchievementAdapter extends ArrayAdapter<Achievement> {
 
             if (!achievement.getColored()) {
                 textView.setTextColor(parent.getContext().getResources().getColor(R.color.colorGrey));
+            } else {
+                textView.setTextColor(parent.getContext().getResources().getColor(R.color.colorDarkGrey));
             }
 
             imageView.setImageDrawable(achievement.getDrawableResource());
