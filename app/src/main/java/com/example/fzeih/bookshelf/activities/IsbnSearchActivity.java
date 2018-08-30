@@ -40,10 +40,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     private String mBookListKey;
 
     private EditText mIsbnEditText;
-    private Button mSearchButton;
-    private Button mAddResultButton;
-    private TextView mResultTitleTextView;
-    private TextView mResultAuthorTextView;
+    private Button mSearchButton, mAddResultButton;
+    private TextView mResultTitleTextView, mResultAuthorTextView;
     private Switch mBookReadSwitch;
     private ProgressBar mProgressBar;
 
@@ -51,9 +49,6 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
 
     private NetworkFragment mNetworkFragment;
     private boolean mDownloading = false;
-
-    // Input from User
-    private String mIsbnQueryInput;
 
     // Results of ISBN-Search
     private String mTitle;
@@ -118,7 +113,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     protected void onPostResume() {
         super.onPostResume();
 
-        // if called with input, search immediately
+        // if called with input from BarcodeScannerActivity, search immediately
         if (mIsbn != null) {
             startDownload();
         }
@@ -153,7 +148,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
         mBookReadSwitch = findViewById(R.id.switch_book_read_isbn_search);
         mProgressBar = findViewById(R.id.progress_bar_isbn_search);
 
-        // if called with input
+        // if called with input from BarcodeScannerActivity
         if (mIsbn != null) {
             mIsbnEditText.setText(mIsbn);
         }
@@ -174,7 +169,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     }
 
     private String getQuery() {
-        mIsbnQueryInput = mIsbnEditText.getText().toString();
+        String mIsbnQueryInput = mIsbnEditText.getText().toString();
         mIsbn = mIsbnQueryInput;
         return BOOK_BASE_URL + QUERY_PARAM_ISBN + mIsbnQueryInput;
     }
@@ -203,7 +198,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
             Toast.makeText(IsbnSearchActivity.this, "Error: Download Failed!", Toast.LENGTH_LONG).show();
             return;
         }
-         if (result instanceof Exception) {
+        if (result instanceof Exception) {
             Toast.makeText(IsbnSearchActivity.this, result.toString(), Toast.LENGTH_LONG).show();
         } else {
             // Update UI based on result of download
@@ -254,7 +249,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     }
 
     private boolean getResults(String resultString) {
-        // parse JSON
+        // parse JSON - results from Google Books API
         mTitle = null;
         mAuthor = null;
         try {
