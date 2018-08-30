@@ -17,7 +17,6 @@ import com.google.firebase.database.ValueEventListener;
 public class BookService {
     private Context mContext;
     private DatabaseReference mTotalNumOfBooksDatabaseReference;
-    private ValueEventListener mTotalNumOfBooksValueEventListener;
     private Long mTotalNumOfBooks = 0L;
 
     BookService(Context context) {
@@ -36,7 +35,7 @@ public class BookService {
     }
 
     private void attachTotalNumOfBooksDatabaseReadListener() {
-        mTotalNumOfBooksValueEventListener = new ValueEventListener() {
+        ValueEventListener mTotalNumOfBooksValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mTotalNumOfBooks = (Long) dataSnapshot.getValue();
@@ -44,6 +43,7 @@ public class BookService {
                     mTotalNumOfBooks = 0L;
                 }
 
+                // send data change via local broadcast
                 Intent totalNumOfBooksIntent = new Intent(Constants.event_totalNumOfBooks_changed);
                 totalNumOfBooksIntent.putExtra(Constants.key_intent_totalNumOfBooks, mTotalNumOfBooks);
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(totalNumOfBooksIntent);

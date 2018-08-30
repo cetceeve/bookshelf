@@ -5,6 +5,7 @@ import android.content.Context;
 public class DatabaseService {
     private static final DatabaseService INSTANCE = new DatabaseService();
     private boolean isStarted = false;
+
     private AchievementService achievementService;
     private BookService bookService;
 
@@ -18,8 +19,10 @@ public class DatabaseService {
     public void startServices(Context context) {
         if (!isStarted) {
             achievementService = new AchievementService(context);
-            achievementService.getAchievementList();
             bookService = new BookService(context);
+
+            // achievementService.getAchievementList();
+
             isStarted = true;
         }
     }
