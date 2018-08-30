@@ -40,6 +40,7 @@ public class BookListInformationAdapter extends ArrayAdapter<BookListInformation
         if (bookListInformation != null) {
             textView.setText(bookListInformation.getBookListName());
         }
+
         return convertView;
     }
 }

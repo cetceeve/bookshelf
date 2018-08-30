@@ -36,8 +36,12 @@ public class ImageAdapter extends ArrayAdapter<String> {
         final ProgressBar progressBar = convertView.findViewById(R.id.progress_bar_image);
 
         final String pathname = getItem(position);
+
+        int imageTargetWidth = 480;
+        int imageTargetHeight = 640;
+
         if (pathname != null) {
-            Picasso.get().load(new File(pathname)).resize(480, 640).into(imageView, new Callback() {
+            Picasso.get().load(new File(pathname)).resize(imageTargetWidth, imageTargetHeight).into(imageView, new Callback() {
                 @Override
                 public void onSuccess() {
                     progressBar.setVisibility(View.GONE);

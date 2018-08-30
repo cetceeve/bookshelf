@@ -46,6 +46,7 @@ public class BookAdapter extends ArrayAdapter<Book> {
             titleTextView.setText(mBook.getTitle());
             authorTextView.setText(mBook.getAuthor());
         }
+
         return convertView;
     }
 }
