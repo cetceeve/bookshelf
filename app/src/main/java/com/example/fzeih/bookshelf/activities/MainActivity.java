@@ -9,10 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -44,10 +41,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
 
-    private FirebaseDatabase mFirebaseDatabase;
     private FirebaseAuth mFirebaseAuth;
 
     private DatabaseReference mListNamesDatabaseReference;
@@ -69,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Data
         initAuthentication();
-        initDatabase();
         setAdapter();
 
         // Listeners
@@ -88,15 +83,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 startBookListActivity(position);
             }
         });
-/*
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);*/
     }
 
     @Override
@@ -125,31 +111,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     @Override
@@ -199,10 +160,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mFirebaseAuth = FirebaseAuth.getInstance();
     }
 
-    private void initDatabase() {
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-    }
-
     private void setAdapter() {
         mBookListInformationArray = new ArrayList<>();
         mBookListInformationAdapter = new BookListInformationAdapter(this, android.R.layout.simple_list_item_1, mBookListInformationArray);
@@ -234,8 +191,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void onSignedOutCleanup() {
-        mBookListInformationAdapter.clear();
         detachDatabaseReadListener();
+        mBookListInformationAdapter.clear();
     }
 
     private void displaySignInUI() {
@@ -317,26 +274,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private String pushListNameToDatabase(String listName) {
-        DatabaseReference newBookListReference = mListNamesDatabaseReference.push();
-        newBookListReference.setValue(listName);
-        return newBookListReference.getKey();
-    }
-
-    private void startBookListActivity(int position) {
-        Intent bookListIntent = new Intent(MainActivity.this, BookListActivity.class);
-        bookListIntent.putExtra(Constants.key_intent_booklistname, mBookListInformationArray.get(position).getBookListName());
-        bookListIntent.putExtra(Constants.key_intent_booklistkey, mBookListInformationArray.get(position).getBookListKey());
-        startActivity(bookListIntent);
-    }
-
-    private void startBookListActivity(String bookListKey, String bookListName) {
-        Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
-        newListIntent.putExtra(Constants.key_intent_booklistname, bookListName);
-        newListIntent.putExtra(Constants.key_intent_booklistkey, bookListKey);
-        startActivity(newListIntent);
-    }
-
     private void showNewBookListDialog() {
         AlertDialog.Builder newBookListDialog = new AlertDialog.Builder(MainActivity.this);
         newBookListDialog.setMessage(R.string.dialog_message_enter_listname);
@@ -364,6 +301,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         newBookListDialog.show();
+    }
+
+    private String pushListNameToDatabase(String listName) {
+        DatabaseReference newBookListReference = mListNamesDatabaseReference.push();
+        newBookListReference.setValue(listName);
+        return newBookListReference.getKey();
+    }
+
+    private void startBookListActivity(int position) {
+        Intent bookListIntent = new Intent(MainActivity.this, BookListActivity.class);
+        bookListIntent.putExtra(Constants.key_intent_booklistname, mBookListInformationArray.get(position).getBookListName());
+        bookListIntent.putExtra(Constants.key_intent_booklistkey, mBookListInformationArray.get(position).getBookListKey());
+        startActivity(bookListIntent);
+    }
+
+    private void startBookListActivity(String bookListKey, String bookListName) {
+        Intent newListIntent = new Intent(MainActivity.this, BookListActivity.class);
+        newListIntent.putExtra(Constants.key_intent_booklistname, bookListName);
+        newListIntent.putExtra(Constants.key_intent_booklistkey, bookListKey);
+        startActivity(newListIntent);
     }
 
     private void showInternetInformationDialog() {
