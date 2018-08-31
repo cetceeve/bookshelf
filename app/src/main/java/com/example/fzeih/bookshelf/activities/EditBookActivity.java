@@ -117,6 +117,7 @@ public class EditBookActivity extends AppCompatActivity {
     private void uploadUserInput() {
         // get user input
         mBook.setTitle(mTitleEditText.getText().toString());
+        mBook.setSubtitle(mSubtitleEditText.getText().toString());
         mBook.setAuthor(mAuthorEditText.getText().toString());
         mBook.setIsbn(mIsbnEditText.getText().toString());
         mBook.setPublisher(mPublisherEditText.getText().toString());
