@@ -40,12 +40,11 @@ import java.util.Date;
 public class WishGalleryActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_EXTERNAL_STORAGE = 1;
     private static final int PERMISSION_REQUEST_CAMERA = 2;
+    private static final int REQUEST_TAKE_PHOTO = 1;
 
     private GridView mImageGridview;
     private ArrayList<String> mImagePaths;
     private ImageAdapter mImageAdapter;
-
-    static final int REQUEST_TAKE_PHOTO = 1;
 
     private String mCurrentPhotoPath;
 
@@ -123,7 +122,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             saveImagePath();
-            galleryAddPic();
+            addToGallery();
         }
     }
 
@@ -187,34 +186,18 @@ public class WishGalleryActivity extends AppCompatActivity {
                 storageDir      /* directory */
         );
 
-        // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
-    private void galleryAddPic() {
-        if (mCurrentPhotoPath == null) {
-            return;
-        }
-
-        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(mCurrentPhotoPath);
-        Uri contentUri = Uri.fromFile(f);
-        mediaScanIntent.setData(contentUri);
-        this.sendBroadcast(mediaScanIntent);
-    }
-
-    private void saveImagePath() {
-        String writablePhotoPath = mCurrentPhotoPath + ",";
-        appendToFile(writablePhotoPath, this);
-    }
-
     private void getImagePaths() {
         boolean deadImagePathFlag = false;
+
         String pathString = readFromFile(this);
         String[] imagePaths = pathString.split(",");
         for (String imagePath: imagePaths) {
-            if (isExistingImagePath(imagePath)) {
+            if (new File(imagePath).exists()) {
+                // avoid double entries
                 if (!mImagePaths.contains(imagePath)) {
                     mImageAdapter.add(imagePath);
                 }
@@ -224,14 +207,15 @@ public class WishGalleryActivity extends AppCompatActivity {
             }
         }
 
+        // images were removed
         if (deadImagePathFlag) {
             rewriteImagePathFile();
         }
     }
 
-    private boolean isExistingImagePath(String imagePath) {
-        File file = new File(imagePath);
-        return file.exists();
+    private void saveImagePath() {
+        String writablePhotoPath = mCurrentPhotoPath + ",";
+        appendToFile(writablePhotoPath, this);
     }
 
     public void rewriteImagePathFile() {
@@ -242,28 +226,6 @@ public class WishGalleryActivity extends AppCompatActivity {
         writeToFile(pathString, this);
     }
 
-
-    private void writeToFile(String data, Context context) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_PRIVATE)));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
-        }
-    }
-
-    private void appendToFile(String data, Context context) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_APPEND)));
-            outputStreamWriter.append(data);
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Log.e("Exception", "File append failed: " + e.toString());
-        }
-    }
 
     private String readFromFile(Context context) {
 
@@ -295,6 +257,41 @@ public class WishGalleryActivity extends AppCompatActivity {
         return res;
     }
 
+    private void appendToFile(String data, Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_APPEND)));
+            outputStreamWriter.append(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File append failed: " + e.toString());
+        }
+    }
+
+    private void writeToFile(String data, Context context) {
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_PRIVATE)));
+            outputStreamWriter.write(data);
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    private void addToGallery() {
+        if (mCurrentPhotoPath == null) {
+            return;
+        }
+
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+    }
+
+    // entry point for image deletion called from ImageAdapter
     public void removeImageFromGridview(String deleteImagePath, int position) {
         mImageAdapter.remove(deleteImagePath);
         showUndoImageDeletionSnackbar(deleteImagePath, position);
@@ -313,24 +310,6 @@ public class WishGalleryActivity extends AppCompatActivity {
                 }).show();
     }
 
-    private class UndoImageDeletionListener implements View.OnClickListener {
-        String mDeletedImagePath;
-        int mPosition;
-
-        private UndoImageDeletionListener(String deletedImagePath, int position) {
-            mDeletedImagePath = deletedImagePath;
-            mPosition = position;
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (mDeletedImagePath != null) {
-                mImagePaths.add(mPosition, mDeletedImagePath);
-                mImageAdapter.notifyDataSetChanged();
-            }
-        }
-    }
-
     private void deleteImage(String deleteImagePath) {
         File deleteFile = new File(deleteImagePath);
         if (deleteFile.exists()) {
@@ -342,7 +321,7 @@ public class WishGalleryActivity extends AppCompatActivity {
                 mImageAdapter.add(deleteImagePath);
             }
         } else {
-            Toast.makeText(WishGalleryActivity.this, "Error: No File to delete!", Toast.LENGTH_LONG).show();
+            Toast.makeText(WishGalleryActivity.this, "Error: No file to delete!", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -365,8 +344,27 @@ public class WishGalleryActivity extends AppCompatActivity {
             contentResolver.delete(deleteUri, null, null);
         } else {
             // File not found in media store DB
+            Toast.makeText(WishGalleryActivity.this, "Error: Found no file to delete in gallery!", Toast.LENGTH_LONG).show();
         }
         c.close();
+    }
+
+    private class UndoImageDeletionListener implements View.OnClickListener {
+        String mDeletedImagePath;
+        int mPosition;
+
+        private UndoImageDeletionListener(String deletedImagePath, int position) {
+            mDeletedImagePath = deletedImagePath;
+            mPosition = position;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (mDeletedImagePath != null) {
+                mImagePaths.add(mPosition, mDeletedImagePath);
+                mImageAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     private class ExternalStoragePermissionDeniedSnackbarListener implements View.OnClickListener{
