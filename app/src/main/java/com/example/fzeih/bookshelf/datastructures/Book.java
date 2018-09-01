@@ -21,6 +21,7 @@ public class Book implements Parcelable {
     private int pages;
     private String bookDescription;
 
+    // necessary for firebase database callbacks
     public Book() {
     }
 
