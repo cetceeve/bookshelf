@@ -74,6 +74,28 @@ public class DisplayBookActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_display_book, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete:
+                deleteBook();
+                return true;
+            case R.id.action_edit:
+                startEditBookActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         detachBookDatabaseReadListener();
@@ -130,7 +152,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         mAuthorNameTextView = (TextView) findViewById(R.id.textView_authorName_book);
         mIsbnTextView = (TextView) findViewById(R.id.textView_isbn_book);
         mPageNumTextView = (TextView) findViewById(R.id.textView_num_pages);
-        mPublisherAndDateTextView = (TextView)findViewById(R.id.textView_publischer_and_date);
+        mPublisherAndDateTextView = (TextView) findViewById(R.id.textView_publischer_and_date);
         mDescriptionTextView = (TextView) findViewById(R.id.textView_description);
         mBookReadSwitch = (Switch) findViewById(R.id.switch_book_read);
         mIsbnTitleTextView = (TextView) findViewById(R.id.textView_ISBN_title);
@@ -141,18 +163,20 @@ public class DisplayBookActivity extends AppCompatActivity {
 
     private void setBookData(Book book) {
         if (book != null) {
-            if (book.getCoverUrl().length() != 0){
+            if (book.getCoverUrl().length() != 0) {
                 Picasso.get().load(book.getCoverUrl()).into(mCoverImageView);
             } else {
                 mCoverImageView.setImageResource(R.drawable.ic_book);
             }
-            if (book.getTitleWithSubtitle().length() != 0){
+
+            if (book.getTitleWithSubtitle().length() != 0) {
                 mTitleTextView.setText(book.getTitleWithSubtitle());
                 mTitleTextView.setVisibility(View.VISIBLE);
             } else {
                 mTitleTextView.setVisibility(View.GONE);
             }
-            if (book.getIsbn().length() != 0){
+
+            if (book.getIsbn().length() != 0) {
                 mIsbnTextView.setText(book.getIsbn());
                 mIsbnTitleTextView.setVisibility(View.VISIBLE);
                 mIsbnTextView.setVisibility(View.VISIBLE);
@@ -160,7 +184,8 @@ public class DisplayBookActivity extends AppCompatActivity {
                 mIsbnTitleTextView.setVisibility(View.GONE);
                 mIsbnTextView.setVisibility(View.GONE);
             }
-            if (book.getPages() != 0){
+
+            if (book.getPages() != 0) {
                 mPageNumTextView.setText(String.valueOf(book.getPages()));
                 mPageTitleTextView.setVisibility(View.VISIBLE);
                 mPageNumTextView.setVisibility(View.VISIBLE);
@@ -168,7 +193,8 @@ public class DisplayBookActivity extends AppCompatActivity {
                 mPageTitleTextView.setVisibility(View.GONE);
                 mPageNumTextView.setVisibility(View.GONE);
             }
-            if (book.getPublisherWithPublishedYear().length() != 0){
+
+            if (book.getPublisherWithPublishedYear().length() != 0) {
                 mPublisherAndDateTextView.setText(book.getPublisherWithPublishedYear());
                 mPublishedTitleTextView.setVisibility(View.VISIBLE);
                 mPublisherAndDateTextView.setVisibility(View.VISIBLE);
@@ -176,7 +202,8 @@ public class DisplayBookActivity extends AppCompatActivity {
                 mPublishedTitleTextView.setVisibility(View.GONE);
                 mPublisherAndDateTextView.setVisibility(View.GONE);
             }
-            if (book.getBookDescription().length() != 0){
+
+            if (book.getBookDescription().length() != 0) {
                 mDescriptionTextView.setText(book.getBookDescription());
                 mDescriptionTitleTextView.setVisibility(View.VISIBLE);
                 mDescriptionTextView.setVisibility(View.VISIBLE);
@@ -184,7 +211,8 @@ public class DisplayBookActivity extends AppCompatActivity {
                 mDescriptionTitleTextView.setVisibility(View.GONE);
                 mDescriptionTextView.setVisibility(View.GONE);
             }
-            if (book.getAuthor().length() != 0){
+
+            if (book.getAuthor().length() != 0) {
                 mAuthorNameTextView.setText(book.getAuthor());
                 mAuthorNameTextView.setVisibility(View.VISIBLE);
             } else {
@@ -197,31 +225,6 @@ public class DisplayBookActivity extends AppCompatActivity {
             attachSwitchStateChangeListener();
         } else {
             Toast.makeText(DisplayBookActivity.this, "ERROR: No book data!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void attachSwitchStateChangeListener() {
-        mOnCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
-                    Book changedBook = new Book(mBook.getKey(), true, mBook.getCoverUrl(), mBook.getTitle(), mBook.getSubtitle(), mBook.getAuthor(), mBook.getIsbn(), mBook.getPublisher(), mBook.getPublishedYear(), mBook.getPages(), mBook.getBookDescription());
-                    mBookDatabaseReference.setValue(changedBook);
-                    DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
-                } else {
-                    Book changedBook = new Book(mBook.getKey(), false, mBook.getCoverUrl(), mBook.getTitle(), mBook.getSubtitle(), mBook.getAuthor(), mBook.getIsbn(), mBook.getPublisher(), mBook.getPublishedYear(), mBook.getPages(), mBook.getBookDescription());
-                    mBookDatabaseReference.setValue(changedBook);
-                    DatabaseService.getInstance().getAchievementService().decrementNumOfReadBooks();
-                }
-            }
-        };
-        mBookReadSwitch.setOnCheckedChangeListener(mOnCheckedChangeListener);
-    }
-
-    private void detachSwitchStateChangeListener() {
-        if (mOnCheckedChangeListener != null) {
-            mBookReadSwitch.setOnCheckedChangeListener(null);
-            mOnCheckedChangeListener = null;
         }
     }
 
@@ -242,10 +245,35 @@ public class DisplayBookActivity extends AppCompatActivity {
         mBookDatabaseReference.addValueEventListener(mBookValueEventListener);
     }
 
+    private void attachSwitchStateChangeListener() {
+        mOnCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    Book changedBook = new Book(mBook.getKey(), true, mBook.getCoverUrl(), mBook.getTitle(), mBook.getSubtitle(), mBook.getAuthor(), mBook.getIsbn(), mBook.getPublisher(), mBook.getPublishedYear(), mBook.getPages(), mBook.getBookDescription());
+                    mBookDatabaseReference.setValue(changedBook);
+                    DatabaseService.getInstance().getAchievementService().incrementNumOfReadBooks();
+                } else {
+                    Book changedBook = new Book(mBook.getKey(), false, mBook.getCoverUrl(), mBook.getTitle(), mBook.getSubtitle(), mBook.getAuthor(), mBook.getIsbn(), mBook.getPublisher(), mBook.getPublishedYear(), mBook.getPages(), mBook.getBookDescription());
+                    mBookDatabaseReference.setValue(changedBook);
+                    DatabaseService.getInstance().getAchievementService().decrementNumOfReadBooks();
+                }
+            }
+        };
+        mBookReadSwitch.setOnCheckedChangeListener(mOnCheckedChangeListener);
+    }
+
     private void detachBookDatabaseReadListener() {
         if (mBookValueEventListener != null) {
             mBookDatabaseReference.removeEventListener(mBookValueEventListener);
             mBookValueEventListener = null;
+        }
+    }
+
+    private void detachSwitchStateChangeListener() {
+        if (mOnCheckedChangeListener != null) {
+            mBookReadSwitch.setOnCheckedChangeListener(null);
+            mOnCheckedChangeListener = null;
         }
     }
 
@@ -254,28 +282,6 @@ public class DisplayBookActivity extends AppCompatActivity {
         intent.putExtra(Constants.key_intent_book, mBook);
         intent.putExtra(Constants.key_intent_booklistkey, mBookListKey);
         startActivity(intent);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_display_book, menu);
-        return true;
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_delete:
-                deleteBook();
-                return true;
-            case R.id.action_edit:
-                startEditBookActivity();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-
-        }
     }
 
     private void deleteBook() {
@@ -291,10 +297,9 @@ public class DisplayBookActivity extends AppCompatActivity {
         finish();
     }
 
-    private class ShowProfileListener implements View.OnClickListener{
+    private class ShowProfileListener implements View.OnClickListener {
 
-        private ShowProfileListener() {
-        }
+        private ShowProfileListener() {}
 
         @Override
         public void onClick(View v) {
