@@ -42,6 +42,11 @@ import java.util.List;
 import io.github.yavski.fabspeeddial.FabSpeedDial;
 import io.github.yavski.fabspeeddial.SimpleMenuListenerAdapter;
 
+        /*
+        reference to speed dial:
+         Ivanov, Yavor. https://github.com/yavski/fab-speed-dial
+         */
+
 public class BookListActivity extends AppCompatActivity {
     private BroadcastReceiver mBookDeletionBroadcastReceiver;
 

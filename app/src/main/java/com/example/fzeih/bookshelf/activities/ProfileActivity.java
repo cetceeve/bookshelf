@@ -24,6 +24,11 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+        /*
+        reference to picture loading tool (Picasso):
+        Square Open Source. http://square.github.io/picasso/
+         */
+
 public class ProfileActivity extends AppCompatActivity {
     private BroadcastReceiver mTotalNumOfBooksChangedBroadcastReceiver;
     private BroadcastReceiver mNumOfReadBooksChangedBroadcastReceiver;

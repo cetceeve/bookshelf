@@ -44,6 +44,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+        /*
+        reference to Google Firebase:
+        https://firebase.google.com/docs/database/android/start/
+         */
+
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final int RC_SIGN_IN = 123;
 

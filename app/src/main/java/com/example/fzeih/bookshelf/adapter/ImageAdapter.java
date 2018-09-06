@@ -17,6 +17,11 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.util.ArrayList;
 
+        /*
+        reference to picture loading tool (Picasso):
+        Square Open Source. http://square.github.io/picasso/
+        */
+
 public class ImageAdapter extends ArrayAdapter<String> {
     Context mContext;
 

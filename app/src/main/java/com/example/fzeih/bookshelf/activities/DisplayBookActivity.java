@@ -31,6 +31,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+        /*
+        reference to cover loading tool (Picasso):
+        Square Open Source. http://square.github.io/picasso/
+         */
+
 public class DisplayBookActivity extends AppCompatActivity {
     private BroadcastReceiver mNewAchievementBroadcastReceiver;
 
