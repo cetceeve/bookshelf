@@ -19,7 +19,12 @@ import com.google.zxing.Result;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
-public class BarcodeScannerActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler{
+        /*
+        reference to barcodescanner:
+        Dushyanth. https://github.com/dm77/barcodescanner
+         */
+
+public class BarcodeScannerActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
     private static final int PERMISSION_REQUEST_CAMERA = 2;
 
     private ZXingScannerView mScannerView;
@@ -117,7 +122,7 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
         setContentView(mScannerView);
     }
 
-    private class PermissionDeniedSnackbarListener implements View.OnClickListener{
+    private class PermissionDeniedSnackbarListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
             checkForCameraPermission();

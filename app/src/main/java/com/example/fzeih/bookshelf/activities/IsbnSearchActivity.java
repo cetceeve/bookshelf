@@ -30,6 +30,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+        /*
+        reference to Google Books API:
+        https://developers.google.com/books/docs/overview
+         */
+
 public class IsbnSearchActivity extends AppCompatActivity implements DownloadCallback {
     //Parameter for URL
     private static final String BOOK_BASE_URL = "https://www.googleapis.com/books/v1/volumes?";
