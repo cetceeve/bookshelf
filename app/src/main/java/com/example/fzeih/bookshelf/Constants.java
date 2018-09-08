@@ -19,4 +19,6 @@ public class Constants {
     public static final String event_totalNumOfBooks_changed = "totalNumOfBooks_changed";
     public static final String event_numOfReadBooks_changed = "numOfReadBooks_changed";
     public static final String event_new_achievement = "achievement";
+
+    public static final String file_name_image_paths = "image_paths.txt";
 }

@@ -23,6 +23,7 @@ import android.view.View;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.example.fzeih.bookshelf.Constants;
 import com.example.fzeih.bookshelf.R;
 import com.example.fzeih.bookshelf.adapter.ImageAdapter;
 
@@ -232,7 +233,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         String res = "";
 
         try {
-            InputStream inputStream = context.openFileInput(getString(R.string.file_name_image_paths));
+            InputStream inputStream = context.openFileInput(Constants.file_name_image_paths);
 
             if ( inputStream != null ) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -259,7 +260,7 @@ public class WishGalleryActivity extends AppCompatActivity {
 
     private void appendToFile(String data, Context context) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_APPEND)));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(Constants.file_name_image_paths, Context.MODE_APPEND)));
             outputStreamWriter.append(data);
             outputStreamWriter.close();
         }
@@ -270,7 +271,7 @@ public class WishGalleryActivity extends AppCompatActivity {
 
     private void writeToFile(String data, Context context) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(getString(R.string.file_name_image_paths), Context.MODE_PRIVATE)));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter((context.openFileOutput(Constants.file_name_image_paths, Context.MODE_PRIVATE)));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
         }

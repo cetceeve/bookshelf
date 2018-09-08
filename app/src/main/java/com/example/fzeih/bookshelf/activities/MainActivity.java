@@ -131,9 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(mListListView, "Welcome back " + user.getDisplayName() + ".", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             } else {
                 // Sign in failed. If response is null the user canceled the
-                // sign-in flow using the back button. Otherwise check
-                // response.getError().getErrorCode() and handle the error.
-                // ... TODO: find out how to do this
+                // sign-in flow using the back button.
                 if (resultCode == RESULT_CANCELED) {
                     finish();
                 } else {

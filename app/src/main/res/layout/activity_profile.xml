@@ -25,13 +25,13 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="@string/nav_header_desc"
         android:elevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_view_profile_user_name"
-        app:srcCompat="@mipmap/ic_launcher_round" />
+        app:srcCompat="@mipmap/ic_launcher_round"
+        android:contentDescription="@string/content_description_user_image" />
 
     <TextView
         android:id="@+id/text_view_profile_amount_books"

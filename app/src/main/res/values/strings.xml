@@ -3,16 +3,16 @@
     <string name="app_name">bookshelf</string>
     <string name="title_activity_wish_gallery">WishGalleryActivity</string>
     <string name="title_activity_book_list">BookListActivity</string>
-    <!-- menu options -->
+    <!-- generic dialog options -->
+    <string name="dialog_negative">Cancel</string>
+    <string name="dialog_positive">OK</string>
+    <string name="dialog_delete">Delete!</string>
+    <string name="dialog_message_delete_confirmation">Do you really want to delete?</string>
+    <!-- BookListActivity menu options -->
     <string name="menu_action_sign_out">Sign out</string>
     <string name="menu_action_rename">Rename List</string>
     <string name="menu_action_delete">Delete List</string>
     <string name="menu_action_profile">User Profile</string>
-    <!-- generic dialog options -->
-    <string name="dialog_negative">Cancel</string>
-    <string name="dialog_positive">OK</string>
-    <string name="dialog_message_delete_confirmation">Do you really want to delete?</string>
-    <!-- add options dialog in AddBookActivity -->
     <!-- rename booklist dialog in AddBookActivity -->
     <string name="dialog_message_rename_booklist">New Name: </string>
     <!-- new booklist dialog in MainActivity -->
@@ -20,19 +20,23 @@
     <!-- internet information dialog -->
     <string name="dialog_title_internet_information">Information</string>
     <string name="dialog_message_internet_information">To use this App you need connection to the internet.</string>
+    <!-- speed dial in BookListActivity -->
+    <string name="fab_menu_manually">Add manually</string>
+    <string name="fab_menu_isbn">Search by ISBN</string>
+    <string name="fab_menu_barcodescanner">Scan barcode</string>
+    <!-- snackbars -->
+    <string name="snackbar_wishgallery_undo_image_deletion">Image deleted!</string>
     <!-- layouts -->
     <string name="text_author_name">Author:</string>
     <string name="text_isbn">ISBN:</string>
     <string name="text_title">Title:</string>
+    <string name="text_subtitle">Subtitle:</string>
     <string name="text_button_save_changes">Save Changes</string>
     <string name="text_button_create_book">Create Book</string>
-    <string name="fab_menu_manually">Add manually</string>
-    <string name="fab_menu_isbn">Search by ISBN</string>
-    <string name="fab_menu_barcodescanner">Scan barcode</string>
-    <string name="nav_header_desc">Navigation header</string>
+    <!-- Profile Activity -->
     <string name="text_view_profile_amount_books">You have X books.</string>
     <string name="text_view_profile_read_books">You Read X books.</string>
-    <string name="text_subtitle">Subtitle:</string>
+    <string name="content_description_user_image">User Image</string>
     <!-- Achievements -->
     <string name="achievement_10">Good Job! You are now officially a Bookworm!</string>
     <string name="achievement_25">Awesome! A wild Bookworm appears!</string>
@@ -41,6 +45,4 @@
     <string name="achievement_250">Time to give your eyes some rest, don\'t you think!</string>
     <string name="achievement_500">Wow! I am not sure if you are legit at this point.</string>
     <string name="achievement_750">I wonder how much time of your life is spent looking at little black symbols on white canvas.</string>
-    <string name="file_name_image_paths">image_paths.txt</string>
-    <string name="snackbar_wishgallery_undo_image_deletion">Image deleted!</string>
 </resources>
