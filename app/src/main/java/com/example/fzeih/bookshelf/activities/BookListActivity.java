@@ -330,7 +330,7 @@ public class BookListActivity extends AppCompatActivity {
         renameBookListDialog.setMessage(R.string.dialog_message_rename_booklist);
         final EditText input = new EditText(BookListActivity.this);
         renameBookListDialog.setView(input)
-                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_rename, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         uploadBookListName(input.getText().toString());
@@ -347,7 +347,7 @@ public class BookListActivity extends AppCompatActivity {
     private void showDeleteConfirmationDialog() {
         AlertDialog.Builder deleteConfirmationDialog = new AlertDialog.Builder(BookListActivity.this);
         deleteConfirmationDialog.setMessage(R.string.dialog_message_delete_confirmation)
-                .setPositiveButton(R.string.dialog_positive, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.dialog_delete, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         deleteBookList();

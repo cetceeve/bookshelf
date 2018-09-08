@@ -12,7 +12,8 @@
     <!-- generic dialog options -->
     <string name="dialog_negative">Cancel</string>
     <string name="dialog_positive">OK</string>
-    <string name="dialog_delete">Delete!</string>
+    <string name="dialog_delete">Delete</string>
+    <string name="dialog_rename">Rename</string>
     <string name="dialog_message_delete_confirmation">Do you really want to delete?</string>
     <!-- BookListActivity menu options -->
     <string name="menu_action_sign_out">Sign out</string>
