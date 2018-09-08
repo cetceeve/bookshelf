@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -364,8 +363,8 @@ public class BookListActivity extends AppCompatActivity {
 
     private void showUndoBookDeletionSnackbar() {
         if (mDeletedBook != null) {
-            Snackbar.make(mBookListView, "Book deleted!", Snackbar.LENGTH_LONG)
-                    .setAction("Undo", new UndoBookDeletionListener(mDeletedBook))
+            Snackbar.make(mBookListView, R.string.snackbar_message_book_deleted, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_action_undo, new UndoBookDeletionListener(mDeletedBook))
                     .addCallback(new Snackbar.Callback() {
                         @Override
                         public void onDismissed(Snackbar snackbar, int event) {

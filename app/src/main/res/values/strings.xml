@@ -1,8 +1,14 @@
 <resources>
     <!-- ActionBar -->
     <string name="app_name">bookshelf</string>
-    <string name="title_activity_wish_gallery">WishGalleryActivity</string>
     <string name="title_activity_book_list">BookListActivity</string>
+    <string name="title_activity_add_book">Add Book</string>
+    <string name="title_activity_barcode_scanner">Barcode Scanner</string>
+    <string name="title_activity_book_details">Book Details</string>
+    <string name="title_activity_edit_book">Edit Book</string>
+    <string name="title_activity_isbn_search">ISBN Search</string>
+    <string name="title_activity_user_profile">User Profile</string>
+    <string name="title_activity_wish_gallery">Wish Gallery</string>
     <!-- generic dialog options -->
     <string name="dialog_negative">Cancel</string>
     <string name="dialog_positive">OK</string>
@@ -26,6 +32,13 @@
     <string name="fab_menu_barcodescanner">Scan barcode</string>
     <!-- snackbars -->
     <string name="snackbar_wishgallery_undo_image_deletion">Image deleted!</string>
+    <string name="snackbar_action_try_again">Try Again</string>
+    <string name="snackbar_action_undo">Undo</string>
+    <string name="snackbar_action_show_profile">Show Profile</string>
+    <string name="snackbar_message_camera_permission_barcode_scanner">Barcode scanner needs camera permission to work!</string>
+    <string name="snackbar_message_camera_permission_wish_gallery">Bookshelf needs Camera Permission to take Photos!</string>
+    <string name="snackbar_message_external_storage_permission">Bookshelf needs External Storage Permission to safe your Images!</string>
+    <string name="snackbar_message_book_deleted">Book deleted!</string>
     <!-- layouts -->
     <string name="text_author">Author:</string>
     <string name="text_isbn">ISBN:</string>

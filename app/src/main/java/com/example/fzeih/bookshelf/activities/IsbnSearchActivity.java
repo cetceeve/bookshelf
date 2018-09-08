@@ -72,7 +72,7 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_isbn_search);
-        getSupportActionBar().setTitle("ISBN Search");
+        getSupportActionBar().setTitle(R.string.title_activity_isbn_search);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Intent
@@ -213,7 +213,8 @@ public class IsbnSearchActivity extends AppCompatActivity implements DownloadCal
                 } else if (mTitle.length() == 0) {
                     mResultTitleTextView.setText(mSubtitle);
                 } else {
-                    mResultTitleTextView.setText(mTitle + " - " + mSubtitle);
+                    String concatString = mTitle + " - " + mSubtitle;
+                    mResultTitleTextView.setText(concatString);
                 }
                 mResultAuthorTextView.setText(mAuthor);
                 mBookReadSwitch.setVisibility(View.VISIBLE);

@@ -56,7 +56,7 @@ public class WishGalleryActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle("Wish Gallery");
+        getSupportActionBar().setTitle(R.string.title_activity_wish_gallery);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Permissions
@@ -102,8 +102,8 @@ public class WishGalleryActivity extends AppCompatActivity {
                     // permission was granted
                 } else {
                     // permission denied
-                    Snackbar.make(mImageGridview, "Bookshelf needs External Storage Permission to safe your Images!", Snackbar.LENGTH_LONG)
-                            .setAction("Try Again", new WishGalleryActivity.ExternalStoragePermissionDeniedSnackbarListener()).show();
+                    Snackbar.make(mImageGridview, R.string.snackbar_message_external_storage_permission, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.snackbar_action_try_again, new WishGalleryActivity.ExternalStoragePermissionDeniedSnackbarListener()).show();
                 }
                 break;
             case PERMISSION_REQUEST_CAMERA:
@@ -111,8 +111,8 @@ public class WishGalleryActivity extends AppCompatActivity {
                     // permission was granted
                 } else {
                     // permission denied
-                    Snackbar.make(mImageGridview, "Bookshelf needs Camera Permission to take Photos!", Snackbar.LENGTH_LONG)
-                            .setAction("Try Again", new WishGalleryActivity.CameraPermissionDeniedSnackbarListener()).show();
+                    Snackbar.make(mImageGridview, R.string.snackbar_message_camera_permission_wish_gallery, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.snackbar_action_try_again, new WishGalleryActivity.CameraPermissionDeniedSnackbarListener()).show();
                 }
                 break;
         }
@@ -300,7 +300,7 @@ public class WishGalleryActivity extends AppCompatActivity {
 
     private void showUndoImageDeletionSnackbar(final String deletedImagePath, int position) {
         Snackbar.make(mImageGridview, R.string.snackbar_wishgallery_undo_image_deletion, Snackbar.LENGTH_LONG)
-                .setAction("Undo", new WishGalleryActivity.UndoImageDeletionListener(deletedImagePath, position))
+                .setAction(R.string.snackbar_action_undo, new WishGalleryActivity.UndoImageDeletionListener(deletedImagePath, position))
                 .addCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {

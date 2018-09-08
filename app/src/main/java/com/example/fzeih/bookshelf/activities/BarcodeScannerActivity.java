@@ -35,7 +35,7 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode_scanner);
-        getSupportActionBar().setTitle("Barcode Scanner");
+        getSupportActionBar().setTitle(R.string.title_activity_barcode_scanner);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Permissions
@@ -62,8 +62,8 @@ public class BarcodeScannerActivity extends AppCompatActivity implements ZXingSc
                     // permission was granted
                 } else {
                     // permission denied
-                    Snackbar.make(mScannerView, "Barcode scanner needs camera permission to work!", Snackbar.LENGTH_LONG)
-                            .setAction("Try Again", new PermissionDeniedSnackbarListener()).show();
+                    Snackbar.make(mScannerView, R.string.snackbar_message_camera_permission_barcode_scanner, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.snackbar_action_try_again, new PermissionDeniedSnackbarListener()).show();
                 }
                 break;
         }

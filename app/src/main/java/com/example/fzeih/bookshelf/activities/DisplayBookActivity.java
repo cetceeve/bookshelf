@@ -56,7 +56,7 @@ public class DisplayBookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_book);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Book Details");
+        getSupportActionBar().setTitle(R.string.title_activity_book_details);
 
         // Intent
         readIntent();
@@ -134,7 +134,7 @@ public class DisplayBookActivity extends AppCompatActivity {
                     String achievementText = extras.getString(Constants.key_intent_achievement_text);
                     if (achievementText != null) {
                         Snackbar.make(mBookReadSwitch, achievementText, Snackbar.LENGTH_LONG)
-                                .setAction("Show Profile", new ShowProfileListener()).show();
+                                .setAction(R.string.snackbar_action_show_profile, new ShowProfileListener()).show();
                     }
                 }
             }

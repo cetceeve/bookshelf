@@ -36,7 +36,7 @@ public class EditBookActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_book);
-        getSupportActionBar().setTitle("Edit Book");
+        getSupportActionBar().setTitle(R.string.title_activity_edit_book);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Intent
