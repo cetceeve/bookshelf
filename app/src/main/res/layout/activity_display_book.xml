@@ -25,7 +25,8 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/content_description_cover_image" />
 
 
             <TextView
@@ -33,9 +34,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="TITLE"
+                android:text="@string/text_title_display_book"
                 android:textColor="@color/colorAccent"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/textView_authorName_book"
                 app:layout_constraintEnd_toStartOf="@+id/imageView_cover_displayBook"
@@ -48,8 +49,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="AUTHOR"
-                android:textSize="18dp"
+                android:text="@string/text_author_display_book"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/imageView_cover_displayBook"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -68,9 +69,9 @@
                 android:id="@+id/textView_ISBN_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ISBN:"
+                android:text="@string/text_isbn_display_book"
                 android:textColor="@color/colorPrimaryDark"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -81,7 +82,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView_ISBN_title"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -104,31 +105,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:text="Published:"
+            android:text="@string/text_published_display_book"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="20dp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/textView_publischer_and_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18dp" />
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/textView_description_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
-            android:text="Description:"
+            android:text="@string/text_description_display_book"
             android:textColor="@color/colorPrimaryDark"
-            android:textSize="20dp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/textView_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:justificationMode="inter_word"
-            android:textSize="18dp" />
+            android:textSize="18sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -141,16 +142,16 @@
                 android:id="@+id/textView_pages_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
-                android:text="Pages:"
+                android:layout_marginEnd="8dp"
+                android:text="@string/text_pages_display_book"
                 android:textColor="@color/colorPrimaryDark"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/textView_num_pages"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18dp" />
+                android:textSize="18sp" />
         </LinearLayout>
 
 

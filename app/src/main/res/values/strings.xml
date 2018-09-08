@@ -27,16 +27,33 @@
     <!-- snackbars -->
     <string name="snackbar_wishgallery_undo_image_deletion">Image deleted!</string>
     <!-- layouts -->
-    <string name="text_author_name">Author:</string>
+    <string name="text_author">Author:</string>
     <string name="text_isbn">ISBN:</string>
     <string name="text_title">Title:</string>
     <string name="text_subtitle">Subtitle:</string>
+    <string name="text_publisher">Publisher:</string>
+    <string name="text_published_year">Published Year:</string>
+    <string name="text_pages">Pages:</string>
+    <string name="text_description">Description</string>
     <string name="text_button_save_changes">Save Changes</string>
     <string name="text_button_create_book">Create Book</string>
-    <!-- Profile Activity -->
+    <string name="content_description_achievement_image">Achievement Image</string>
+    <string name="content_description_cover_image">Cover Image</string>
+    <string name="content_description_image">Image</string>
+    <string name="content_description_icon_trashcan">Trashcan</string>
+    <!-- ProfileActivity -->
     <string name="text_view_profile_amount_books">You have X books.</string>
     <string name="text_view_profile_read_books">You Read X books.</string>
     <string name="content_description_user_image">User Image</string>
+    <string name="text_user_name">User Name</string>
+    <!-- DisplayBookActivity -->
+    <string name="text_author_display_book">AUTHOR</string>
+    <string name="text_title_display_book">TITLE</string>
+    <string name="text_isbn_display_book">ISBN:</string>
+    <string name="text_published_display_book">Published:</string>
+    <string name="text_description_display_book">Description:</string>
+    <string name="text_pages_display_book">Pages:</string>
+    <string name="text_button_add">Add</string>
     <!-- Achievements -->
     <string name="achievement_10">Good Job! You are now officially a Bookworm!</string>
     <string name="achievement_25">Awesome! A wild Bookworm appears!</string>

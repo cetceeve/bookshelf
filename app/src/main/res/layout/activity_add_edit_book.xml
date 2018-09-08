@@ -75,7 +75,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/text_author_name"
+                android:text="@string/text_author"
                 android:textAppearance="@style/TextAppearance.AppCompat"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/textSize_editBook" />
@@ -102,11 +102,10 @@
                 android:layout_marginBottom="16dp"
                 android:inputType="number" />
 
-            <!--************************************* TODO: remove hardcoded strings *****************************************-->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Publisher:"
+                android:text="@string/text_publisher"
                 android:textAppearance="@style/TextAppearance.AppCompat"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/textSize_editBook" />
@@ -121,7 +120,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Published Year:"
+                android:text="@string/text_published_year"
                 android:textAppearance="@style/TextAppearance.AppCompat"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/textSize_editBook" />
@@ -136,7 +135,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Pages:"
+                android:text="@string/text_pages"
                 android:textAppearance="@style/TextAppearance.AppCompat"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/textSize_editBook" />
@@ -151,7 +150,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Description"
+                android:text="@string/text_description"
                 android:textAppearance="@style/TextAppearance.AppCompat"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/textSize_editBook" />

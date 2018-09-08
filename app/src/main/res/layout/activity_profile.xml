@@ -83,7 +83,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:elevation="8dp"
-        android:text="User Name"
+        android:text="@string/text_user_name"
         android:textAppearance="@android:style/TextAppearance.Material.Large.Inverse"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -79,7 +79,7 @@
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
                    android:layout_marginTop="8dp"
-                   android:text="Add"
+                   android:text="@string/text_button_add"
                    android:textColor="#ffffff"
                    app:layout_constraintEnd_toEndOf="parent"
                    app:layout_constraintTop_toBottomOf="@+id/switch_book_read_isbn_search" />
@@ -89,7 +89,7 @@
                android:id="@+id/textView_result_isbnsearch_title"
                android:layout_width="0dp"
                android:layout_height="wrap_content"
-               android:textSize="20dp"
+               android:textSize="20sp"
                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                app:layout_constraintEnd_toStartOf="@+id/constraintLayout"
                app:layout_constraintStart_toStartOf="parent"
@@ -99,7 +99,7 @@
                android:id="@+id/textView_result_isbnsearch_author"
                android:layout_width="0dp"
                android:layout_height="wrap_content"
-               android:textSize="16dp"
+               android:textSize="16sp"
                app:layout_constraintEnd_toStartOf="@+id/constraintLayout"
                app:layout_constraintStart_toStartOf="parent"
                app:layout_constraintTop_toBottomOf="@+id/textView_result_isbnsearch_title" />

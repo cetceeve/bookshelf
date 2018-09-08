@@ -11,7 +11,8 @@
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:contentDescription="@string/content_description_image" />
 
     <ImageView
         android:id="@+id/wish_list_delete_image"
@@ -22,7 +23,8 @@
         android:elevation="8dp"
         android:outlineProvider="bounds"
         android:visibility="invisible"
-        app:srcCompat="@drawable/ic_delete_white_24dp" />
+        app:srcCompat="@drawable/ic_delete_white_24dp"
+        android:contentDescription="@string/content_description_icon_trashcan" />
 
     <ProgressBar
         android:id="@+id/progress_bar_image"
