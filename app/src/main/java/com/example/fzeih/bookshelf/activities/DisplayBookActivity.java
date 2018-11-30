@@ -317,7 +317,7 @@ public class DisplayBookActivity extends AppCompatActivity {
 
     private String createShareMessageText() {
         String message = getString(R.string.text_share_book_base);
-        if (mBook.getSubtitle().length() >= Constants.limit_share_message_subtitle_length) {
+        if (mBook.getSubtitle().length() > Constants.limit_share_message_subtitle_length) {
             message += "Title: " + mBook.getTitle() + "\n";
         } else {
             message += "Title: " + mBook.getTitleWithSubtitle() + "\n";
