@@ -4,6 +4,11 @@
     tools:context="com.example.fzeih.bookshelf.activities.DisplayBookActivity">
 
     <item
+        android:id="@+id/action_share"
+        android:icon="?android:attr/actionModeShareDrawable"
+        android:title="share"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_edit"
         android:icon="@drawable/ic_mode_edit_white_24dp"
         android:title="edit"

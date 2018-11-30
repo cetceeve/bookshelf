@@ -94,6 +94,9 @@ public class DisplayBookActivity extends AppCompatActivity {
             case R.id.action_edit:
                 startEditBookActivity();
                 return true;
+            case R.id.action_share:
+                dispatchShareIntent();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
 
@@ -300,6 +303,20 @@ public class DisplayBookActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).sendBroadcastSync(bookDeletionIntent);
 
         finish();
+    }
+
+    private void dispatchShareIntent() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TEXT, createShareMessageText());
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    private String createShareMessageText() {
+        return "test";
     }
 
     private class ShowProfileListener implements View.OnClickListener {
