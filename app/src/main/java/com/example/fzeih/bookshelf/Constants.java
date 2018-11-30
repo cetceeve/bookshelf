@@ -21,4 +21,6 @@ public class Constants {
     public static final String event_new_achievement = "achievement";
 
     public static final String file_name_image_paths = "image_paths.txt";
+
+    public static final int limit_share_message_subtitle_length = 30;
 }

@@ -316,7 +316,16 @@ public class DisplayBookActivity extends AppCompatActivity {
     }
 
     private String createShareMessageText() {
-        return "test";
+        String message = getString(R.string.text_share_book_base);
+        if (mBook.getSubtitle().length() >= Constants.limit_share_message_subtitle_length) {
+            message += "Title: " + mBook.getTitle() + "\n";
+        } else {
+            message += "Title: " + mBook.getTitleWithSubtitle() + "\n";
+        }
+        message += "Author: " + mBook.getAuthor() + "\n";
+        message += "ISBN: " + mBook.getIsbn() + "\n";
+        message += getString(R.string.text_share_book_end);
+        return message;
     }
 
     private class ShowProfileListener implements View.OnClickListener {

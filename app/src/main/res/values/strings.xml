@@ -76,4 +76,7 @@
     <string name="achievement_250">Time to give your eyes some rest, don\'t you think!</string>
     <string name="achievement_500">Wow! I am not sure if you are legit at this point.</string>
     <string name="achievement_750">I wonder how much time of your life is spent looking at little black symbols on white canvas.</string>
+    <!-- share book -->
+    <string name="text_share_book_base">Hi, I\'m interested in this book:\n\n</string>
+    <string name="text_share_book_end">\nSend by Bookshelf.</string>
 </resources>
